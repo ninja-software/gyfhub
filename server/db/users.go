@@ -155,15 +155,18 @@ var UserWhere = struct {
 var UserRels = struct {
 	Avatar       string
 	IssuedTokens string
+	Connections  string
 }{
 	Avatar:       "Avatar",
 	IssuedTokens: "IssuedTokens",
+	Connections:  "Connections",
 }
 
 // userR is where relationships are stored.
 type userR struct {
 	Avatar       *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
 	IssuedTokens IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
+	Connections  ConnectionSlice  `db:"Connections" boil:"Connections" json:"Connections" toml:"Connections" yaml:"Connections"`
 }
 
 // NewStruct creates a new relationship struct
@@ -455,6 +458,28 @@ func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 	return query
 }
 
+// Connections retrieves all the connection's Connections with an executor.
+func (o *User) Connections(mods ...qm.QueryMod) connectionQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.InnerJoin("\"users_connections\" on \"connections\".\"id\" = \"users_connections\".\"connection_id\""),
+		qm.Where("\"users_connections\".\"user_id\"=?", o.ID),
+	)
+
+	query := Connections(queryMods...)
+	queries.SetFrom(query.Query, "\"connections\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"connections\".*"})
+	}
+
+	return query
+}
+
 // LoadAvatar allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for an N-1 relationship.
 func (userL) LoadAvatar(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
@@ -661,6 +686,121 @@ func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interfac
 	return nil
 }
 
+// LoadConnections allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadConnections(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.Select("\"connections\".id, \"connections\".status, \"connections\".archived, \"connections\".archived_at, \"connections\".updated_at, \"connections\".created_at, \"a\".\"user_id\""),
+		qm.From("\"connections\""),
+		qm.InnerJoin("\"users_connections\" as \"a\" on \"connections\".\"id\" = \"a\".\"connection_id\""),
+		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.Query(e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load connections")
+	}
+
+	var resultSlice []*Connection
+
+	var localJoinCols []string
+	for results.Next() {
+		one := new(Connection)
+		var localJoinCol string
+
+		err = results.Scan(&one.ID, &one.Status, &one.Archived, &one.ArchivedAt, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for connections")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice connections")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on connections")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for connections")
+	}
+
+	if len(connectionAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.Connections = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &connectionR{}
+			}
+			foreign.R.Users = append(foreign.R.Users, object)
+		}
+		return nil
+	}
+
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
+		for _, local := range slice {
+			if local.ID == localJoinCol {
+				local.R.Connections = append(local.R.Connections, foreign)
+				if foreign.R == nil {
+					foreign.R = &connectionR{}
+				}
+				foreign.R.Users = append(foreign.R.Users, local)
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetAvatar of the user to the related item.
 // Sets o.R.Avatar to related.
 // Adds o to related.R.AvatarUsers.
@@ -790,6 +930,143 @@ func (o *User) AddIssuedTokens(exec boil.Executor, insert bool, related ...*Issu
 		}
 	}
 	return nil
+}
+
+// AddConnections adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.Connections.
+// Sets related.R.Users appropriately.
+func (o *User) AddConnections(exec boil.Executor, insert bool, related ...*Connection) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			if err = rel.Insert(exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		}
+	}
+
+	for _, rel := range related {
+		query := "insert into \"users_connections\" (\"user_id\", \"connection_id\") values ($1, $2)"
+		values := []interface{}{o.ID, rel.ID}
+
+		if boil.DebugMode {
+			fmt.Fprintln(boil.DebugWriter, query)
+			fmt.Fprintln(boil.DebugWriter, values)
+		}
+		_, err = exec.Exec(query, values...)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert into join table")
+		}
+	}
+	if o.R == nil {
+		o.R = &userR{
+			Connections: related,
+		}
+	} else {
+		o.R.Connections = append(o.R.Connections, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &connectionR{
+				Users: UserSlice{o},
+			}
+		} else {
+			rel.R.Users = append(rel.R.Users, o)
+		}
+	}
+	return nil
+}
+
+// SetConnections removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.Users's Connections accordingly.
+// Replaces o.R.Connections with related.
+// Sets related.R.Users's Connections accordingly.
+func (o *User) SetConnections(exec boil.Executor, insert bool, related ...*Connection) error {
+	query := "delete from \"users_connections\" where \"user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err := exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeConnectionsFromUsersSlice(o, related)
+	if o.R != nil {
+		o.R.Connections = nil
+	}
+	return o.AddConnections(exec, insert, related...)
+}
+
+// RemoveConnections relationships from objects passed in.
+// Removes related items from R.Connections (uses pointer comparison, removal does not keep order)
+// Sets related.R.Users.
+func (o *User) RemoveConnections(exec boil.Executor, related ...*Connection) error {
+	var err error
+	query := fmt.Sprintf(
+		"delete from \"users_connections\" where \"user_id\" = $1 and \"connection_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
+	)
+	values := []interface{}{o.ID}
+	for _, rel := range related {
+		values = append(values, rel.ID)
+	}
+
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err = exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+	removeConnectionsFromUsersSlice(o, related)
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.Connections {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.Connections)
+			if ln > 1 && i < ln-1 {
+				o.R.Connections[i] = o.R.Connections[ln-1]
+			}
+			o.R.Connections = o.R.Connections[:ln-1]
+			break
+		}
+	}
+
+	return nil
+}
+
+func removeConnectionsFromUsersSlice(o *User, related []*Connection) {
+	for _, rel := range related {
+		if rel.R == nil {
+			continue
+		}
+		for i, ri := range rel.R.Users {
+			if o.ID != ri.ID {
+				continue
+			}
+
+			ln := len(rel.R.Users)
+			if ln > 1 && i < ln-1 {
+				rel.R.Users[i] = rel.R.Users[ln-1]
+			}
+			rel.R.Users = rel.R.Users[:ln-1]
+			break
+		}
+	}
 }
 
 // Users retrieves all the records using an executor.

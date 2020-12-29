@@ -47,6 +47,7 @@ func NewAPIController(
 	r.Mount("/api/auth", AuthRouter(conn, auther, jwtSecret, mailer, mailHost, bp))
 	r.Mount("/api/files", FileRouter(conn, jwtSecret, auther))
 	r.Mount("/api/users", UserRouter(conn, jwtSecret, auther, blobURL))
+	r.Mount("/api/friends", FriendRouter(conn, jwtSecret, auther, blobURL))
 	// FileServer(r, "/", webRoot)
 	return r
 }

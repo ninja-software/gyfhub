@@ -23,6 +23,7 @@ require (
 	github.com/tchap/zapext v1.0.0
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/volatiletech/null/v8 v8.1.0
+	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	github.com/volatiletech/sqlboiler/v4 v4.3.1
 	github.com/volatiletech/strmangle v0.0.1
 	go.uber.org/zap v1.10.0

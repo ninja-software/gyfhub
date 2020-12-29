@@ -42,6 +42,22 @@ CREATE TABLE users (
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
 
+-- tracking connections for friend system
+CREATE TABLE connections(
+   id uuid  NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+   status TEXT NOT NULL CHECK (status in ('REQUEST', 'CONNECTED', 'BLOCKED')),
+   archived BOOLEAN NOT NULL DEFAULT FALSE,
+   archived_at TIMESTAMPTZ,
+   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE users_connections(
+   user_id uuid NOT NULL REFERENCES users (id),
+   connection_id uuid NOT NULL REFERENCES connections (id),
+   PRIMARY KEY (user_id, connection_id)
+);
+
 -- for users text search
 CREATE INDEX idx_fts_user_vec ON users USING gin (keywords);
 
