@@ -9,6 +9,8 @@ import { makeStyles } from "@material-ui/core"
 import { OpportunitiesRoot } from "./opportunities/root"
 import { PrivateRoute, PublicRoute } from "../components/security"
 import FourZeroFour from "./404"
+import { Chat } from "./chat/chat"
+
 import { UserType } from "../types/enum"
 
 const useStyle = makeStyles((theme) => ({
@@ -37,7 +39,10 @@ const PortalInner = () => {
 				<Switch>
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
 					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
+					<PrivateRoute path="/chat" component={Chat} />
+
 					<PrivateRoute exact path="/" component={Dashboard} />
+
 					<PublicRoute path={"/"} component={FourZeroFour} />
 				</Switch>
 			</div>
