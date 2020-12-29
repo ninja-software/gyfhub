@@ -6,7 +6,6 @@ import { useHistory } from "react-router-dom"
 import { AuthContainer } from "../controllers/auth"
 import { titleCapitalization } from "../helpers/helper"
 import { UserAvatar } from "./common/avatar"
-import { Logo } from "./logo"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

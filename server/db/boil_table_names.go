@@ -4,21 +4,15 @@
 package db
 
 var TableNames = struct {
-	Blobs              string
-	Businesses         string
-	Cities             string
-	IssuedTokens       string
-	Opportunities      string
-	SchemaMigrations   string
-	Users              string
-	UsersOpportunities string
+	Blobs            string
+	Cities           string
+	IssuedTokens     string
+	SchemaMigrations string
+	Users            string
 }{
-	Blobs:              "blobs",
-	Businesses:         "businesses",
-	Cities:             "cities",
-	IssuedTokens:       "issued_tokens",
-	Opportunities:      "opportunities",
-	SchemaMigrations:   "schema_migrations",
-	Users:              "users",
-	UsersOpportunities: "users_opportunities",
+	Blobs:            "blobs",
+	Cities:           "cities",
+	IssuedTokens:     "issued_tokens",
+	SchemaMigrations: "schema_migrations",
+	Users:            "users",
 }

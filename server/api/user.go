@@ -2,10 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	gyfhub "gyfhub/server"
 	"gyfhub/server/db"
 	"gyfhub/server/helpers"
-	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -14,7 +14,6 @@ import (
 	"github.com/ninja-software/terror"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // UserController holds connection data for handlers
@@ -46,14 +45,13 @@ func UserRouter(
 // response
 type UserDetail struct {
 	*db.User
-	AvatarURL          string       `json:"avatarURL"`
-	Business           *db.Business `json:"business"`
-	VerifyToken        omit         `json:"verifyToken,omitempty"`
-	VerifyTokenExpires omit         `json:"verifyTokenExpires,omitempty"`
-	ResetToken         omit         `json:"resetToken,omitempty"`
-	ResetTokenExpires  omit         `json:"resetTokenExpires,omitempty"`
-	PasswordHash       omit         `json:"passwordHash,omitempty"`
-	Keywords           omit         `json:"keywords,omitempty"`
+	AvatarURL          string `json:"avatarURL"`
+	VerifyToken        omit   `json:"verifyToken,omitempty"`
+	VerifyTokenExpires omit   `json:"verifyTokenExpires,omitempty"`
+	ResetToken         omit   `json:"resetToken,omitempty"`
+	ResetTokenExpires  omit   `json:"resetTokenExpires,omitempty"`
+	PasswordHash       omit   `json:"passwordHash,omitempty"`
+	Keywords           omit   `json:"keywords,omitempty"`
 }
 
 // NewUser return user details
@@ -64,10 +62,6 @@ func NewUser(u *db.User, blobBaseURL string) *UserDetail {
 	if u.AvatarID.Valid {
 		user.AvatarURL = blobBaseURL + u.AvatarID.String
 	}
-	if u.R.OwnerBusinesses != nil && len(u.R.OwnerBusinesses) > 0 {
-		user.Business = u.R.OwnerBusinesses[0]
-	}
-
 	return user
 }
 
@@ -87,14 +81,12 @@ func (e UserType) IsValid() bool {
 }
 
 type UserInput struct {
-	ID                       uuid.UUID `json:"id"`
-	AvatarID                 *string   `json:"avatarID"`
-	FirstName                string    `json:"firstName"`
-	LastName                 string    `json:"lastName"`
-	Email                    string    `json:"email"`
-	City                     *string   `json:"city"`
-	AustralianBusinessNumber *string   `json:"australianBusinessNumber"`
-	BusinesName              *string   `json:"businessName"`
+	ID        uuid.UUID `json:"id"`
+	AvatarID  *string   `json:"avatarID"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
+	Email     string    `json:"email"`
+	City      *string   `json:"city"`
 }
 
 // UserMe return current data
@@ -111,9 +103,6 @@ func (c *UserController) prepareUserDetail(id string) (*UserDetail, error) {
 	// load user with its reference detail
 	u, err := db.Users(
 		db.UserWhere.ID.EQ(id),
-		qm.Load(
-			db.UserRels.OwnerBusinesses,
-		),
 	).One(c.Conn)
 	if err != nil {
 		return nil, terror.New(err, "fetch user from db")
@@ -157,37 +146,12 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request, u *d
 	u.LastName = input.LastName
 	u.Email = input.Email
 	u.City = null.StringFromPtr(input.City)
-	u.AustralianBusinessNumber = null.StringFromPtr(input.AustralianBusinessNumber)
 	if !helpers.IsEmptyStringPtr(input.AvatarID) {
 		u.AvatarID = null.StringFromPtr(input.AvatarID)
 	}
 	_, err = u.Update(tx, boil.Infer())
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "update user")
-	}
-
-	// update business
-	// check whether it is a business account
-	if u.Type == string(Business) {
-		// business account should always has a business name
-		if helpers.IsEmptyStringPtr(input.BusinesName) {
-			return http.StatusBadRequest, terror.New(fmt.Errorf("invalid input"), "update user")
-		}
-
-		// query business
-		b, err := db.Businesses(
-			db.BusinessWhere.OwnerID.EQ(u.ID),
-		).One(tx)
-		if err != nil {
-			return http.StatusInternalServerError, terror.New(err, "update user")
-		}
-
-		// update business
-		b.Name = *input.BusinesName
-		_, err = b.Update(tx, boil.Infer())
-		if err != nil {
-			return http.StatusInternalServerError, terror.New(err, "update user")
-		}
 	}
 
 	err = tx.Commit()

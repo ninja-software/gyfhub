@@ -3,7 +3,6 @@ package seed
 import (
 	"encoding/json"
 	"fmt"
-	"gyfhub/server/api"
 	"gyfhub/server/db"
 	"io/ioutil"
 	"net/http"
@@ -11,9 +10,7 @@ import (
 	"github.com/h2non/filetype"
 	"github.com/jmoiron/sqlx"
 	"github.com/ninja-software/terror"
-	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
-	"syreclabs.com/go/faker"
 )
 
 func Run(conn *sqlx.DB) error {
@@ -27,11 +24,6 @@ func Run(conn *sqlx.DB) error {
 	err = Users(conn)
 	if err != nil {
 		return terror.New(err, "seeding users failed")
-	}
-	fmt.Println("Seeding businesses")
-	err = Businesses(conn)
-	if err != nil {
-		return terror.New(err, "seeding cities failed")
 	}
 	fmt.Println("Seed complete")
 	return nil
@@ -153,8 +145,6 @@ func Users(conn *sqlx.DB) error {
 	// insert admin user
 	u1 := UserFactory()
 	u1.Email = "admin@example.com"
-	u1.Type = string(api.Business)
-	u1.AustralianBusinessNumber = null.StringFrom("12345678900")
 	err := u1.Insert(conn, boil.Infer())
 	if err != nil {
 		return terror.New(err, "failed to insert admin user")
@@ -272,39 +262,4 @@ func RandomAvatarBlob() (*db.Blob, error) {
 	}
 
 	return blob, nil
-}
-
-func Businesses(conn *sqlx.DB) error {
-	us, err := db.Users().All(conn)
-	if err != nil {
-		return terror.New(err, "insert business")
-	}
-
-	for i, u := range us {
-		// admin user
-		if i == 0 {
-			b := &db.Business{
-				Name:    "Ninja-Software",
-				OwnerID: u.ID,
-			}
-			err = b.Insert(conn, boil.Infer())
-			if err != nil {
-				return terror.New(err, "insert business")
-			}
-			continue
-		}
-
-		// if user is a business account
-		if u.Type == string(api.Business) {
-			b := &db.Business{
-				Name:    faker.Company().Name(),
-				OwnerID: u.ID,
-			}
-			err := b.Insert(conn, boil.Infer())
-			if err != nil {
-				return terror.New(err, "insert business")
-			}
-		}
-	}
-	return nil
 }

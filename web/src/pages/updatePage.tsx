@@ -73,7 +73,6 @@ export const UpdatePage = () => {
 		businessName: "",
 		email: "",
 		city: "",
-		australianBusinessNumber: "",
 	})
 
 	useEffect(() => {
@@ -84,7 +83,6 @@ export const UpdatePage = () => {
 			businessName: currentUser.business?.name || "",
 			email: currentUser.email,
 			city: currentUser.city,
-			australianBusinessNumber: currentUser.australianBusinessNumber || "",
 		})
 	}, [currentUser, loading])
 
@@ -98,9 +96,6 @@ export const UpdatePage = () => {
 
 		// general validation
 		if (!inputs.firstName || !inputs.lastName || !inputs.email || !inputs.city) return
-
-		// validation for business account
-		if (currentUser.type === UserType.Business && (!inputs.businessName || !ValidateABN.test(inputs.australianBusinessNumber))) return
 
 		let avatarID: string | undefined = undefined
 		// upload avatar if provided
@@ -242,27 +237,6 @@ export const UpdatePage = () => {
 										))}
 									</TextField>
 								</Grid>
-								{currentUser.type === UserType.Business && (
-									<Grid item xs={12}>
-										<TextField
-											fullWidth
-											label={<Typography variant="subtitle1">Australia Business Number</Typography>}
-											type="text"
-											variant="filled"
-											name={"australianBusinessNumber"}
-											onChange={handleInputChange}
-											value={inputs.australianBusinessNumber}
-											helperText={
-												check &&
-												!ValidateABN.test(inputs.australianBusinessNumber) && (
-													<Typography color="error" variant="caption">
-														Incorrect ABN format
-													</Typography>
-												)
-											}
-										/>
-									</Grid>
-								)}
 								<Grid item xs={12}>
 									<ExpButton
 										type="submit"

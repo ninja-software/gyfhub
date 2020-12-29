@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"encoding/json"
-	gyfhub "gyfhub/server"
 	"fmt"
+	gyfhub "gyfhub/server"
 	"net/http"
 	"os"
 	"path"
@@ -46,7 +46,6 @@ func NewAPIController(
 	})
 	r.Mount("/api/auth", AuthRouter(conn, auther, jwtSecret, mailer, mailHost, bp))
 	r.Mount("/api/files", FileRouter(conn, jwtSecret, auther))
-	r.Mount("/api/opportunities", OpportunityRouter(conn, auther, jwtSecret, blobURL))
 	r.Mount("/api/users", UserRouter(conn, jwtSecret, auther, blobURL))
 	// FileServer(r, "/", webRoot)
 	return r

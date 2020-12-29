@@ -30,14 +30,18 @@ export const ExpInput = (props: ExpInputProps) => {
 			render={({ value, onChange, name }) => (
 				<BasicTextField
 					{...rest}
-					label={<Typography variant="subtitle1">{label}</Typography>}
+					label={
+						<Typography color="textPrimary" variant="subtitle1">
+							{label}
+						</Typography>
+					}
 					name={name}
 					error={!!errors[name]}
 					variant={variant || "filled"}
 					fullWidth
 					id={name}
 					value={value}
-					onChange={e => onChange(e)}
+					onChange={(e) => onChange(e)}
 					helperText={
 						errors[name] && (
 							<Typography color="error" variant="caption">
