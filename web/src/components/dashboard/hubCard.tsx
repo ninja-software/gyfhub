@@ -21,11 +21,13 @@ export const HubCard = (props: Props) => {
 	const classes = useStyle()
 
 	const history = useHistory()
+	const [hubs, setHubs] = React.useState<Hub[]>([])
 
 	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
-
-	if (!loading && error) return <div>An error occurred</div>
-	if (!data) return <div>An error occurred</div>
+	React.useEffect(() => {
+		if (loading || error || !data) return
+		setHubs(data)
+	}, [data])
 
 	return (
 		<ExpCard>
@@ -44,12 +46,10 @@ export const HubCard = (props: Props) => {
 				<Box m={5} />
 
 				<div>list here</div>
-				{data?.map((d) => {
+				{hubs.map((d) => {
 					return (
-						<div style={{ marginTop: "10px" }}>
-							<ExpButton onClick={() => history.push("/hubs/" + d.id)} key={d.id}>
-								hub name: {d.name}
-							</ExpButton>
+						<div style={{ marginTop: "10px" }} key={d.id}>
+							<ExpButton onClick={() => history.push("/hubs/chat?id=" + d.id)}>hub name: {d.name}</ExpButton>
 						</div>
 					)
 				})}
