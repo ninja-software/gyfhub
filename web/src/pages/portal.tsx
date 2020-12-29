@@ -13,12 +13,11 @@ import { Chat } from "./chat/chat"
 
 import { UserType } from "../types/enum"
 
-const useStyle = makeStyles((theme) => ({
+const useStyle = makeStyles(() => ({
 	outer: {
-		height: "85%",
+		height: "100%",
 		width: "100%",
 		display: "flex",
-		maxHeight: "85%",
 		overflowY: "auto",
 		overflowX: "hidden",
 		justifyContent: "center",
@@ -26,7 +25,7 @@ const useStyle = makeStyles((theme) => ({
 	},
 	inner: {
 		height: "100%",
-		width: "80%",
+		width: "100%%",
 	},
 }))
 
