@@ -1,5 +1,5 @@
 import { Action } from "react-fetching-library"
-import { User } from "../types/types"
+import { User, Hub } from "../types/types"
 
 // authentication
 const forgetPassword = (values: { email: string }): Action<boolean> => {
@@ -77,6 +77,19 @@ const updateUser = (values: {}): Action<User> => {
 	}
 }
 
+// Hub
+const createHub = (values: {}): Action<Hub> => {
+	return {
+		method: "POST",
+		endpoint: `/hubs/create`,
+		credentials: "include",
+		body: {
+			...values,
+		},
+		responseType: "json",
+	}
+}
+
 export const mutations = {
 	forgetPassword,
 	uploadFile,
@@ -84,4 +97,5 @@ export const mutations = {
 	createOpportunities,
 	favouriteOpportunities,
 	unfavouriteOpportunities,
+	createHub,
 }

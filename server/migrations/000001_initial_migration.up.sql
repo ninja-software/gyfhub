@@ -85,6 +85,7 @@ CREATE TABLE hubs (
    id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
    name text UNIQUE NOT NULL,
    avatar_id uuid REFERENCES blobs (id),
+   is_private boolean NOT NULL DEFAULT FALSE,
    deleted_at timestamptz,
    updated_at timestamptz NOT NULL DEFAULT NOW(),
    created_at timestamptz NOT NULL DEFAULT NOW()

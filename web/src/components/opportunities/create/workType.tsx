@@ -22,9 +22,10 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-const CustomizedCheckbox = withStyles({
+export const CustomizedCheckbox = withStyles({
 	root: {
 		color: PrimaryBlue,
+		marginLeft: "13px",
 	},
 })(Checkbox)
 
