@@ -7,7 +7,7 @@ import { ReactComponent as BL } from "../../assets/imgs/bg/bottomLeft.svg"
 import { ReactComponent as BR } from "../../assets/imgs/bg/bottomRight.svg"
 import { PrimaryPink, PrimaryBlue, SecondaryBlue, SecondaryPink } from "../../theme/colour"
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
 	// auth background
 	paper: {
 		marginTop: theme.spacing(8),
@@ -54,6 +54,9 @@ const useStyles = makeStyles(theme => ({
 		bottom: "-139px",
 		right: "-159px",
 	},
+	heading: {
+		paddingBottom: "20px",
+	},
 }))
 
 interface AuthBackgroundProps extends ContainerProps {
@@ -67,7 +70,10 @@ export const AuthBackground = (props: AuthBackgroundProps) => {
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
 			<div className={classes.paper}>
-				<Logo width="450px" />
+				<Logo width="200px" />
+				<Typography component="h1" variant="h1" className={classes.heading}>
+					Gyfhub
+				</Typography>
 				<Typography component="h1" variant="h5">
 					{label}
 				</Typography>
