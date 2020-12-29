@@ -53,7 +53,7 @@ export const LoginPage = () => {
 				/>
 				<Grid container>
 					<Grid item xs>
-						<Link href="/forget_password" variant="body2">
+						<Link href="/forget_password" variant="h4">
 							Forgot password?
 						</Link>
 					</Grid>
@@ -65,7 +65,7 @@ export const LoginPage = () => {
 				</div>
 				<Grid container>
 					<Grid item>
-						<Link href="/sign_up" variant="body2">
+						<Link href="/sign_up" variant="h4">
 							{"Don't have an account? Sign Up"}
 						</Link>
 					</Grid>

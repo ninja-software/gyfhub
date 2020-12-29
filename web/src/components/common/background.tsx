@@ -1,10 +1,8 @@
-import * as React from "react"
 import { Box, Container, ContainerProps, CssBaseline, makeStyles, Typography } from "@material-ui/core"
+import * as React from "react"
 import { ReactComponent as TL } from "../../assets/imgs/bg/topLeft.svg"
 import { ReactComponent as TR } from "../../assets/imgs/bg/topRight.svg"
-import { ReactComponent as BL } from "../../assets/imgs/bg/bottomLeft.svg"
-import { ReactComponent as BR } from "../../assets/imgs/bg/bottomRight.svg"
-import { PrimaryPink, PrimaryBlue, SecondaryBlue, SecondaryPink } from "../../theme/colour"
+import { PrimaryBlue, PrimaryPink, SecondaryBlue, SecondaryPink } from "../../theme/colour"
 
 const useStyles = makeStyles((theme) => ({
 	// auth background
@@ -55,6 +53,14 @@ const useStyles = makeStyles((theme) => ({
 	},
 	heading: {
 		paddingBottom: "20px",
+		fontSize: "120px",
+	},
+	containerStyles: {
+		display: "flex",
+		flexDirection: "column",
+		justifyContent: "center",
+		alignItems: "center",
+		height: "80%",
 	},
 }))
 
@@ -66,19 +72,19 @@ export const AuthBackground = (props: AuthBackgroundProps) => {
 	const { label, children } = props
 	const classes = useStyles()
 	return (
-		<Container component="main" maxWidth="xs">
+		<Container component="main" maxWidth="sm" className={classes.containerStyles}>
 			<CssBaseline />
 			<div className={classes.paper}>
 				<Typography component="h1" variant="h1" className={classes.heading}>
 					Gyfhub
 				</Typography>
-				<Typography component="h1" variant="h5">
+				<Typography component="h1" variant="h1">
 					{label}
 				</Typography>
 			</div>
 			{children}
 			<Box mt={8}>
-				<Typography variant="body2" color="textSecondary" align="center">
+				<Typography variant="h4" color="textSecondary" align="center">
 					Ninja Software 2020
 				</Typography>
 			</Box>
