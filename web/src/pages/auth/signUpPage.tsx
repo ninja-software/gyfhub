@@ -85,6 +85,7 @@ export const SignUpForm = () => {
 							rules={{ required: "Password name is required" }}
 							variant="outlined"
 							type="password"
+							style={{ paddingBottom: "10px" }}
 						/>
 					</Grid>
 				</Grid>
