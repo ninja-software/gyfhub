@@ -36,7 +36,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
 			className={shadowed ? classes.shadowed : undefined}
 			style={{ width: `${size}px`, height: `${size}px` }}
 		>
-			{firstName[0].toUpperCase()}
+			{firstName[0] ? firstName[0].toUpperCase() : ""}
 		</Avatar>
 	)
 }

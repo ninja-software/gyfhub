@@ -45,9 +45,19 @@ const getOpportunity = (id: string): Action<Opportunity> => {
 	}
 }
 
+const allHubs = (): Action<Opportunity> => {
+	return {
+		method: "POST",
+		endpoint: `/hubs/all`,
+		credentials: "include",
+		responseType: "json",
+	}
+}
+
 export const queries = {
 	getMe,
 	opportunitiesMany,
 	opportunitiesSelf,
 	getOpportunity,
+	allHubs,
 }

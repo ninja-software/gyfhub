@@ -9,53 +9,52 @@ interface Props {}
 
 const useStyle = makeStyles((theme) => ({
 	container: {
-		height: "90%",
+		height: "95%",
+		width: "100%",
 	},
 	messagesContainer: {
-		height: "50%",
-		border: "1px solid black",
+		height: "60%",
 		overflowY: "auto",
 		paddingTop: "20px",
 		paddingLeft: "20px",
 	},
 	keyboardContainer: {
 		marginTop: "15px",
-		height: "30%",
-		border: "1px solid black",
-		overflowY: "auto",
+		height: "40%",
+		borderTop: "3px solid grey",
+		width: "100%",
 	},
 	gifsGrid: {
 		display: "flex",
 		flexWrap: "wrap",
 		justifyContent: "center",
+		height: "70%",
+		overflowY: "auto",
+		marginTop: "20px",
 	},
 	gifImageContainer: {
 		margin: "10px 20px",
 	},
-
 	gifImage: {
 		width: "170px",
 	},
-
 	messageContainer: {
 		display: "flex",
 		alignItems: "flex-start",
 		marginTop: "20px",
 		marginBottom: "20px",
 	},
-
 	messageImage: {
-		width: "60%",
+		width: "30%",
 	},
-
 	avatarContainer: {
 		margin: "20px",
 	},
-
 	searchBar: {
 		display: "flex",
 		flexWrap: "wrap",
 		justifyContent: "center",
+		marginTop: "20px",
 	},
 }))
 
@@ -94,9 +93,9 @@ export const Chat = (props: Props) => {
 	return (
 		<div className={classes.container}>
 			<div className={classes.messagesContainer}>
-				{messages.map((m) => {
+				{messages.map((m, idx) => {
 					return (
-						<div className={classes.messageContainer}>
+						<div key={m + idx} className={classes.messageContainer}>
 							<div className={classes.avatarContainer}>
 								<UserAvatar size={70} {...currentUser} />
 							</div>
@@ -126,9 +125,9 @@ export const Chat = (props: Props) => {
 				</div>
 
 				<div className={classes.gifsGrid}>
-					{searchResults.map((s) => {
+					{searchResults.map((s, idx) => {
 						return (
-							<div className={classes.gifImageContainer} onClick={() => addMessage(s.images.downsized.url)}>
+							<div key={s.images.downsized.url + idx} className={classes.gifImageContainer} onClick={() => addMessage(s.images.downsized.url)}>
 								<img className={classes.gifImage} src={s.images.downsized.url} alt="" />
 							</div>
 						)
