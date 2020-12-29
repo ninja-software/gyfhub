@@ -32,10 +32,18 @@ const useStyles = makeStyles((theme) => ({
 		background: PrimaryBlack,
 		borderRadius: "5px",
 	},
+	tertiary: {
+		background: "transparent",
+		borderRadius: "5px",
+		textDecoration: "underline",
+	},
+	labelStyle: {
+		padding: 10,
+	},
 }))
 
 interface ExpButtonProps extends ButtonProps {
-	styleType?: "bordered" | "nextButton" | "pinkBackground"
+	styleType?: "bordered" | "nextButton" | "pinkBackground" | "tertiary"
 }
 
 export const ExpButton = (props: ExpButtonProps) => {
@@ -51,10 +59,15 @@ export const ExpButton = (props: ExpButtonProps) => {
 			break
 		case "pinkBackground":
 			className = classes.pinkBackground
+			break
+		case "tertiary":
+			className = classes.tertiary
 	}
 	return (
 		<Button {...rest} type={type} className={className}>
-			<Typography variant="button">{children}</Typography>
+			<Typography className={classes.labelStyle} variant="h4">
+				{children}
+			</Typography>
 		</Button>
 	)
 }
