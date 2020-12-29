@@ -9,7 +9,6 @@ export const ChatRoom = (props: RouteComponentProps<{ id: string }>) => {
 	const [messageList, setMessageList] = React.useState<string[]>([])
 	const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(socketUrl)
 	React.useEffect(() => {
-		console.log(lastMessage?.data)
 		if (!lastMessage?.data) return
 		setMessageList((msg) => msg.concat(lastMessage.data))
 	}, [lastMessage])

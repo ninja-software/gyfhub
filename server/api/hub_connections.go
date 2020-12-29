@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 	"github.com/jmoiron/sqlx"
@@ -228,8 +227,6 @@ func (c *WebsocketController) handleServeWs(w http.ResponseWriter, r *http.Reque
 		c.Hubs[h.ID] = newHub()
 		go c.Hubs[h.ID].run()
 	}
-
-	spew.Dump(c.Hubs[h.ID])
 
 	// create websocket connection
 	ws, err := upgrader.Upgrade(w, r, nil)

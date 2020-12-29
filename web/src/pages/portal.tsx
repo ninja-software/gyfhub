@@ -73,7 +73,6 @@ const TestComponent = () => {
 	const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl)
 
 	React.useEffect(() => {
-		console.log(lastMessage?.data)
 		if (!lastMessage?.data) return
 		setMessageList((msg) => msg.concat(lastMessage.data))
 	}, [lastMessage])
