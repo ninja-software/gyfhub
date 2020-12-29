@@ -98,8 +98,6 @@ export const MainBackground = (props: MainBackgroundProps) => {
 		<div className={classes.root}>
 			<TL fill="none" stroke={stroke} className={classes.topLeft} />
 			<TR fill={fill} className={classes.topRight} />
-			<BL fill={fill} className={classes.bottomLeft} />
-			<BR fill="none" stroke={stroke} className={classes.bottomRight} />
 			{children}
 		</div>
 	)
