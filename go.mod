@@ -10,6 +10,7 @@ require (
 	github.com/go-chi/chi v4.0.0+incompatible
 	github.com/go-chi/jwtauth v3.3.0+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/gorilla/websocket v1.4.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/h2non/filetype v1.1.0
 	github.com/jmoiron/sqlx v1.2.0

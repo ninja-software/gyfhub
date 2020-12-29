@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/gorilla/websocket"
 	"github.com/jmoiron/sqlx"
@@ -90,6 +91,8 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		spew.Dump(c.clientID)
+		spew.Dump(message)
 		c.hub.broadcast <- message
 	}
 }
@@ -108,6 +111,7 @@ func (c *Client) writePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
+			// spew.Dump(c.clientID)
 			c.ws.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
 				// The hub closed the channel.
