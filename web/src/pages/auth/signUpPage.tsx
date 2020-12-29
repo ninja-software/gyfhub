@@ -41,6 +41,10 @@ const useStyles = makeStyles((theme) => ({
 		width: "377px",
 		height: "350px",
 	},
+	inputStyle: {
+		paddingBottom: "10px",
+		paddingTop: "10px",
+	},
 }))
 
 export const SignUpPage = () => {
@@ -71,10 +75,26 @@ export const SignUpForm = () => {
 			<form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
 				<Grid container spacing={2}>
 					<Grid item xs={12}>
-						<ExpInput label="First Name" name="firstName" control={control} errors={errors} rules={{ required: "First Name is required" }} variant="outlined" />
+						<ExpInput
+							className={classes.inputStyle}
+							label="First Name"
+							name="firstName"
+							control={control}
+							errors={errors}
+							rules={{ required: "First Name is required" }}
+							variant="outlined"
+						/>
 					</Grid>
 					<Grid item xs={12}>
-						<ExpInput label="Email" name="email" control={control} errors={errors} rules={{ required: "Email is required" }} variant="outlined" />
+						<ExpInput
+							className={classes.inputStyle}
+							label="Email"
+							name="email"
+							control={control}
+							errors={errors}
+							rules={{ required: "Email is required" }}
+							variant="outlined"
+						/>
 					</Grid>
 					<Grid item xs={12}>
 						<ExpInput
@@ -85,7 +105,7 @@ export const SignUpForm = () => {
 							rules={{ required: "Password name is required" }}
 							variant="outlined"
 							type="password"
-							style={{ paddingBottom: "10px" }}
+							className={classes.inputStyle}
 						/>
 					</Grid>
 				</Grid>
@@ -95,6 +115,7 @@ export const SignUpForm = () => {
 				<Grid container justify="flex-end">
 					<Grid item>
 						<Link
+							style={{ paddingTop: "10px" }}
 							variant="body2"
 							onClick={() => {
 								history.push("/")
