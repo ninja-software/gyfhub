@@ -9,6 +9,8 @@ import { Button, makeStyles } from "@material-ui/core"
 import { OpportunitiesRoot } from "./opportunities/root"
 import { PrivateRoute, PublicRoute } from "../components/security"
 import FourZeroFour from "./404"
+import { Chat } from "./chat/chat"
+
 import { UserType } from "../types/enum"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
@@ -39,7 +41,10 @@ const PortalInner = () => {
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
 					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
 					<PrivateRoute exact path="/test" component={TestComponent} />
+					<PrivateRoute path="/chat" component={Chat} />
+
 					<PrivateRoute exact path="/" component={Dashboard} />
+
 					<PublicRoute path={"/"} component={FourZeroFour} />
 				</Switch>
 			</div>

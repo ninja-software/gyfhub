@@ -35,4 +35,3 @@ export const Dashboard = () => {
 		</div>
 	)
 }
-

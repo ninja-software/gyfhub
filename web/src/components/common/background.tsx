@@ -7,7 +7,7 @@ import { ReactComponent as BL } from "../../assets/imgs/bg/bottomLeft.svg"
 import { ReactComponent as BR } from "../../assets/imgs/bg/bottomRight.svg"
 import { PrimaryPink, PrimaryBlue, SecondaryBlue, SecondaryPink } from "../../theme/colour"
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
 	// auth background
 	paper: {
 		marginTop: theme.spacing(8),
@@ -94,8 +94,6 @@ export const MainBackground = (props: MainBackgroundProps) => {
 		<div className={classes.root}>
 			<TL fill="none" stroke={stroke} className={classes.topLeft} />
 			<TR fill={fill} className={classes.topRight} />
-			<BL fill={fill} className={classes.bottomLeft} />
-			<BR fill="none" stroke={stroke} className={classes.bottomRight} />
 			{children}
 		</div>
 	)

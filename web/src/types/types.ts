@@ -57,3 +57,29 @@ export interface Business {
 	australianBusinessNumber: string
 	name: string
 }
+
+// Types for giphy api
+export interface GifImage {
+	url: string
+	height: string
+	width: string
+}
+
+export enum Rating {
+	Y = "y",
+	G = "g",
+	PG = "pg",
+	PG13 = "pg-13",
+	R = "r",
+}
+
+export interface GifObject {
+	id: string
+	slug: string
+	url: string
+	embed_url: string
+	source: string
+	rating: Rating
+	title: string
+	images: { [index: string]: GifImage }
+}

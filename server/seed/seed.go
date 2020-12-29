@@ -2,9 +2,9 @@ package seed
 
 import (
 	"encoding/json"
+	"fmt"
 	"gyfhub/server/api"
 	"gyfhub/server/db"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
