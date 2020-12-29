@@ -5,10 +5,10 @@ no-tests = true
 struct-tag-casing= "camel"
 
 [psql]
-dbname = "gyfhub/server"
+dbname = "gyfhub"
 host   = "localhost"
 port   = 5438
-user   = "gyfhub/server"
+user   = "gyfhub"
 pass   = "dev"
 schema = "public"
 blacklist = ["migrations", "other"]

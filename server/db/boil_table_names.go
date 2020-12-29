@@ -7,7 +7,9 @@ var TableNames = struct {
 	Blobs              string
 	Businesses         string
 	Cities             string
+	Hubs               string
 	IssuedTokens       string
+	Messages           string
 	Opportunities      string
 	SchemaMigrations   string
 	Users              string
@@ -16,7 +18,9 @@ var TableNames = struct {
 	Blobs:              "blobs",
 	Businesses:         "businesses",
 	Cities:             "cities",
+	Hubs:               "hubs",
 	IssuedTokens:       "issued_tokens",
+	Messages:           "messages",
 	Opportunities:      "opportunities",
 	SchemaMigrations:   "schema_migrations",
 	Users:              "users",

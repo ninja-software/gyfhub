@@ -145,3 +145,21 @@ CREATE TABLE issued_tokens (
    blacklisted boolean NOT NULL DEFAULT FALSE
 );
 
+CREATE TABLE hubs (
+   id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+   owner_id uuid NOT NULL REFERENCES users (id),
+   name text NOT NULL,
+   deleted_at timestamptz,
+   updated_at timestamptz NOT NULL DEFAULT NOW(),
+   created_at timestamptz NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE messages (
+   id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+   poster_id uuid NOT NULL REFERENCES users (id),
+   gif_url text NOT NULL,
+   deleted_at timestamptz,
+   updated_at timestamptz NOT NULL DEFAULT NOW(),
+   created_at timestamptz NOT NULL DEFAULT NOW()
+);
+

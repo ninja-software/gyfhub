@@ -3,8 +3,8 @@ package api
 import (
 	"context"
 	"encoding/json"
-	gyfhub "gyfhub/server"
 	"fmt"
+	gyfhub "gyfhub/server"
 	"net/http"
 	"os"
 	"path"
@@ -33,7 +33,8 @@ func NewAPIController(
 ) http.Handler {
 	// url for querying blob attachment
 	blobURL := "/api/files/"
-
+	hub := newHub()
+	go hub.run()
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -48,7 +49,9 @@ func NewAPIController(
 	r.Mount("/api/files", FileRouter(conn, jwtSecret, auther))
 	r.Mount("/api/opportunities", OpportunityRouter(conn, auther, jwtSecret, blobURL))
 	r.Mount("/api/users", UserRouter(conn, jwtSecret, auther, blobURL))
-	// FileServer(r, "/", webRoot)
+	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		serveWs(hub, w, r)
+	})
 	return r
 }
 

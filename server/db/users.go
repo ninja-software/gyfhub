@@ -137,12 +137,16 @@ var UserWhere = struct {
 var UserRels = struct {
 	Avatar          string
 	OwnerBusinesses string
+	OwnerHubs       string
 	IssuedTokens    string
+	PosterMessages  string
 	Opportunities   string
 }{
 	Avatar:          "Avatar",
 	OwnerBusinesses: "OwnerBusinesses",
+	OwnerHubs:       "OwnerHubs",
 	IssuedTokens:    "IssuedTokens",
+	PosterMessages:  "PosterMessages",
 	Opportunities:   "Opportunities",
 }
 
@@ -150,7 +154,9 @@ var UserRels = struct {
 type userR struct {
 	Avatar          *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
 	OwnerBusinesses BusinessSlice    `db:"OwnerBusinesses" boil:"OwnerBusinesses" json:"OwnerBusinesses" toml:"OwnerBusinesses" yaml:"OwnerBusinesses"`
+	OwnerHubs       HubSlice         `db:"OwnerHubs" boil:"OwnerHubs" json:"OwnerHubs" toml:"OwnerHubs" yaml:"OwnerHubs"`
 	IssuedTokens    IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
+	PosterMessages  MessageSlice     `db:"PosterMessages" boil:"PosterMessages" json:"PosterMessages" toml:"PosterMessages" yaml:"PosterMessages"`
 	Opportunities   OpportunitySlice `db:"Opportunities" boil:"Opportunities" json:"Opportunities" toml:"Opportunities" yaml:"Opportunities"`
 }
 
@@ -443,6 +449,27 @@ func (o *User) OwnerBusinesses(mods ...qm.QueryMod) businessQuery {
 	return query
 }
 
+// OwnerHubs retrieves all the hub's Hubs with an executor via owner_id column.
+func (o *User) OwnerHubs(mods ...qm.QueryMod) hubQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"hubs\".\"owner_id\"=?", o.ID),
+	)
+
+	query := Hubs(queryMods...)
+	queries.SetFrom(query.Query, "\"hubs\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"hubs\".*"})
+	}
+
+	return query
+}
+
 // IssuedTokens retrieves all the issued_token's IssuedTokens with an executor.
 func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 	var queryMods []qm.QueryMod
@@ -459,6 +486,27 @@ func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 
 	if len(queries.GetSelect(query.Query)) == 0 {
 		queries.SetSelect(query.Query, []string{"\"issued_tokens\".*"})
+	}
+
+	return query
+}
+
+// PosterMessages retrieves all the message's Messages with an executor via poster_id column.
+func (o *User) PosterMessages(mods ...qm.QueryMod) messageQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"messages\".\"poster_id\"=?", o.ID),
+	)
+
+	query := Messages(queryMods...)
+	queries.SetFrom(query.Query, "\"messages\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"messages\".*"})
 	}
 
 	return query
@@ -692,6 +740,104 @@ func (userL) LoadOwnerBusinesses(e boil.Executor, singular bool, maybeUser inter
 	return nil
 }
 
+// LoadOwnerHubs allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadOwnerHubs(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`hubs`),
+		qm.WhereIn(`hubs.owner_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.Query(e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load hubs")
+	}
+
+	var resultSlice []*Hub
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice hubs")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on hubs")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for hubs")
+	}
+
+	if len(hubAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.OwnerHubs = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &hubR{}
+			}
+			foreign.R.Owner = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.OwnerID {
+				local.R.OwnerHubs = append(local.R.OwnerHubs, foreign)
+				if foreign.R == nil {
+					foreign.R = &hubR{}
+				}
+				foreign.R.Owner = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // LoadIssuedTokens allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
@@ -782,6 +928,104 @@ func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interfac
 					foreign.R = &issuedTokenR{}
 				}
 				foreign.R.User = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
+// LoadPosterMessages allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadPosterMessages(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`messages`),
+		qm.WhereIn(`messages.poster_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.Query(e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load messages")
+	}
+
+	var resultSlice []*Message
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice messages")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on messages")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for messages")
+	}
+
+	if len(messageAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.PosterMessages = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &messageR{}
+			}
+			foreign.R.Poster = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.PosterID {
+				local.R.PosterMessages = append(local.R.PosterMessages, foreign)
+				if foreign.R == nil {
+					foreign.R = &messageR{}
+				}
+				foreign.R.Poster = local
 				break
 			}
 		}
@@ -1036,6 +1280,58 @@ func (o *User) AddOwnerBusinesses(exec boil.Executor, insert bool, related ...*B
 	return nil
 }
 
+// AddOwnerHubs adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.OwnerHubs.
+// Sets related.R.Owner appropriately.
+func (o *User) AddOwnerHubs(exec boil.Executor, insert bool, related ...*Hub) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.OwnerID = o.ID
+			if err = rel.Insert(exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"hubs\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"owner_id"}),
+				strmangle.WhereClause("\"", "\"", 2, hubPrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.DebugMode {
+				fmt.Fprintln(boil.DebugWriter, updateQuery)
+				fmt.Fprintln(boil.DebugWriter, values)
+			}
+			if _, err = exec.Exec(updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.OwnerID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			OwnerHubs: related,
+		}
+	} else {
+		o.R.OwnerHubs = append(o.R.OwnerHubs, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &hubR{
+				Owner: o,
+			}
+		} else {
+			rel.R.Owner = o
+		}
+	}
+	return nil
+}
+
 // AddIssuedTokens adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.IssuedTokens.
@@ -1083,6 +1379,58 @@ func (o *User) AddIssuedTokens(exec boil.Executor, insert bool, related ...*Issu
 			}
 		} else {
 			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddPosterMessages adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.PosterMessages.
+// Sets related.R.Poster appropriately.
+func (o *User) AddPosterMessages(exec boil.Executor, insert bool, related ...*Message) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.PosterID = o.ID
+			if err = rel.Insert(exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"messages\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"poster_id"}),
+				strmangle.WhereClause("\"", "\"", 2, messagePrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.DebugMode {
+				fmt.Fprintln(boil.DebugWriter, updateQuery)
+				fmt.Fprintln(boil.DebugWriter, values)
+			}
+			if _, err = exec.Exec(updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.PosterID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			PosterMessages: related,
+		}
+	} else {
+		o.R.PosterMessages = append(o.R.PosterMessages, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &messageR{
+				Poster: o,
+			}
+		} else {
+			rel.R.Poster = o
 		}
 	}
 	return nil
