@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom"
 import { ExpButton } from "../common/button"
 import { useQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
-import { Hub } from "../../types/types"
+import { Friend, Hub } from "../../types/types"
 
 const useStyle = makeStyles((theme) => ({
 	hubList: {
@@ -16,7 +16,7 @@ const useStyle = makeStyles((theme) => ({
 		display: "flex",
 		justifyContent: "space-between",
 	},
-	hubBtn: {
+	cardBtn: {
 		height: "100px",
 		width: "100px",
 		marginTop: "10px",
@@ -33,17 +33,18 @@ const useStyle = makeStyles((theme) => ({
 	},
 }))
 
-export const HubCard = () => {
+export const FriendsCard = () => {
 	const classes = useStyle()
 	const history = useHistory()
 
-	const [hubs, setHubs] = React.useState<Hub[]>([])
+	const [friends, setFriends] = React.useState<Friend[]>([])
 
-	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
+	// todo query friends
+	const { payload: data, loading, error } = useQuery<Friend[]>(fetching.queries.allHubs())
 
 	React.useEffect(() => {
 		if (loading || error || !data) return
-		setHubs(data)
+		setFriends([]) // todo finish
 	}, [data])
 
 	if (!loading && error) return <div>An error occurred</div>
@@ -53,39 +54,45 @@ export const HubCard = () => {
 			<div className={classes.top}>
 				<div>
 					<Typography variant="h2">
-						<Box fontWeight="bold">Hubs</Box>
+						<Box fontWeight="bold">Friends</Box>
 					</Typography>
 				</div>
 
 				<div>
-					<ExpButton onClick={() => history.push("/hubs/create")}>Create Hub</ExpButton>
+					{/* // todo implement add friend(s) */}
+					<ExpButton onClick={() => history.push("/hubs/create")}>Add Friend</ExpButton>
 				</div>
 			</div>
 
 			<div className={classes.hubList}>
 				{/* // todo make this look pretty */}
-				{hubs.map((d, idx) => {
-					// render the first 3
-					if (idx >= 3) {
-						return <></>
-					}
-					return (
-						<div
-							className={classes.hubBtn}
-							onClick={() => {
-								// todo refactor this
-								history.push("/chat")
-							}}
-						>
-							{/* todo change to render avatar instead of initials */}
-							<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
-						</div>
-					)
-				})}
+				{friends.length > 0 ? (
+					friends.map((d, idx) => {
+						// render the first 3
+						if (idx >= 3) {
+							return <></>
+						}
+						return (
+							<div
+								className={classes.cardBtn}
+								onClick={() => {
+									// todo refactor this
+								}}
+							>
+								{/* todo change to render avatar instead of initials */}
+								<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
+							</div>
+						)
+					})
+				) : (
+					<Typography variant="h4">you have no friends lol</Typography>
+				)}
 
-				<div className={classes.viewAllBtn}>
-					<ExpButton styleType={"tertiary"}>View all hubs</ExpButton>
-				</div>
+				{friends.length > 2 && (
+					<div className={classes.viewAllBtn}>
+						<ExpButton styleType={"tertiary"}>View all friends</ExpButton>
+					</div>
+				)}
 			</div>
 		</ExpCard>
 	)
