@@ -1,6 +1,6 @@
 import * as React from "react"
 import { makeStyles } from "@material-ui/core/styles"
-import experlioLogo from "../../assets/imgs/experlio.png"
+import experlioLogo from "../../assets/imgs/gyfhubSolo.png"
 
 const useStyles = makeStyles((theme) => ({
 	root: {
