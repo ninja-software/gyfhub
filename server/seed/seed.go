@@ -3,10 +3,6 @@ package seed
 import (
 	"encoding/json"
 	"fmt"
-<<<<<<< HEAD
-=======
-	"gyfhub/server/api"
->>>>>>> master
 	"gyfhub/server/db"
 	"io/ioutil"
 	"net/http"
