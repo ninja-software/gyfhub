@@ -1,0 +1,15 @@
+output = "db"
+pkgname = "db"
+no-context = true
+no-tests = true
+struct-tag-casing= "camel"
+
+[psql]
+dbname = "gyfhub/server"
+host   = "localhost"
+port   = 5438
+user   = "gyfhub/server"
+pass   = "dev"
+schema = "public"
+blacklist = ["migrations", "other"]
+sslmode = "disable"
