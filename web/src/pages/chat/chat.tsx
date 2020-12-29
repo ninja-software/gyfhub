@@ -22,7 +22,7 @@ const useStyle = makeStyles((theme) => ({
 		marginTop: "15px",
 		height: "40%",
 		borderTop: "3px solid grey",
-		width: "100vw",
+		width: "100%",
 	},
 	gifsGrid: {
 		display: "flex",

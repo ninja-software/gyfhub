@@ -25,7 +25,7 @@ const useStyle = makeStyles(() => ({
 	},
 	inner: {
 		height: "100%",
-		width: "100%%",
+		width: "80%",
 	},
 }))
 
