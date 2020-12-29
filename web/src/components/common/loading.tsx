@@ -1,6 +1,5 @@
 import * as React from "react"
 import { makeStyles } from "@material-ui/core/styles"
-import experlioLogo from "../../assets/imgs/gyfhubSolo.png"
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -36,9 +35,5 @@ const useStyles = makeStyles((theme) => ({
 }))
 export const Loading = () => {
 	const classes = useStyles()
-	return (
-		<div className={classes.root}>
-			<img src={experlioLogo} className={classes.logo} alt="experlio logo" />
-		</div>
-	)
+	return <div className={classes.root}>Loading</div>
 }

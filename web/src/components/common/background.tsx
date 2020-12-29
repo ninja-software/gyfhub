@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Box, Container, ContainerProps, CssBaseline, makeStyles, Typography } from "@material-ui/core"
-import { Logo } from "../logo"
 import { ReactComponent as TL } from "../../assets/imgs/bg/topLeft.svg"
 import { ReactComponent as TR } from "../../assets/imgs/bg/topRight.svg"
 import { ReactComponent as BL } from "../../assets/imgs/bg/bottomLeft.svg"
@@ -70,7 +69,6 @@ export const AuthBackground = (props: AuthBackgroundProps) => {
 		<Container component="main" maxWidth="xs">
 			<CssBaseline />
 			<div className={classes.paper}>
-				<Logo width="200px" />
 				<Typography component="h1" variant="h1" className={classes.heading}>
 					Gyfhub
 				</Typography>

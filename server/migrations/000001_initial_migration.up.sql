@@ -23,8 +23,8 @@ CREATE TABLE users (
    email text UNIQUE NOT NULL,
    first_name text NOT NULL,
    last_name text NOT NULL,
-   type text NOT NULL,
    city text,
+   type text NOT NULL,
    -- business account fields
    australian_business_number text,
    -- reference table

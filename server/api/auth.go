@@ -5,11 +5,10 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	gyfhub "gyfhub/server"
 	"gyfhub/server/crypto"
 	"gyfhub/server/db"
-	"gyfhub/server/helpers"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -195,17 +194,6 @@ func (c *AuthController) register(w http.ResponseWriter, r *http.Request) (int, 
 	}
 	defer tx.Rollback()
 
-	var b *db.Business
-	if !helpers.IsEmptyStringPtr(req.BusinessName) {
-		b = &db.Business{
-			Name: *req.BusinessName,
-		}
-		err := b.Insert(tx, boil.Infer())
-		if err != nil {
-			return http.StatusInternalServerError, terror.New(err, "Failed to insert business")
-		}
-	}
-
 	// add user to database
 	user := &db.User{
 		Email:        req.Email,
@@ -214,25 +202,9 @@ func (c *AuthController) register(w http.ResponseWriter, r *http.Request) (int, 
 		Type:         string(Creative),
 	}
 
-	if !helpers.IsEmptyStringPtr(req.BusinessName) {
-		user.Type = string(Business)
-	}
-
 	err = user.Insert(tx, boil.Infer())
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "Failed to register user")
-	}
-
-	// insert business
-	if u.Type == string(Business) {
-		b := &db.Business{
-			Name:    *req.BusinessName,
-			OwnerID: u.ID,
-		}
-		err = b.Insert(tx, boil.Infer())
-		if err != nil {
-			return http.StatusInternalServerError, terror.New(err, "failed to insert business")
-		}
 	}
 
 	// commit to db
