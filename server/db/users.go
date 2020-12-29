@@ -23,135 +23,147 @@ import (
 
 // User is an object representing the database table.
 type User struct {
-	ID                       string      `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
-	Email                    string      `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
-	FirstName                string      `db:"first_name" boil:"first_name" json:"firstName" toml:"firstName" yaml:"firstName"`
-	LastName                 string      `db:"last_name" boil:"last_name" json:"lastName" toml:"lastName" yaml:"lastName"`
-	Type                     string      `db:"type" boil:"type" json:"type" toml:"type" yaml:"type"`
-	City                     null.String `db:"city" boil:"city" json:"city,omitempty" toml:"city" yaml:"city,omitempty"`
-	AustralianBusinessNumber null.String `db:"australian_business_number" boil:"australian_business_number" json:"australianBusinessNumber,omitempty" toml:"australianBusinessNumber" yaml:"australianBusinessNumber,omitempty"`
-	AvatarID                 null.String `db:"avatar_id" boil:"avatar_id" json:"avatarID,omitempty" toml:"avatarID" yaml:"avatarID,omitempty"`
-	Verified                 bool        `db:"verified" boil:"verified" json:"verified" toml:"verified" yaml:"verified"`
-	VerifyToken              string      `db:"verify_token" boil:"verify_token" json:"verifyToken" toml:"verifyToken" yaml:"verifyToken"`
-	VerifyTokenExpires       time.Time   `db:"verify_token_expires" boil:"verify_token_expires" json:"verifyTokenExpires" toml:"verifyTokenExpires" yaml:"verifyTokenExpires"`
-	RequireOldPassword       bool        `db:"require_old_password" boil:"require_old_password" json:"requireOldPassword" toml:"requireOldPassword" yaml:"requireOldPassword"`
-	ResetToken               string      `db:"reset_token" boil:"reset_token" json:"resetToken" toml:"resetToken" yaml:"resetToken"`
-	ResetTokenExpires        time.Time   `db:"reset_token_expires" boil:"reset_token_expires" json:"resetTokenExpires" toml:"resetTokenExpires" yaml:"resetTokenExpires"`
-	PasswordHash             string      `db:"password_hash" boil:"password_hash" json:"passwordHash" toml:"passwordHash" yaml:"passwordHash"`
-	Keywords                 null.String `db:"keywords" boil:"keywords" json:"keywords,omitempty" toml:"keywords" yaml:"keywords,omitempty"`
-	DeletedAt                null.Time   `db:"deleted_at" boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
-	UpdatedAt                time.Time   `db:"updated_at" boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
-	CreatedAt                time.Time   `db:"created_at" boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
+	ID                 string      `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
+	Email              string      `db:"email" boil:"email" json:"email" toml:"email" yaml:"email"`
+	FirstName          string      `db:"first_name" boil:"first_name" json:"firstName" toml:"firstName" yaml:"firstName"`
+	LastName           string      `db:"last_name" boil:"last_name" json:"lastName" toml:"lastName" yaml:"lastName"`
+	City               null.String `db:"city" boil:"city" json:"city,omitempty" toml:"city" yaml:"city,omitempty"`
+	Type               string      `db:"type" boil:"type" json:"type" toml:"type" yaml:"type"`
+	AvatarID           null.String `db:"avatar_id" boil:"avatar_id" json:"avatarID,omitempty" toml:"avatarID" yaml:"avatarID,omitempty"`
+	Verified           bool        `db:"verified" boil:"verified" json:"verified" toml:"verified" yaml:"verified"`
+	VerifyToken        string      `db:"verify_token" boil:"verify_token" json:"verifyToken" toml:"verifyToken" yaml:"verifyToken"`
+	VerifyTokenExpires time.Time   `db:"verify_token_expires" boil:"verify_token_expires" json:"verifyTokenExpires" toml:"verifyTokenExpires" yaml:"verifyTokenExpires"`
+	RequireOldPassword bool        `db:"require_old_password" boil:"require_old_password" json:"requireOldPassword" toml:"requireOldPassword" yaml:"requireOldPassword"`
+	ResetToken         string      `db:"reset_token" boil:"reset_token" json:"resetToken" toml:"resetToken" yaml:"resetToken"`
+	ResetTokenExpires  time.Time   `db:"reset_token_expires" boil:"reset_token_expires" json:"resetTokenExpires" toml:"resetTokenExpires" yaml:"resetTokenExpires"`
+	PasswordHash       string      `db:"password_hash" boil:"password_hash" json:"passwordHash" toml:"passwordHash" yaml:"passwordHash"`
+	Keywords           null.String `db:"keywords" boil:"keywords" json:"keywords,omitempty" toml:"keywords" yaml:"keywords,omitempty"`
+	DeletedAt          null.Time   `db:"deleted_at" boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
+	UpdatedAt          time.Time   `db:"updated_at" boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
+	CreatedAt          time.Time   `db:"created_at" boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
 
 	R *userR `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
 	L userL  `db:"-" boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var UserColumns = struct {
-	ID                       string
-	Email                    string
-	FirstName                string
-	LastName                 string
-	Type                     string
-	City                     string
-	AustralianBusinessNumber string
-	AvatarID                 string
-	Verified                 string
-	VerifyToken              string
-	VerifyTokenExpires       string
-	RequireOldPassword       string
-	ResetToken               string
-	ResetTokenExpires        string
-	PasswordHash             string
-	Keywords                 string
-	DeletedAt                string
-	UpdatedAt                string
-	CreatedAt                string
+	ID                 string
+	Email              string
+	FirstName          string
+	LastName           string
+	City               string
+	Type               string
+	AvatarID           string
+	Verified           string
+	VerifyToken        string
+	VerifyTokenExpires string
+	RequireOldPassword string
+	ResetToken         string
+	ResetTokenExpires  string
+	PasswordHash       string
+	Keywords           string
+	DeletedAt          string
+	UpdatedAt          string
+	CreatedAt          string
 }{
-	ID:                       "id",
-	Email:                    "email",
-	FirstName:                "first_name",
-	LastName:                 "last_name",
-	Type:                     "type",
-	City:                     "city",
-	AustralianBusinessNumber: "australian_business_number",
-	AvatarID:                 "avatar_id",
-	Verified:                 "verified",
-	VerifyToken:              "verify_token",
-	VerifyTokenExpires:       "verify_token_expires",
-	RequireOldPassword:       "require_old_password",
-	ResetToken:               "reset_token",
-	ResetTokenExpires:        "reset_token_expires",
-	PasswordHash:             "password_hash",
-	Keywords:                 "keywords",
-	DeletedAt:                "deleted_at",
-	UpdatedAt:                "updated_at",
-	CreatedAt:                "created_at",
+	ID:                 "id",
+	Email:              "email",
+	FirstName:          "first_name",
+	LastName:           "last_name",
+	City:               "city",
+	Type:               "type",
+	AvatarID:           "avatar_id",
+	Verified:           "verified",
+	VerifyToken:        "verify_token",
+	VerifyTokenExpires: "verify_token_expires",
+	RequireOldPassword: "require_old_password",
+	ResetToken:         "reset_token",
+	ResetTokenExpires:  "reset_token_expires",
+	PasswordHash:       "password_hash",
+	Keywords:           "keywords",
+	DeletedAt:          "deleted_at",
+	UpdatedAt:          "updated_at",
+	CreatedAt:          "created_at",
 }
 
 // Generated where
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var UserWhere = struct {
-	ID                       whereHelperstring
-	Email                    whereHelperstring
-	FirstName                whereHelperstring
-	LastName                 whereHelperstring
-	Type                     whereHelperstring
-	City                     whereHelpernull_String
-	AustralianBusinessNumber whereHelpernull_String
-	AvatarID                 whereHelpernull_String
-	Verified                 whereHelperbool
-	VerifyToken              whereHelperstring
-	VerifyTokenExpires       whereHelpertime_Time
-	RequireOldPassword       whereHelperbool
-	ResetToken               whereHelperstring
-	ResetTokenExpires        whereHelpertime_Time
-	PasswordHash             whereHelperstring
-	Keywords                 whereHelpernull_String
-	DeletedAt                whereHelpernull_Time
-	UpdatedAt                whereHelpertime_Time
-	CreatedAt                whereHelpertime_Time
+	ID                 whereHelperstring
+	Email              whereHelperstring
+	FirstName          whereHelperstring
+	LastName           whereHelperstring
+	City               whereHelpernull_String
+	Type               whereHelperstring
+	AvatarID           whereHelpernull_String
+	Verified           whereHelperbool
+	VerifyToken        whereHelperstring
+	VerifyTokenExpires whereHelpertime_Time
+	RequireOldPassword whereHelperbool
+	ResetToken         whereHelperstring
+	ResetTokenExpires  whereHelpertime_Time
+	PasswordHash       whereHelperstring
+	Keywords           whereHelpernull_String
+	DeletedAt          whereHelpernull_Time
+	UpdatedAt          whereHelpertime_Time
+	CreatedAt          whereHelpertime_Time
 }{
-	ID:                       whereHelperstring{field: "\"users\".\"id\""},
-	Email:                    whereHelperstring{field: "\"users\".\"email\""},
-	FirstName:                whereHelperstring{field: "\"users\".\"first_name\""},
-	LastName:                 whereHelperstring{field: "\"users\".\"last_name\""},
-	Type:                     whereHelperstring{field: "\"users\".\"type\""},
-	City:                     whereHelpernull_String{field: "\"users\".\"city\""},
-	AustralianBusinessNumber: whereHelpernull_String{field: "\"users\".\"australian_business_number\""},
-	AvatarID:                 whereHelpernull_String{field: "\"users\".\"avatar_id\""},
-	Verified:                 whereHelperbool{field: "\"users\".\"verified\""},
-	VerifyToken:              whereHelperstring{field: "\"users\".\"verify_token\""},
-	VerifyTokenExpires:       whereHelpertime_Time{field: "\"users\".\"verify_token_expires\""},
-	RequireOldPassword:       whereHelperbool{field: "\"users\".\"require_old_password\""},
-	ResetToken:               whereHelperstring{field: "\"users\".\"reset_token\""},
-	ResetTokenExpires:        whereHelpertime_Time{field: "\"users\".\"reset_token_expires\""},
-	PasswordHash:             whereHelperstring{field: "\"users\".\"password_hash\""},
-	Keywords:                 whereHelpernull_String{field: "\"users\".\"keywords\""},
-	DeletedAt:                whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
-	UpdatedAt:                whereHelpertime_Time{field: "\"users\".\"updated_at\""},
-	CreatedAt:                whereHelpertime_Time{field: "\"users\".\"created_at\""},
+	ID:                 whereHelperstring{field: "\"users\".\"id\""},
+	Email:              whereHelperstring{field: "\"users\".\"email\""},
+	FirstName:          whereHelperstring{field: "\"users\".\"first_name\""},
+	LastName:           whereHelperstring{field: "\"users\".\"last_name\""},
+	City:               whereHelpernull_String{field: "\"users\".\"city\""},
+	Type:               whereHelperstring{field: "\"users\".\"type\""},
+	AvatarID:           whereHelpernull_String{field: "\"users\".\"avatar_id\""},
+	Verified:           whereHelperbool{field: "\"users\".\"verified\""},
+	VerifyToken:        whereHelperstring{field: "\"users\".\"verify_token\""},
+	VerifyTokenExpires: whereHelpertime_Time{field: "\"users\".\"verify_token_expires\""},
+	RequireOldPassword: whereHelperbool{field: "\"users\".\"require_old_password\""},
+	ResetToken:         whereHelperstring{field: "\"users\".\"reset_token\""},
+	ResetTokenExpires:  whereHelpertime_Time{field: "\"users\".\"reset_token_expires\""},
+	PasswordHash:       whereHelperstring{field: "\"users\".\"password_hash\""},
+	Keywords:           whereHelpernull_String{field: "\"users\".\"keywords\""},
+	DeletedAt:          whereHelpernull_Time{field: "\"users\".\"deleted_at\""},
+	UpdatedAt:          whereHelpertime_Time{field: "\"users\".\"updated_at\""},
+	CreatedAt:          whereHelpertime_Time{field: "\"users\".\"created_at\""},
 }
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	Avatar          string
-	OwnerBusinesses string
-	IssuedTokens    string
-	Opportunities   string
+	Avatar       string
+	IssuedTokens string
 }{
-	Avatar:          "Avatar",
-	OwnerBusinesses: "OwnerBusinesses",
-	IssuedTokens:    "IssuedTokens",
-	Opportunities:   "Opportunities",
+	Avatar:       "Avatar",
+	IssuedTokens: "IssuedTokens",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	Avatar          *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
-	OwnerBusinesses BusinessSlice    `db:"OwnerBusinesses" boil:"OwnerBusinesses" json:"OwnerBusinesses" toml:"OwnerBusinesses" yaml:"OwnerBusinesses"`
-	IssuedTokens    IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
-	Opportunities   OpportunitySlice `db:"Opportunities" boil:"Opportunities" json:"Opportunities" toml:"Opportunities" yaml:"Opportunities"`
+	Avatar       *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
+	IssuedTokens IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
 }
 
 // NewStruct creates a new relationship struct
@@ -163,8 +175,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "email", "first_name", "last_name", "type", "city", "australian_business_number", "avatar_id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "password_hash", "keywords", "deleted_at", "updated_at", "created_at"}
-	userColumnsWithoutDefault = []string{"email", "first_name", "last_name", "type", "city", "australian_business_number", "avatar_id", "password_hash", "keywords", "deleted_at"}
+	userAllColumns            = []string{"id", "email", "first_name", "last_name", "city", "type", "avatar_id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "password_hash", "keywords", "deleted_at", "updated_at", "created_at"}
+	userColumnsWithoutDefault = []string{"email", "first_name", "last_name", "city", "type", "avatar_id", "password_hash", "keywords", "deleted_at"}
 	userColumnsWithDefault    = []string{"id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "updated_at", "created_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 )
@@ -422,27 +434,6 @@ func (o *User) Avatar(mods ...qm.QueryMod) blobQuery {
 	return query
 }
 
-// OwnerBusinesses retrieves all the business's Businesses with an executor via owner_id column.
-func (o *User) OwnerBusinesses(mods ...qm.QueryMod) businessQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"businesses\".\"owner_id\"=?", o.ID),
-	)
-
-	query := Businesses(queryMods...)
-	queries.SetFrom(query.Query, "\"businesses\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"businesses\".*"})
-	}
-
-	return query
-}
-
 // IssuedTokens retrieves all the issued_token's IssuedTokens with an executor.
 func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 	var queryMods []qm.QueryMod
@@ -459,28 +450,6 @@ func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 
 	if len(queries.GetSelect(query.Query)) == 0 {
 		queries.SetSelect(query.Query, []string{"\"issued_tokens\".*"})
-	}
-
-	return query
-}
-
-// Opportunities retrieves all the opportunity's Opportunities with an executor.
-func (o *User) Opportunities(mods ...qm.QueryMod) opportunityQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.InnerJoin("\"users_opportunities\" on \"opportunities\".\"id\" = \"users_opportunities\".\"opportunity_id\""),
-		qm.Where("\"users_opportunities\".\"user_id\"=?", o.ID),
-	)
-
-	query := Opportunities(queryMods...)
-	queries.SetFrom(query.Query, "\"opportunities\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"opportunities\".*"})
 	}
 
 	return query
@@ -594,104 +563,6 @@ func (userL) LoadAvatar(e boil.Executor, singular bool, maybeUser interface{}, m
 	return nil
 }
 
-// LoadOwnerBusinesses allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadOwnerBusinesses(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`businesses`),
-		qm.WhereIn(`businesses.owner_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.Query(e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load businesses")
-	}
-
-	var resultSlice []*Business
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice businesses")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on businesses")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for businesses")
-	}
-
-	if len(businessAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.OwnerBusinesses = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &businessR{}
-			}
-			foreign.R.Owner = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.OwnerID {
-				local.R.OwnerBusinesses = append(local.R.OwnerBusinesses, foreign)
-				if foreign.R == nil {
-					foreign.R = &businessR{}
-				}
-				foreign.R.Owner = local
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
 // LoadIssuedTokens allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
 func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
@@ -790,121 +661,6 @@ func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interfac
 	return nil
 }
 
-// LoadOpportunities allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadOpportunities(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
-	var slice []*User
-	var object *User
-
-	if singular {
-		object = maybeUser.(*User)
-	} else {
-		slice = *maybeUser.(*[]*User)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &userR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &userR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.Select("\"opportunities\".id, \"opportunities\".business_id, \"opportunities\".video_id, \"opportunities\".category, \"opportunities\".challenge, \"opportunities\".role_after_challenge, \"opportunities\".confirm_your_city, \"opportunities\".open_to_remote_talent, \"opportunities\".keywords, \"opportunities\".deleted_at, \"opportunities\".updated_at, \"opportunities\".created_at, \"a\".\"user_id\""),
-		qm.From("\"opportunities\""),
-		qm.InnerJoin("\"users_opportunities\" as \"a\" on \"opportunities\".\"id\" = \"a\".\"opportunity_id\""),
-		qm.WhereIn("\"a\".\"user_id\" in ?", args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.Query(e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load opportunities")
-	}
-
-	var resultSlice []*Opportunity
-
-	var localJoinCols []string
-	for results.Next() {
-		one := new(Opportunity)
-		var localJoinCol string
-
-		err = results.Scan(&one.ID, &one.BusinessID, &one.VideoID, &one.Category, &one.Challenge, &one.RoleAfterChallenge, &one.ConfirmYourCity, &one.OpenToRemoteTalent, &one.Keywords, &one.DeletedAt, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
-		if err != nil {
-			return errors.Wrap(err, "failed to scan eager loaded results for opportunities")
-		}
-		if err = results.Err(); err != nil {
-			return errors.Wrap(err, "failed to plebian-bind eager loaded slice opportunities")
-		}
-
-		resultSlice = append(resultSlice, one)
-		localJoinCols = append(localJoinCols, localJoinCol)
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on opportunities")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for opportunities")
-	}
-
-	if len(opportunityAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.Opportunities = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &opportunityR{}
-			}
-			foreign.R.Users = append(foreign.R.Users, object)
-		}
-		return nil
-	}
-
-	for i, foreign := range resultSlice {
-		localJoinCol := localJoinCols[i]
-		for _, local := range slice {
-			if local.ID == localJoinCol {
-				local.R.Opportunities = append(local.R.Opportunities, foreign)
-				if foreign.R == nil {
-					foreign.R = &opportunityR{}
-				}
-				foreign.R.Users = append(foreign.R.Users, local)
-				break
-			}
-		}
-	}
-
-	return nil
-}
-
 // SetAvatar of the user to the related item.
 // Sets o.R.Avatar to related.
 // Adds o to related.R.AvatarUsers.
@@ -984,58 +740,6 @@ func (o *User) RemoveAvatar(exec boil.Executor, related *Blob) error {
 	return nil
 }
 
-// AddOwnerBusinesses adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.OwnerBusinesses.
-// Sets related.R.Owner appropriately.
-func (o *User) AddOwnerBusinesses(exec boil.Executor, insert bool, related ...*Business) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.OwnerID = o.ID
-			if err = rel.Insert(exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"businesses\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"owner_id"}),
-				strmangle.WhereClause("\"", "\"", 2, businessPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.DebugMode {
-				fmt.Fprintln(boil.DebugWriter, updateQuery)
-				fmt.Fprintln(boil.DebugWriter, values)
-			}
-			if _, err = exec.Exec(updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.OwnerID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &userR{
-			OwnerBusinesses: related,
-		}
-	} else {
-		o.R.OwnerBusinesses = append(o.R.OwnerBusinesses, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &businessR{
-				Owner: o,
-			}
-		} else {
-			rel.R.Owner = o
-		}
-	}
-	return nil
-}
-
 // AddIssuedTokens adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
 // Appends related to o.R.IssuedTokens.
@@ -1086,143 +790,6 @@ func (o *User) AddIssuedTokens(exec boil.Executor, insert bool, related ...*Issu
 		}
 	}
 	return nil
-}
-
-// AddOpportunities adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.Opportunities.
-// Sets related.R.Users appropriately.
-func (o *User) AddOpportunities(exec boil.Executor, insert bool, related ...*Opportunity) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			if err = rel.Insert(exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		}
-	}
-
-	for _, rel := range related {
-		query := "insert into \"users_opportunities\" (\"user_id\", \"opportunity_id\") values ($1, $2)"
-		values := []interface{}{o.ID, rel.ID}
-
-		if boil.DebugMode {
-			fmt.Fprintln(boil.DebugWriter, query)
-			fmt.Fprintln(boil.DebugWriter, values)
-		}
-		_, err = exec.Exec(query, values...)
-		if err != nil {
-			return errors.Wrap(err, "failed to insert into join table")
-		}
-	}
-	if o.R == nil {
-		o.R = &userR{
-			Opportunities: related,
-		}
-	} else {
-		o.R.Opportunities = append(o.R.Opportunities, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &opportunityR{
-				Users: UserSlice{o},
-			}
-		} else {
-			rel.R.Users = append(rel.R.Users, o)
-		}
-	}
-	return nil
-}
-
-// SetOpportunities removes all previously related items of the
-// user replacing them completely with the passed
-// in related items, optionally inserting them as new records.
-// Sets o.R.Users's Opportunities accordingly.
-// Replaces o.R.Opportunities with related.
-// Sets related.R.Users's Opportunities accordingly.
-func (o *User) SetOpportunities(exec boil.Executor, insert bool, related ...*Opportunity) error {
-	query := "delete from \"users_opportunities\" where \"user_id\" = $1"
-	values := []interface{}{o.ID}
-	if boil.DebugMode {
-		fmt.Fprintln(boil.DebugWriter, query)
-		fmt.Fprintln(boil.DebugWriter, values)
-	}
-	_, err := exec.Exec(query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-
-	removeOpportunitiesFromUsersSlice(o, related)
-	if o.R != nil {
-		o.R.Opportunities = nil
-	}
-	return o.AddOpportunities(exec, insert, related...)
-}
-
-// RemoveOpportunities relationships from objects passed in.
-// Removes related items from R.Opportunities (uses pointer comparison, removal does not keep order)
-// Sets related.R.Users.
-func (o *User) RemoveOpportunities(exec boil.Executor, related ...*Opportunity) error {
-	var err error
-	query := fmt.Sprintf(
-		"delete from \"users_opportunities\" where \"user_id\" = $1 and \"opportunity_id\" in (%s)",
-		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
-	)
-	values := []interface{}{o.ID}
-	for _, rel := range related {
-		values = append(values, rel.ID)
-	}
-
-	if boil.DebugMode {
-		fmt.Fprintln(boil.DebugWriter, query)
-		fmt.Fprintln(boil.DebugWriter, values)
-	}
-	_, err = exec.Exec(query, values...)
-	if err != nil {
-		return errors.Wrap(err, "failed to remove relationships before set")
-	}
-	removeOpportunitiesFromUsersSlice(o, related)
-	if o.R == nil {
-		return nil
-	}
-
-	for _, rel := range related {
-		for i, ri := range o.R.Opportunities {
-			if rel != ri {
-				continue
-			}
-
-			ln := len(o.R.Opportunities)
-			if ln > 1 && i < ln-1 {
-				o.R.Opportunities[i] = o.R.Opportunities[ln-1]
-			}
-			o.R.Opportunities = o.R.Opportunities[:ln-1]
-			break
-		}
-	}
-
-	return nil
-}
-
-func removeOpportunitiesFromUsersSlice(o *User, related []*Opportunity) {
-	for _, rel := range related {
-		if rel.R == nil {
-			continue
-		}
-		for i, ri := range rel.R.Users {
-			if o.ID != ri.ID {
-				continue
-			}
-
-			ln := len(rel.R.Users)
-			if ln > 1 && i < ln-1 {
-				rel.R.Users[i] = rel.R.Users[ln-1]
-			}
-			rel.R.Users = rel.R.Users[:ln-1]
-			break
-		}
-	}
 }
 
 // Users retrieves all the records using an executor.

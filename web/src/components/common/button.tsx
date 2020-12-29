@@ -1,11 +1,12 @@
 import * as React from "react"
 import { Box, BoxProps, makeStyles, Typography, withStyles } from "@material-ui/core"
 import Button, { ButtonProps } from "@material-ui/core/Button/Button"
-import { PrimaryPink, PrimaryBlue } from "../../theme/colour"
+import { PrimaryBlack, PrimaryBlue, SecondaryPurple } from "../../theme/colour"
 
 const useStyles = makeStyles((theme) => ({
 	default: {
-		background: "transparent linear-gradient(101deg, " + PrimaryPink + " 0%, " + PrimaryBlue + " 100%) 0% 0%",
+		// background: "transparent linear-gradient(101deg, " + PrimaryBlack + " 0%, " + SecondaryPurple + " 100%) 0% 0%",
+		background: SecondaryPurple,
 		borderRadius: 3,
 		border: 0,
 		boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
@@ -15,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 		color: "white",
 	},
 	bordered: {
-		border: "2px solid " + PrimaryPink,
+		border: "2px solid " + PrimaryBlack,
 		borderRadius: "5px",
 		padding: "5px 10px 5px 10px",
 	},
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 		},
 	},
 	pinkBackground: {
-		background: PrimaryPink,
+		background: PrimaryBlack,
 		borderRadius: "5px",
 	},
 }))
