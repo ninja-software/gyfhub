@@ -184,17 +184,14 @@ var BlobWhere = struct {
 
 // BlobRels is where relationship names are stored.
 var BlobRels = struct {
-	VideoOpportunities string
-	AvatarUsers        string
+	AvatarUsers string
 }{
-	VideoOpportunities: "VideoOpportunities",
-	AvatarUsers:        "AvatarUsers",
+	AvatarUsers: "AvatarUsers",
 }
 
 // blobR is where relationships are stored.
 type blobR struct {
-	VideoOpportunities OpportunitySlice `db:"VideoOpportunities" boil:"VideoOpportunities" json:"VideoOpportunities" toml:"VideoOpportunities" yaml:"VideoOpportunities"`
-	AvatarUsers        UserSlice        `db:"AvatarUsers" boil:"AvatarUsers" json:"AvatarUsers" toml:"AvatarUsers" yaml:"AvatarUsers"`
+	AvatarUsers UserSlice `db:"AvatarUsers" boil:"AvatarUsers" json:"AvatarUsers" toml:"AvatarUsers" yaml:"AvatarUsers"`
 }
 
 // NewStruct creates a new relationship struct
@@ -451,27 +448,6 @@ func (q blobQuery) Exists(exec boil.Executor) (bool, error) {
 	return count > 0, nil
 }
 
-// VideoOpportunities retrieves all the opportunity's Opportunities with an executor via video_id column.
-func (o *Blob) VideoOpportunities(mods ...qm.QueryMod) opportunityQuery {
-	var queryMods []qm.QueryMod
-	if len(mods) != 0 {
-		queryMods = append(queryMods, mods...)
-	}
-
-	queryMods = append(queryMods,
-		qm.Where("\"opportunities\".\"video_id\"=?", o.ID),
-	)
-
-	query := Opportunities(queryMods...)
-	queries.SetFrom(query.Query, "\"opportunities\"")
-
-	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"opportunities\".*"})
-	}
-
-	return query
-}
-
 // AvatarUsers retrieves all the user's Users with an executor via avatar_id column.
 func (o *Blob) AvatarUsers(mods ...qm.QueryMod) userQuery {
 	var queryMods []qm.QueryMod
@@ -491,104 +467,6 @@ func (o *Blob) AvatarUsers(mods ...qm.QueryMod) userQuery {
 	}
 
 	return query
-}
-
-// LoadVideoOpportunities allows an eager lookup of values, cached into the
-// loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (blobL) LoadVideoOpportunities(e boil.Executor, singular bool, maybeBlob interface{}, mods queries.Applicator) error {
-	var slice []*Blob
-	var object *Blob
-
-	if singular {
-		object = maybeBlob.(*Blob)
-	} else {
-		slice = *maybeBlob.(*[]*Blob)
-	}
-
-	args := make([]interface{}, 0, 1)
-	if singular {
-		if object.R == nil {
-			object.R = &blobR{}
-		}
-		args = append(args, object.ID)
-	} else {
-	Outer:
-		for _, obj := range slice {
-			if obj.R == nil {
-				obj.R = &blobR{}
-			}
-
-			for _, a := range args {
-				if a == obj.ID {
-					continue Outer
-				}
-			}
-
-			args = append(args, obj.ID)
-		}
-	}
-
-	if len(args) == 0 {
-		return nil
-	}
-
-	query := NewQuery(
-		qm.From(`opportunities`),
-		qm.WhereIn(`opportunities.video_id in ?`, args...),
-	)
-	if mods != nil {
-		mods.Apply(query)
-	}
-
-	results, err := query.Query(e)
-	if err != nil {
-		return errors.Wrap(err, "failed to eager load opportunities")
-	}
-
-	var resultSlice []*Opportunity
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice opportunities")
-	}
-
-	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on opportunities")
-	}
-	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for opportunities")
-	}
-
-	if len(opportunityAfterSelectHooks) != 0 {
-		for _, obj := range resultSlice {
-			if err := obj.doAfterSelectHooks(e); err != nil {
-				return err
-			}
-		}
-	}
-	if singular {
-		object.R.VideoOpportunities = resultSlice
-		for _, foreign := range resultSlice {
-			if foreign.R == nil {
-				foreign.R = &opportunityR{}
-			}
-			foreign.R.Video = object
-		}
-		return nil
-	}
-
-	for _, foreign := range resultSlice {
-		for _, local := range slice {
-			if local.ID == foreign.VideoID {
-				local.R.VideoOpportunities = append(local.R.VideoOpportunities, foreign)
-				if foreign.R == nil {
-					foreign.R = &opportunityR{}
-				}
-				foreign.R.Video = local
-				break
-			}
-		}
-	}
-
-	return nil
 }
 
 // LoadAvatarUsers allows an eager lookup of values, cached into the
@@ -686,58 +564,6 @@ func (blobL) LoadAvatarUsers(e boil.Executor, singular bool, maybeBlob interface
 		}
 	}
 
-	return nil
-}
-
-// AddVideoOpportunities adds the given related objects to the existing relationships
-// of the blob, optionally inserting them as new records.
-// Appends related to o.R.VideoOpportunities.
-// Sets related.R.Video appropriately.
-func (o *Blob) AddVideoOpportunities(exec boil.Executor, insert bool, related ...*Opportunity) error {
-	var err error
-	for _, rel := range related {
-		if insert {
-			rel.VideoID = o.ID
-			if err = rel.Insert(exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"opportunities\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"video_id"}),
-				strmangle.WhereClause("\"", "\"", 2, opportunityPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.ID}
-
-			if boil.DebugMode {
-				fmt.Fprintln(boil.DebugWriter, updateQuery)
-				fmt.Fprintln(boil.DebugWriter, values)
-			}
-			if _, err = exec.Exec(updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.VideoID = o.ID
-		}
-	}
-
-	if o.R == nil {
-		o.R = &blobR{
-			VideoOpportunities: related,
-		}
-	} else {
-		o.R.VideoOpportunities = append(o.R.VideoOpportunities, related...)
-	}
-
-	for _, rel := range related {
-		if rel.R == nil {
-			rel.R = &opportunityR{
-				Video: o,
-			}
-		} else {
-			rel.R.Video = o
-		}
-	}
 	return nil
 }
 

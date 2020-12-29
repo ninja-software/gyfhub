@@ -44,40 +44,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const SignUpPage = () => {
-	const classes = useStyles()
-	const [openForm, setOpenForm] = React.useState<boolean>(false)
-	const [isBusiness, setIsBusiness] = React.useState<boolean>(false)
 	return (
 		<AuthBackground label="Sign Up">
 			<SignUpForm />
 		</AuthBackground>
 	)
 }
-
-interface AccountTypeProps {
-	setOpenForm: React.Dispatch<React.SetStateAction<boolean>>
-	setIsBusiness: React.Dispatch<React.SetStateAction<boolean>>
-}
-
-// export const SelectAccountType = (props: AccountTypeProps) => {
-// 	const classes = useStyles()
-// 	const { setOpenForm, setIsBusiness } = props
-// 	return (
-// 		<div className={classes.logoDiv}>
-// 			<div
-// 				className={classes.pointer}
-// 				onClick={() => {
-// 					setOpenForm(true)
-// 					setIsBusiness(false)
-// 				}}
-// 			>
-// 				<div className={classes.logoLabel}>
-// 					<p style={{ margin: "0px", color: "#D82387" }}>I'm a Creative</p>
-// 				</div>
-// 			</div>
-// 		</div>
-// 	)
-// }
 
 export const SignUpForm = () => {
 	const classes = useStyles()

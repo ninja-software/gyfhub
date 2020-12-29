@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"errors"
-	gyfhub "gyfhub/server"
 	"fmt"
+	gyfhub "gyfhub/server"
 	"log"
 	"os"
 
@@ -69,7 +69,6 @@ func main() {
 						c.String("database_port"),
 						c.String("database_name"),
 					)
-
 
 					g := &run.Group{}
 					ctx, cancel := context.WithCancel(context.Background())
