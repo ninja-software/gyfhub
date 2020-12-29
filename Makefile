@@ -97,6 +97,9 @@ deps: web-install gmd
 .PHONY: init
 init: db-drop docker-start docker-setup deps tools  db-migrate db-seed
 
+.PHONY: db-restart
+db-restart: 
+
 .PHONY: serve
 serve:
 	# replaces realize

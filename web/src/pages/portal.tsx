@@ -13,6 +13,7 @@ import { Chat } from "./chat/chat"
 
 import { UserType } from "../types/enum"
 import useWebSocket, { ReadyState } from "react-use-websocket"
+import { ChatRoot } from "./chat/root"
 
 const useStyle = makeStyles((theme) => ({
 	outer: {
@@ -40,8 +41,9 @@ const PortalInner = () => {
 				<Switch>
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
 					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
+					{/* TODO: Delete this*/}
 					<PrivateRoute exact path="/test" component={TestComponent} />
-					<PrivateRoute path="/chat" component={Chat} />
+					<PrivateRoute path="/chat" component={ChatRoot} />
 
 					<PrivateRoute exact path="/" component={Dashboard} />
 

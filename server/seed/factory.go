@@ -22,3 +22,10 @@ func UserFactory() *db.User {
 	}
 	return u
 }
+
+func HubFactory() *db.Hub {
+	h := &db.Hub{
+		Name: faker.Company().Name(),
+	}
+	return h
+}

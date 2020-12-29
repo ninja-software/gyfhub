@@ -83,3 +83,8 @@ export interface GifObject {
 	title: string
 	images: { [index: string]: GifImage }
 }
+
+export interface Hub {
+	id: string
+	name: string
+}

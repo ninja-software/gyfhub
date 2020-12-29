@@ -33,8 +33,8 @@ func NewAPIController(
 ) http.Handler {
 	// url for querying blob attachment
 	blobURL := "/api/files/"
-	hub := newHub()
-	go hub.run()
+	hubs := map[string]*Hub{}
+
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -49,9 +49,7 @@ func NewAPIController(
 	r.Mount("/api/files", FileRouter(conn, jwtSecret, auther))
 	r.Mount("/api/opportunities", OpportunityRouter(conn, auther, jwtSecret, blobURL))
 	r.Mount("/api/users", UserRouter(conn, jwtSecret, auther, blobURL))
-	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		serveWs(hub, w, r)
-	})
+	r.Mount("/api/hubs", WebsocketRouter(conn, jwtSecret, auther, blobURL, hubs))
 	return r
 }
 

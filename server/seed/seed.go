@@ -33,6 +33,13 @@ func Run(conn *sqlx.DB) error {
 	if err != nil {
 		return terror.New(err, "seeding cities failed")
 	}
+	// TODO seed hub
+	fmt.Println("Seeding hubs")
+	err = Hubs(conn)
+	if err != nil {
+		return terror.New(err, "seeding cities failed")
+	}
+
 	fmt.Println("Seed complete")
 	return nil
 }
@@ -305,6 +312,27 @@ func Businesses(conn *sqlx.DB) error {
 				return terror.New(err, "insert business")
 			}
 		}
+	}
+	return nil
+}
+
+func Hubs(conn *sqlx.DB) error {
+	u, err := db.Users().One(conn)
+	if err != nil {
+		return terror.New(err, "failed to query user")
+	}
+	h1 := HubFactory()
+	h1.OwnerID = u.ID
+	err = h1.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "insert hub")
+	}
+
+	h2 := HubFactory()
+	h2.OwnerID = u.ID
+	err = h2.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "insert hub")
 	}
 	return nil
 }
