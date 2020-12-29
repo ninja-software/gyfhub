@@ -12,6 +12,13 @@ export interface User {
 	business?: Business
 }
 
+export interface Hub {
+	id: string
+	name: string
+	avatarURL?: string
+	isPrivate?: boolean
+}
+
 export interface Business {
 	name: string
 }

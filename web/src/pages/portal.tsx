@@ -10,15 +10,15 @@ import { OpportunitiesRoot } from "./opportunities/root"
 import { PrivateRoute, PublicRoute } from "../components/security"
 import FourZeroFour from "./404"
 import { Chat } from "./chat/chat"
+import { HubCreatePage } from "./hubs/hubCreate"
 
 import { UserType } from "../types/enum"
 
-const useStyle = makeStyles((theme) => ({
+const useStyle = makeStyles(() => ({
 	outer: {
-		height: "85%",
+		height: "100%",
 		width: "100%",
 		display: "flex",
-		maxHeight: "85%",
 		overflowY: "auto",
 		overflowX: "hidden",
 		justifyContent: "center",
@@ -40,6 +40,8 @@ const PortalInner = () => {
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
 					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
 					<PrivateRoute path="/chat" component={Chat} />
+
+					<PrivateRoute path="/hubs/create" component={HubCreatePage} />
 
 					<PrivateRoute exact path="/" component={Dashboard} />
 
