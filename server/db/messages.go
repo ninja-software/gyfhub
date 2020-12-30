@@ -24,8 +24,9 @@ import (
 // Message is an object representing the database table.
 type Message struct {
 	ID        string    `db:"id" boil:"id" json:"id" toml:"id" yaml:"id"`
-	Content   string    `db:"content" boil:"content" json:"content" toml:"content" yaml:"content"`
+	HubID     string    `db:"hub_id" boil:"hub_id" json:"hubID" toml:"hubID" yaml:"hubID"`
 	SenderID  string    `db:"sender_id" boil:"sender_id" json:"senderID" toml:"senderID" yaml:"senderID"`
+	Content   string    `db:"content" boil:"content" json:"content" toml:"content" yaml:"content"`
 	DeletedAt null.Time `db:"deleted_at" boil:"deleted_at" json:"deletedAt,omitempty" toml:"deletedAt" yaml:"deletedAt,omitempty"`
 	UpdatedAt time.Time `db:"updated_at" boil:"updated_at" json:"updatedAt" toml:"updatedAt" yaml:"updatedAt"`
 	CreatedAt time.Time `db:"created_at" boil:"created_at" json:"createdAt" toml:"createdAt" yaml:"createdAt"`
@@ -36,15 +37,17 @@ type Message struct {
 
 var MessageColumns = struct {
 	ID        string
-	Content   string
+	HubID     string
 	SenderID  string
+	Content   string
 	DeletedAt string
 	UpdatedAt string
 	CreatedAt string
 }{
 	ID:        "id",
-	Content:   "content",
+	HubID:     "hub_id",
 	SenderID:  "sender_id",
+	Content:   "content",
 	DeletedAt: "deleted_at",
 	UpdatedAt: "updated_at",
 	CreatedAt: "created_at",
@@ -54,15 +57,17 @@ var MessageColumns = struct {
 
 var MessageWhere = struct {
 	ID        whereHelperstring
-	Content   whereHelperstring
+	HubID     whereHelperstring
 	SenderID  whereHelperstring
+	Content   whereHelperstring
 	DeletedAt whereHelpernull_Time
 	UpdatedAt whereHelpertime_Time
 	CreatedAt whereHelpertime_Time
 }{
 	ID:        whereHelperstring{field: "\"messages\".\"id\""},
-	Content:   whereHelperstring{field: "\"messages\".\"content\""},
+	HubID:     whereHelperstring{field: "\"messages\".\"hub_id\""},
 	SenderID:  whereHelperstring{field: "\"messages\".\"sender_id\""},
+	Content:   whereHelperstring{field: "\"messages\".\"content\""},
 	DeletedAt: whereHelpernull_Time{field: "\"messages\".\"deleted_at\""},
 	UpdatedAt: whereHelpertime_Time{field: "\"messages\".\"updated_at\""},
 	CreatedAt: whereHelpertime_Time{field: "\"messages\".\"created_at\""},
@@ -70,13 +75,16 @@ var MessageWhere = struct {
 
 // MessageRels is where relationship names are stored.
 var MessageRels = struct {
+	Hub    string
 	Sender string
 }{
+	Hub:    "Hub",
 	Sender: "Sender",
 }
 
 // messageR is where relationships are stored.
 type messageR struct {
+	Hub    *Hub  `db:"Hub" boil:"Hub" json:"Hub" toml:"Hub" yaml:"Hub"`
 	Sender *User `db:"Sender" boil:"Sender" json:"Sender" toml:"Sender" yaml:"Sender"`
 }
 
@@ -89,8 +97,8 @@ func (*messageR) NewStruct() *messageR {
 type messageL struct{}
 
 var (
-	messageAllColumns            = []string{"id", "content", "sender_id", "deleted_at", "updated_at", "created_at"}
-	messageColumnsWithoutDefault = []string{"content", "sender_id", "deleted_at"}
+	messageAllColumns            = []string{"id", "hub_id", "sender_id", "content", "deleted_at", "updated_at", "created_at"}
+	messageColumnsWithoutDefault = []string{"hub_id", "sender_id", "content", "deleted_at"}
 	messageColumnsWithDefault    = []string{"id", "updated_at", "created_at"}
 	messagePrimaryKeyColumns     = []string{"id"}
 )
@@ -334,6 +342,20 @@ func (q messageQuery) Exists(exec boil.Executor) (bool, error) {
 	return count > 0, nil
 }
 
+// Hub pointed to by the foreign key.
+func (o *Message) Hub(mods ...qm.QueryMod) hubQuery {
+	queryMods := []qm.QueryMod{
+		qm.Where("\"id\" = ?", o.HubID),
+	}
+
+	queryMods = append(queryMods, mods...)
+
+	query := Hubs(queryMods...)
+	queries.SetFrom(query.Query, "\"hubs\"")
+
+	return query
+}
+
 // Sender pointed to by the foreign key.
 func (o *Message) Sender(mods ...qm.QueryMod) userQuery {
 	queryMods := []qm.QueryMod{
@@ -346,6 +368,110 @@ func (o *Message) Sender(mods ...qm.QueryMod) userQuery {
 	queries.SetFrom(query.Query, "\"users\"")
 
 	return query
+}
+
+// LoadHub allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for an N-1 relationship.
+func (messageL) LoadHub(e boil.Executor, singular bool, maybeMessage interface{}, mods queries.Applicator) error {
+	var slice []*Message
+	var object *Message
+
+	if singular {
+		object = maybeMessage.(*Message)
+	} else {
+		slice = *maybeMessage.(*[]*Message)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &messageR{}
+		}
+		args = append(args, object.HubID)
+
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &messageR{}
+			}
+
+			for _, a := range args {
+				if a == obj.HubID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.HubID)
+
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`hubs`),
+		qm.WhereIn(`hubs.id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.Query(e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load Hub")
+	}
+
+	var resultSlice []*Hub
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice Hub")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results of eager load for hubs")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for hubs")
+	}
+
+	if len(messageAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+
+	if len(resultSlice) == 0 {
+		return nil
+	}
+
+	if singular {
+		foreign := resultSlice[0]
+		object.R.Hub = foreign
+		if foreign.R == nil {
+			foreign.R = &hubR{}
+		}
+		foreign.R.Messages = append(foreign.R.Messages, object)
+		return nil
+	}
+
+	for _, local := range slice {
+		for _, foreign := range resultSlice {
+			if local.HubID == foreign.ID {
+				local.R.Hub = foreign
+				if foreign.R == nil {
+					foreign.R = &hubR{}
+				}
+				foreign.R.Messages = append(foreign.R.Messages, local)
+				break
+			}
+		}
+	}
+
+	return nil
 }
 
 // LoadSender allows an eager lookup of values, cached into the
@@ -447,6 +573,52 @@ func (messageL) LoadSender(e boil.Executor, singular bool, maybeMessage interfac
 				break
 			}
 		}
+	}
+
+	return nil
+}
+
+// SetHub of the message to the related item.
+// Sets o.R.Hub to related.
+// Adds o to related.R.Messages.
+func (o *Message) SetHub(exec boil.Executor, insert bool, related *Hub) error {
+	var err error
+	if insert {
+		if err = related.Insert(exec, boil.Infer()); err != nil {
+			return errors.Wrap(err, "failed to insert into foreign table")
+		}
+	}
+
+	updateQuery := fmt.Sprintf(
+		"UPDATE \"messages\" SET %s WHERE %s",
+		strmangle.SetParamNames("\"", "\"", 1, []string{"hub_id"}),
+		strmangle.WhereClause("\"", "\"", 2, messagePrimaryKeyColumns),
+	)
+	values := []interface{}{related.ID, o.ID}
+
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, updateQuery)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	if _, err = exec.Exec(updateQuery, values...); err != nil {
+		return errors.Wrap(err, "failed to update local table")
+	}
+
+	o.HubID = related.ID
+	if o.R == nil {
+		o.R = &messageR{
+			Hub: related,
+		}
+	} else {
+		o.R.Hub = related
+	}
+
+	if related.R == nil {
+		related.R = &hubR{
+			Messages: MessageSlice{o},
+		}
+	} else {
+		related.R.Messages = append(related.R.Messages, o)
 	}
 
 	return nil

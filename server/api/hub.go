@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
@@ -133,6 +134,11 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 		return http.StatusBadRequest, terror.New(err, "")
 	}
 
+	ms, err := h.Messages().All(c.Conn)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
 	// check the hub is in the active hub list
 	if _, ok := c.HubConns[h.ID]; !ok {
 		// create new hub connection
@@ -147,7 +153,7 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	}
 
 	// set up the client
-	client := &Client{hub: c.HubConns[h.ID], ws: ws, send: make(chan []byte, 256), clientID: u.ID, dbConn: c.Conn}
+	client := &Client{hub: c.HubConns[h.ID], ws: ws, send: make(chan []byte, 256), client: u, dbConn: c.Conn, hubID: hubID}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -155,8 +161,15 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	go client.readPump()
 	go client.writePump()
 
+	b, err := json.Marshal(ms)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	client.send <- b
+
 	// successfully connected
-	return helpers.EncodeJSON(w, true)
+	return http.StatusOK, nil
 }
 
 const (
@@ -192,7 +205,9 @@ type HubConn struct {
 type Client struct {
 	hub *HubConn
 
-	clientID string
+	client *db.User
+
+	hubID string
 
 	dbConn *sqlx.DB
 
@@ -216,6 +231,11 @@ var (
 	space   = []byte{' '}
 )
 
+type Message struct {
+	*db.Message
+	Sender *db.User `json:"sender"`
+}
+
 // readPump pumps messages from the websocket connection to the hub.
 //
 // The application runs readPump in a per-connection goroutine. The application
@@ -238,22 +258,36 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+
+		spew.Dump("2222222222222222222222222222222222222222222222222222222222222222222222222222222222")
 		// store messages
 		m := &db.Message{
 			Content:  string(message),
-			SenderID: c.clientID,
+			SenderID: c.client.ID,
+			HubID:    c.hubID,
 		}
 
 		err = m.Insert(c.dbConn, boil.Infer())
 		if err != nil {
+			spew.Dump(err)
 			return
 		}
 
+		// build response message
+		resp := []Message{
+			{
+				Message: m,
+				Sender:  c.client,
+			},
+		}
+
 		// marshal the object
-		b, err := json.Marshal(m)
+		b, err := json.Marshal(resp)
 		if err != nil {
 			return
 		}
+
+		spew.Dump(string(b))
 
 		c.hub.broadcast <- b
 	}
