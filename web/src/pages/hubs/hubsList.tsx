@@ -60,8 +60,6 @@ export const HubsList = () => {
 	const [searchKey, setSearchKey] = React.useState<string>("")
 	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
 
-	console.log("hub")
-
 	React.useEffect(() => {
 		if (loading || error || !data) return
 		setHubs(data)
