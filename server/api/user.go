@@ -175,6 +175,9 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request, u *d
 // UserMany returns users based on search/filter
 func (c *UserController) UserMany(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
 	req := &UserSearchFilterInput{}
+	queries := []qm.QueryMod{
+		qm.Load(db.UserRels.FollowedUserUsers),
+	}
 	err := json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		return http.StatusBadRequest, terror.New(err, "invalid user input")
@@ -188,20 +191,20 @@ func (c *UserController) UserMany(w http.ResponseWriter, r *http.Request, u *db.
 		xsearch := helpers.ParseQueryText(search)
 
 		if len(xsearch) > 0 {
-			qm.Where(
-				fmt.Sprintf("coalesce(%s,'') @@ to_tsquery( ? )",
-					db.UserColumns.Keywords,
-				),
-				xsearch,
-			)
+			queries = append(queries,
+				qm.Where(
+					fmt.Sprintf("coalesce(%s,'') @@ to_tsquery( ? )",
+						db.UserColumns.Keywords,
+					),
+					xsearch,
+				))
+
 		}
 
 	}
-
-	users, err := db.Users().All(c.Conn)
+	users, err := db.Users(queries...).All(c.Conn)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return http.StatusInternalServerError, terror.New(err, "search filter users")
 	}
-
 	return helpers.EncodeJSON(w, users)
 }
