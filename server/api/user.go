@@ -94,9 +94,10 @@ type UserInput struct {
 }
 
 type UserSearchFilterInput struct {
-	Search string `json:"search,omitempty"`
-	Limit  int    `json:"limit,omitempty"`
-	Offset int    `json:"offset,omitempty"`
+	Search     string   `json:"search,omitempty"`
+	Limit      int      `json:"limit,omitempty"`
+	Offset     int      `json:"offset,omitempty"`
+	ExcludedID []string `json:"excludedId,omitempty"`
 }
 
 // UserMe return current data
@@ -185,6 +186,13 @@ func (c *UserController) UserMany(w http.ResponseWriter, r *http.Request, u *db.
 	defer r.Body.Close()
 
 	search := req.Search
+
+	// set up exclude id
+	if req.ExcludedID != nil && len(req.ExcludedID) > 0 {
+		for _, ex := range req.ExcludedID {
+			queries = append(queries, db.UserWhere.ID.NEQ(ex))
+		}
+	}
 
 	// Search
 	if search != "" {

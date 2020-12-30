@@ -103,6 +103,18 @@ const follow = (followedID: string): Action<boolean> => {
 	}
 }
 
+const unfollow = (followedID: string): Action<boolean> => {
+	return {
+		method: "POST",
+		endpoint: `/followers/unfollow`,
+		credentials: "include",
+		responseType: "json",
+		body: {
+			followedID,
+		},
+	}
+}
+
 export const mutations = {
 	forgetPassword,
 	uploadFile,
@@ -112,4 +124,5 @@ export const mutations = {
 	unfavouriteOpportunities,
 	createHub,
 	follow,
+	unfollow,
 }

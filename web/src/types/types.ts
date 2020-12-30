@@ -116,4 +116,5 @@ export interface UserSearchFilterInput {
 	search?: string
 	limit?: number
 	offset?: number
+	excludedID?: string[]
 }
