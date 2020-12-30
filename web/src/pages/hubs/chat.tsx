@@ -1,22 +1,16 @@
 import { makeStyles, TextField, Typography } from "@material-ui/core"
 import * as React from "react"
 import { ExpButton } from "../../components/common/button"
-import { UserAvatar } from "../../components/common/avatar"
 import { AuthContainer } from "../../controllers/auth"
 import { GifObject, Message } from "../../types/types"
 import { useHistory } from "react-router-dom"
-import useWebSocket, { ReadyState } from "react-use-websocket"
+import useWebSocket from "react-use-websocket"
+import { MessageWindow } from "../../components/chat/MessageWindow"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
 		height: "95%",
 		width: "100%",
-	},
-	messagesContainer: {
-		height: "60%",
-		overflowY: "auto",
-		paddingTop: "20px",
-		paddingLeft: "20px",
 	},
 	keyboardContainer: {
 		marginTop: "15px",
@@ -38,18 +32,6 @@ const useStyle = makeStyles((theme) => ({
 	gifImage: {
 		width: "170px",
 	},
-	messageContainer: {
-		display: "flex",
-		alignItems: "flex-start",
-		marginTop: "20px",
-		marginBottom: "20px",
-	},
-	messageImage: {
-		width: "30%",
-	},
-	avatarContainer: {
-		margin: "20px",
-	},
 	searchBar: {
 		display: "flex",
 		flexWrap: "wrap",
@@ -68,22 +50,13 @@ export const ChatHub = () => {
 
 	//Public API that will echo messages sent to it back to the client
 	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/${id}`)
-	const [messageList, setMessageList] = React.useState<Message[]>([])
-	const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(socketUrl)
+	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
+	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
+		console.log(lastMessage?.data)
 		if (!lastMessage?.data) return
-
-		setMessageList((msg) => msg.concat(JSON.parse(lastMessage.data)))
+		setUpcomingMessage(JSON.parse(lastMessage.data))
 	}, [lastMessage])
-
-	// TODO: delete this
-	const connectionStatus = {
-		[ReadyState.CONNECTING]: "Connecting",
-		[ReadyState.OPEN]: "Open",
-		[ReadyState.CLOSING]: "Closing",
-		[ReadyState.CLOSED]: "Closed",
-		[ReadyState.UNINSTANTIATED]: "Uninstantiated",
-	}[readyState]
 
 	const [searchResults, setSearchResults] = React.useState<GifObject[]>([])
 	const [searchQuery, setSearchQuery] = React.useState<string>("")
@@ -114,16 +87,7 @@ export const ChatHub = () => {
 	}
 	return (
 		<div className={classes.container}>
-			<div className={classes.messagesContainer}>
-				{messageList.map((m, i) => (
-					<div key={i} className={classes.messageContainer}>
-						<div className={classes.avatarContainer}>
-							<UserAvatar size={70} {...currentUser} />
-						</div>
-						<img className={classes.messageImage} src={m.content} alt="" />
-					</div>
-				))}
-			</div>
+			<MessageWindow newMessages={upcomingMessage} />
 
 			<div className={classes.keyboardContainer}>
 				<div className={classes.searchBar}>

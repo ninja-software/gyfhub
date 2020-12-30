@@ -101,6 +101,6 @@ export interface GifObject {
 export interface Message {
 	id: string
 	content: string
-	senderID: string
+	sender: User
 	createdAt: string
 }
