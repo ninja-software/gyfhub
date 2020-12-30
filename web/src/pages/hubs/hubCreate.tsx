@@ -94,7 +94,7 @@ export const HubCreatePage = () => {
 	if (!currentUser) return null
 	return (
 		<div className={classes.container}>
-			<ExpCard width="100%" maxWidth="600px" loading={uploadLoading || updateLoading || loading}>
+			<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
 				<Typography variant="h1" color="textPrimary" gutterBottom>
 					Create Hub
 				</Typography>

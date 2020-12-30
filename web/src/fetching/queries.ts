@@ -62,6 +62,7 @@ const getHub = (id: string): Action<Hub[]> => ({
 	responseType: "json",
 })
 
+<<<<<<< HEAD
 // follow system
 
 const getFollowers = (): Action<Follow> => ({
@@ -77,6 +78,36 @@ const getFollowing = (): Action<Follow> => ({
 	credentials: "include",
 	responseType: "json",
 })
+=======
+// gyf
+const gifMany = (values: {}): Action<boolean> => ({
+	method: "POST",
+	endpoint: `/gifs/many`,
+	credentials: "include",
+	responseType: "json",
+	body: {
+		...values,
+	},
+})
+
+const userStats = (): Action<any> => {
+	return {
+		method: "GET",
+		endpoint: `/stats/userStats`,
+		credentials: "include",
+		responseType: "json",
+	}
+}
+
+const globalStats = (): Action<any> => {
+	return {
+		method: "GET",
+		endpoint: `/stats/globalStats`,
+		credentials: "include",
+		responseType: "json",
+	}
+}
+>>>>>>> master
 
 export const queries = {
 	getMe,
@@ -84,7 +115,13 @@ export const queries = {
 	opportunitiesSelf,
 	getOpportunity,
 	allHubs,
+	userStats,
+	globalStats,
 	getHub,
+<<<<<<< HEAD
 	getFollowers,
 	getFollowing,
+=======
+	gifMany,
+>>>>>>> master
 }

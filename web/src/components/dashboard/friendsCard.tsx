@@ -49,7 +49,7 @@ export const FriendsCard = () => {
 		<ExpCard>
 			<div className={classes.top}>
 				<div>
-					<Typography variant="h2">
+					<Typography variant="h1">
 						<Box fontWeight="bold">Friends</Box>
 					</Typography>
 				</div>
@@ -66,6 +66,40 @@ export const FriendsCard = () => {
 				<div>
 					<ExpButton onClick={() => history.push("/follow/find")}>Find Gyfers</ExpButton>
 				</div>
+<<<<<<< HEAD
+=======
+			</div>
+
+			<div className={classes.hubList}>
+				{/* // todo make this look pretty */}
+				{friends.length > 0 ? (
+					friends.map((d, idx) => {
+						// render the first 3
+						if (idx >= 3) {
+							return <></>
+						}
+						return (
+							<div
+								className={classes.cardBtn}
+								onClick={() => {
+									// todo refactor this
+								}}
+							>
+								{/* todo change to render avatar instead of initials */}
+								<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
+							</div>
+						)
+					})
+				) : (
+					<Typography variant="h3">you have no friends lol</Typography>
+				)}
+
+				{friends.length > 2 && (
+					<div className={classes.viewAllBtn}>
+						<ExpButton styleType={"tertiary"}>View all friends</ExpButton>
+					</div>
+				)}
+>>>>>>> master
 			</div>
 		</ExpCard>
 	)

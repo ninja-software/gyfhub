@@ -37,6 +37,10 @@ const useStyles = makeStyles((theme: Theme) =>
 				background: "transparent",
 			},
 		},
+		menuButton: {
+			marginTop: "20px",
+			marginBottom: "20px",
+		},
 	}),
 )
 
@@ -144,7 +148,9 @@ const Account = (props: { showButton: boolean }) => {
 								setOpen(false)
 							}}
 						>
-							Dashboard
+							<Typography className={classes.menuButton} variant="h2">
+								Dashboard
+							</Typography>
 						</Button>
 						<Button
 							onClick={() => {
@@ -152,7 +158,9 @@ const Account = (props: { showButton: boolean }) => {
 								setOpen(false)
 							}}
 						>
-							Logout
+							<Typography className={classes.menuButton} variant="h2">
+								Logout
+							</Typography>
 						</Button>
 					</ButtonGroup>
 				</Popover>

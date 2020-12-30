@@ -1,7 +1,7 @@
-import * as React from "react"
 import { Box, BoxProps, makeStyles, Typography, withStyles } from "@material-ui/core"
 import Button, { ButtonProps } from "@material-ui/core/Button/Button"
-import { PrimaryBlack, PrimaryBlue, SecondaryPurple } from "../../theme/colour"
+import * as React from "react"
+import { PrimaryBlack, SecondaryPurple } from "../../theme/colour"
 
 const useStyles = makeStyles((theme) => ({
 	default: {
@@ -65,7 +65,7 @@ export const ExpButton = (props: ExpButtonProps) => {
 	}
 	return (
 		<Button {...rest} type={type} className={className}>
-			<Typography className={classes.labelStyle} variant="h4">
+			<Typography className={classes.labelStyle} variant="h2">
 				{children}
 			</Typography>
 		</Button>

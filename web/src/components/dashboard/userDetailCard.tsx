@@ -42,7 +42,7 @@ export const UserDetailCard = () => {
 	return (
 		<ExpCard>
 			<div className={classes.headerBar}>
-				<Typography variant="h2">
+				<Typography variant="h1">
 					<Box fontWeight="bold">My Details</Box>
 				</Typography>
 				<Button
@@ -56,7 +56,7 @@ export const UserDetailCard = () => {
 			<div className={classes.briefProfile}>
 				<UserAvatar {...currentUser} size={105} />
 				<div className={classes.userDetail}>
-					<Typography variant="h6">
+					<Typography variant="h3">
 						<Box className={classes.infoBox}>{`${currentUser.firstName} ${currentUser.lastName}`}</Box>
 						<Box className={classes.infoBox}>{currentUser.email}</Box>
 						{currentUser.business && <Box className={classes.infoBox}>{currentUser.business.name}</Box>}
