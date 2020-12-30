@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/jmoiron/sqlx"
 	"github.com/ninja-software/terror"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // UserController holds connection data for handlers
@@ -35,14 +36,15 @@ func FollowRouter(
 	}
 
 	r := chi.NewRouter()
-	r.Post("/friendsList", WithError(WithMember(conn, jwtSecret, c.ListFollowers)))
+	r.Get("/followers", WithError(WithMember(conn, jwtSecret, c.ListFollowers)))
+	r.Get("/following", WithError(WithMember(conn, jwtSecret, c.ListFollowing)))
 	r.Post("/follow", WithError(WithMember(conn, jwtSecret, c.Follow)))
 	r.Post("/unfollow", WithError(WithMember(conn, jwtSecret, c.UnFollow)))
 
 	return r
 }
 
-type FriendsListRequest struct {
+type FollowerListRequest struct {
 	Search string `json:"search"`
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
@@ -53,30 +55,39 @@ type FollowRequest struct {
 	FollowedID string `json:"followedID"`
 }
 
-// GetFollowers returns amount of follows
+// ListFollowers returns amount of follows of the users
 func (c *FollowController) ListFollowers(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
-	// req := &FriendsListRequest{}
-	// err := json.NewDecoder(r.Body).Decode(req)
-	// if err != nil {
-	// 	return http.StatusBadRequest, terror.New(err, "invalid input")
-	// }
-	// defer r.Body.Close()
+	queries := []qm.QueryMod{
+		qm.Load(
+			db.UserRels.FollowerUserUsers,
+		),
+	}
+	count, err := u.FollowerUserUsers(queries...).Count(c.Conn)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "followed query")
+	}
 
-	// search := req.Search
-	// limit := req.Limit
-	// offset := req.Offset
+	return helpers.EncodeJSON(w, count)
 
-	// queries := []qm.QueryMod{
-	// 	qm.Load(
-	// 		db.ConnectionRels.Users,
-	// 	),
-	// }
-	panic("")
 }
 
-// u.Connections().All(c.Conn)
+// ListFollowing returns amount of followed users
+func (c *FollowController) ListFollowing(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	queries := []qm.QueryMod{
+		qm.Load(
+			db.UserRels.FollowedUserUsers,
+		),
+	}
+	count, err := u.FollowedUserUsers(queries...).Count(c.Conn)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "followed query")
+	}
 
-// SendFriendRequest sends an invitation
+	return helpers.EncodeJSON(w, count)
+
+}
+
+// Follow
 func (c *FollowController) Follow(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
 	req := &FollowRequest{}
 	err := json.NewDecoder(r.Body).Decode(req)
@@ -102,7 +113,7 @@ func (c *FollowController) Follow(w http.ResponseWriter, r *http.Request, u *db.
 		return http.StatusInternalServerError, terror.New(err, "cannot find user")
 	}
 
-	err = u.SetFollowedUserUsers(c.Conn, false, f)
+	err = u.AddFollowedUserUsers(c.Conn, false, f)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "follow")
 	}
@@ -128,11 +139,10 @@ func (c *FollowController) UnFollow(w http.ResponseWriter, r *http.Request, u *d
 	}
 
 	if f != nil {
-		err = u.SetFollowedUserUsers(c.Conn, false, nil)
+		err = u.RemoveFollowedUserUsers(c.Conn, f)
 		if err != nil {
 			return http.StatusInternalServerError, terror.New(err, "unfollow")
 		}
-		return http.StatusBadRequest, terror.New(fmt.Errorf("Already followed"), "")
 	}
 
 	return helpers.EncodeJSON(w, true)
