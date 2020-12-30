@@ -110,3 +110,10 @@ export interface Message {
 	sender: User
 	createdAt: string
 }
+
+// Users/Clients search filter input
+export interface UserSearchFilterInput {
+	search?: string
+	limit?: number
+	offset?: number
+}
