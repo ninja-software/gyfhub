@@ -99,12 +99,12 @@ func (c *FollowController) Follow(w http.ResponseWriter, r *http.Request, u *db.
 
 	f, err = db.FindUser(c.Conn, req.FollowedID)
 	if err != nil {
-		return http.StatusInternalServerError, terror.New(err, "")
+		return http.StatusInternalServerError, terror.New(err, "cannot find user")
 	}
 
 	err = u.SetFollowedUserUsers(c.Conn, false, f)
 	if err != nil {
-		return http.StatusInternalServerError, terror.New(err, "")
+		return http.StatusInternalServerError, terror.New(err, "follow")
 	}
 
 	return helpers.EncodeJSON(w, true)
@@ -130,7 +130,7 @@ func (c *FollowController) UnFollow(w http.ResponseWriter, r *http.Request, u *d
 	if f != nil {
 		err = u.SetFollowedUserUsers(c.Conn, false, nil)
 		if err != nil {
-			return http.StatusInternalServerError, terror.New(err, "")
+			return http.StatusInternalServerError, terror.New(err, "unfollow")
 		}
 		return http.StatusBadRequest, terror.New(fmt.Errorf("Already followed"), "")
 	}
