@@ -49,7 +49,7 @@ export const HubCard = () => {
 		<ExpCard>
 			<div className={classes.top}>
 				<div>
-					<Typography variant="h2">
+					<Typography variant="h1">
 						<Box fontWeight="bold">Hubs</Box>
 					</Typography>
 				</div>
@@ -60,14 +60,14 @@ export const HubCard = () => {
 			</div>
 
 			<div className={classes.hubList}>
-				{/* // todo make this look pretty */}
-				<Box m={5} />
-
-				<div>list here</div>
-				{hubs.map((d) => {
+				{hubs.map((d, idx) => {
+					if (idx >= 3) {
+						return <></>
+					}
 					return (
-						<div style={{ marginTop: "10px" }} key={d.id}>
-							<ExpButton onClick={() => history.push("/hubs/chat?id=" + d.id)}>hub name: {d.name}</ExpButton>
+						<div onClick={() => history.push("/hubs/chat?id=" + d.id)} className={classes.hubBtn}>
+							{/* todo change to render avatar instead of initials */}
+							<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
 						</div>
 					)
 				})}

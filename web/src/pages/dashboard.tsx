@@ -7,6 +7,7 @@ import { ExpButton } from "../components/common/button"
 import { UserDetailCard } from "../components/dashboard/userDetailCard"
 import { HubCard } from "../components/dashboard/hubCard"
 import { FriendsCard } from "../components/dashboard/friendsCard"
+import { StatsCard } from "../components/dashboard/statsCard"
 
 import { fetching } from "../fetching"
 import { User } from "../types/types"
@@ -40,6 +41,11 @@ export const Dashboard = () => {
 
 			<Box width="100%" marginRight="40px">
 				<FriendsCard />
+				<Box m={10} />
+			</Box>
+
+			<Box width="100%" marginRight="40px">
+				<StatsCard />
 				<Box m={10} />
 			</Box>
 		</div>

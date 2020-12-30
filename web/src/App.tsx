@@ -22,6 +22,19 @@ const Routes = () => {
 }
 
 export const App = () => {
+	async function registerSW() {
+		if ("serviceWorker" in navigator) {
+			try {
+				await navigator.serviceWorker.register("./sw.js")
+			} catch (e) {}
+		} else {
+		}
+	}
+
+	window.addEventListener("load", (e) => {
+		// new PWAConfApp()
+		registerSW()
+	})
 	const { currentTheme } = Themes.useContainer()
 
 	return (

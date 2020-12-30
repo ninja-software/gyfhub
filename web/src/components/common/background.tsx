@@ -1,7 +1,5 @@
 import { Box, Container, ContainerProps, CssBaseline, makeStyles, Typography } from "@material-ui/core"
 import * as React from "react"
-import { ReactComponent as TL } from "../../assets/imgs/bg/topLeft.svg"
-import { ReactComponent as TR } from "../../assets/imgs/bg/topRight.svg"
 import { PrimaryBlue, PrimaryPink, SecondaryBlue, SecondaryPink } from "../../theme/colour"
 
 const useStyles = makeStyles((theme) => ({
@@ -100,11 +98,5 @@ export const MainBackground = (props: MainBackgroundProps) => {
 	const classes = useStyles()
 	const [stroke] = React.useState<string>(isBusiness ? PrimaryBlue : PrimaryPink)
 	const [fill] = React.useState<string>(isBusiness ? SecondaryBlue : SecondaryPink)
-	return (
-		<div className={classes.root}>
-			<TL fill="none" stroke={stroke} className={classes.topLeft} />
-			<TR fill={fill} className={classes.topRight} />
-			{children}
-		</div>
-	)
+	return <div className={classes.root}>{children}</div>
 }
