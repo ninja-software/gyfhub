@@ -92,8 +92,9 @@ CREATE TABLE hubs (
 
 CREATE TABLE messages (
    id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
-   content text NOT NULL,
+   hub_id uuid NOT NULL REFERENCES hubs (id),
    sender_id uuid NOT NULL REFERENCES users (id),
+   content text NOT NULL,
    deleted_at timestamptz,
    updated_at timestamptz NOT NULL DEFAULT NOW(),
    created_at timestamptz NOT NULL DEFAULT NOW()
