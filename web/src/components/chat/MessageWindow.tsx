@@ -1,4 +1,5 @@
 import * as React from "react"
+import Moment from "moment"
 import { AuthContainer } from "../../controllers/auth"
 import { Message } from "../../types/types"
 import { makeStyles } from "@material-ui/core"
@@ -17,10 +18,12 @@ const useStyle = makeStyles((theme) => ({
 		flexDirection: "row-reverse",
 		marginTop: "20px",
 		marginBottom: "20px",
+		height: "fit-content",
 	},
 	otherMessage: {
 		display: "flex",
 		alignItems: "flex-start",
+		height: "fit-content",
 		marginTop: "20px",
 		marginBottom: "20px",
 	},
@@ -29,6 +32,11 @@ const useStyle = makeStyles((theme) => ({
 	},
 	avatarContainer: {
 		margin: "20px",
+	},
+	timestamp: {
+		display: "flex",
+		height: "100%",
+		alignItems: "flex-end",
 	},
 }))
 
@@ -78,7 +86,10 @@ const MessageContainer = (props: MessageContainerProps) => {
 					<UserAvatar size={70} {...message.sender} />
 				</div>
 			)}
-			<img className={classes.messageImage} src={message.content} alt="" onLoad={onLoad} />
+			<div className={classes.messageImage} onClick={() => console.log(message.id)}>
+				<img width="100%" src={message.content} alt="" onLoad={onLoad} />
+			</div>
+			<div className={classes.timestamp}>{Moment(message.createdAt).format("HH:mm")}</div>
 		</div>
 	)
 }
