@@ -24,7 +24,7 @@ CREATE TABLE users (
    first_name text NOT NULL,
    last_name text NOT NULL,
    city text,
-   followers INT REFERENCES follow (amount)
+   followers INT NOT NULL,
    type text NOT NULL,
    -- reference table
    avatar_id uuid REFERENCES blobs (id),
@@ -43,15 +43,17 @@ CREATE TABLE users (
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
 
+
 -- tracking followers for follow system
 CREATE TABLE follow(
    user_id uuid NOT NULL REFERENCES users (id),
    followed_id uuid NOT NULL REFERENCES users (id),
    PRIMARY KEY (user_id, followed_id),
-   amount INT,
+   amount INT NOT NULL,
    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 -- for users text search
 CREATE INDEX idx_fts_user_vec ON users USING gin (keywords);
