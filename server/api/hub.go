@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-chi/chi"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
@@ -148,7 +147,7 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	}
 
 	// set up the client
-	client := &Client{hub: c.HubConns[h.ID], ws: ws, send: make(chan []byte, 256), clientID: u.ID}
+	client := &Client{hub: c.HubConns[h.ID], ws: ws, send: make(chan []byte, 256), clientID: u.ID, dbConn: c.Conn}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -194,6 +193,9 @@ type Client struct {
 	hub *HubConn
 
 	clientID string
+
+	dbConn *sqlx.DB
+
 	// The websocket connection.
 	ws *websocket.Conn
 
@@ -236,9 +238,24 @@ func (c *Client) readPump() {
 			break
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		spew.Dump(c.clientID)
-		spew.Dump(message)
-		c.hub.broadcast <- message
+		// store messages
+		m := &db.Message{
+			Content:  string(message),
+			SenderID: c.clientID,
+		}
+
+		err = m.Insert(c.dbConn, boil.Infer())
+		if err != nil {
+			return
+		}
+
+		// marshal the object
+		b, err := json.Marshal(m)
+		if err != nil {
+			return
+		}
+
+		c.hub.broadcast <- b
 	}
 }
 

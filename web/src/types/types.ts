@@ -97,3 +97,10 @@ export interface GifObject {
 	title: string
 	images: { [index: string]: GifImage }
 }
+
+export interface Message {
+	id: string
+	content: string
+	senderID: string
+	createdAt: string
+}

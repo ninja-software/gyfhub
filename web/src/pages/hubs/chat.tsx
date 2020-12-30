@@ -3,7 +3,7 @@ import * as React from "react"
 import { ExpButton } from "../../components/common/button"
 import { UserAvatar } from "../../components/common/avatar"
 import { AuthContainer } from "../../controllers/auth"
-import { GifObject } from "../../types/types"
+import { GifObject, Message } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 
@@ -67,16 +67,16 @@ export const ChatHub = () => {
 	const id = searchArg.get("id")
 
 	//Public API that will echo messages sent to it back to the client
-	const [socketUrl] = React.useState(`ws://10.254.25.203:8080/api/hubs/${id}`)
-	const [messageList, setMessageList] = React.useState<string[]>([])
+	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/${id}`)
+	const [messageList, setMessageList] = React.useState<Message[]>([])
 	const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(socketUrl)
 	React.useEffect(() => {
 		if (!lastMessage?.data) return
-		setMessageList((msg) => msg.concat(lastMessage.data))
+
+		setMessageList((msg) => msg.concat(JSON.parse(lastMessage.data)))
 	}, [lastMessage])
 
-	console.log(messageList)
-
+	// TODO: delete this
 	const connectionStatus = {
 		[ReadyState.CONNECTING]: "Connecting",
 		[ReadyState.OPEN]: "Open",
@@ -120,7 +120,7 @@ export const ChatHub = () => {
 						<div className={classes.avatarContainer}>
 							<UserAvatar size={70} {...currentUser} />
 						</div>
-						<img className={classes.messageImage} src={m} alt="" />
+						<img className={classes.messageImage} src={m.content} alt="" />
 					</div>
 				))}
 			</div>
