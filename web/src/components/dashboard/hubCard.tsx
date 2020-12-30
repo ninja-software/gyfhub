@@ -73,7 +73,9 @@ export const HubCard = () => {
 				})}
 
 				<div className={classes.viewAllBtn}>
-					<ExpButton styleType={"tertiary"}>View all hubs</ExpButton>
+					<ExpButton onClick={() => history.push("/hubs")} styleType={"tertiary"}>
+						View all hubs
+					</ExpButton>
 				</div>
 			</div>
 		</ExpCard>
