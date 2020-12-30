@@ -65,7 +65,7 @@ export const HubCard = () => {
 						return <></>
 					}
 					return (
-						<div onClick={() => history.push("/hubs/chat?id=" + d.id)} className={classes.hubBtn}>
+						<div key={idx} onClick={() => history.push("/hubs/chat?id=" + d.id)} className={classes.hubBtn}>
 							{/* todo change to render avatar instead of initials */}
 							<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
 						</div>

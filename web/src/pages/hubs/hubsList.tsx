@@ -32,9 +32,6 @@ const useStyle = makeStyles((theme) => ({
 }))
 
 export const HubsList = () => {
-	const classes = useStyle()
-	const history = useHistory()
-
 	const [hubs, setHubs] = React.useState<Hub[]>([])
 
 	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
@@ -47,8 +44,8 @@ export const HubsList = () => {
 	if (!loading && error) return <div>An error occurred</div>
 	return (
 		<div>
-			{hubs.map((h) => {
-				return <div>{h.name}</div>
+			{hubs.map((h, i) => {
+				return <div key={i}>{h.name}</div>
 			})}
 		</div>
 	)

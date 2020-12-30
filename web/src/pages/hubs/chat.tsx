@@ -72,7 +72,6 @@ export const ChatHub = () => {
 	const { payload: gifData, error: gifError, loading: gifLoading, query: queryGif } = useParameterizedQuery<GifObject[]>(fetching.queries.gifMany)
 	React.useEffect(() => {
 		if (searchKey === "" || gifLoading) return
-		console.log(searchKey)
 		queryGif({ search: searchKey })
 	}, [searchKey])
 
@@ -106,7 +105,6 @@ export const ChatHub = () => {
 			<div className={classes.keyboardContainer}>
 				<div className={classes.searchBar}>
 					<TextField
-						label={<Typography variant="subtitle1">Search Gifs</Typography>}
 						variant="filled"
 						value={displayKey}
 						style={{ width: "90%" }}
