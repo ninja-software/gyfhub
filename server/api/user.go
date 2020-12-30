@@ -1,7 +1,9 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	gyfhub "gyfhub/server"
 	"gyfhub/server/db"
@@ -14,6 +16,7 @@ import (
 	"github.com/ninja-software/terror"
 	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // UserController holds connection data for handlers
@@ -38,6 +41,7 @@ func UserRouter(
 	r := chi.NewRouter()
 	r.Get("/me", WithError(WithMember(conn, jwtSecret, c.UserMe)))
 	r.Post("/updateUser", WithError(WithMember(conn, jwtSecret, c.UpdateUser)))
+	r.Post("/many", WithError(WithMember(conn, jwtSecret, c.UserMany)))
 
 	return r
 }
@@ -87,6 +91,12 @@ type UserInput struct {
 	LastName  string    `json:"lastName"`
 	Email     string    `json:"email"`
 	City      *string   `json:"city"`
+}
+
+type UserSearchFilterInput struct {
+	Search string `json:"search,omitempty"`
+	Limit  int    `json:"limit,omitempty"`
+	Offset int    `json:"offset,omitempty"`
 }
 
 // UserMe return current data
@@ -160,4 +170,38 @@ func (c *UserController) UpdateUser(w http.ResponseWriter, r *http.Request, u *d
 	}
 
 	return helpers.EncodeJSON(w, true)
+}
+
+// UserMany returns users based on search/filter
+func (c *UserController) UserMany(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	req := &UserSearchFilterInput{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		return http.StatusBadRequest, terror.New(err, "invalid user input")
+	}
+	defer r.Body.Close()
+
+	search := req.Search
+
+	// Search
+	if search != "" {
+		xsearch := helpers.ParseQueryText(search)
+
+		if len(xsearch) > 0 {
+			qm.Where(
+				fmt.Sprintf("coalesce(%s,'') @@ to_tsquery( ? )",
+					db.UserColumns.Keywords,
+				),
+				xsearch,
+			)
+		}
+
+	}
+
+	users, err := db.Users().All(c.Conn)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return http.StatusInternalServerError, terror.New(err, "search filter users")
+	}
+
+	return helpers.EncodeJSON(w, users)
 }
