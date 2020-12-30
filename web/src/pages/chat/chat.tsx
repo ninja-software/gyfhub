@@ -111,6 +111,8 @@ export const Chat = (props: Props) => {
 						label={<Typography variant="subtitle1">Search Gifs</Typography>}
 						variant="filled"
 						multiline
+						style={{ width: "60%" }}
+						InputProps={{ style: { fontSize: 40, padding: 30 } }}
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 					/>

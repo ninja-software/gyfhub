@@ -114,7 +114,7 @@ export const UpdatePage = () => {
 	if (!currentUser) return null
 	return (
 		<div className={classes.container}>
-			<ExpCard width="100%" maxWidth="600px" loading={uploadLoading || updateLoading || loading}>
+			<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
 				<Typography variant="h1" color="textPrimary" gutterBottom>
 					My Details
 				</Typography>
@@ -135,6 +135,7 @@ export const UpdatePage = () => {
 							<Grid container spacing={6}>
 								<Grid item xs={12} sm={6}>
 									<TextField
+										InputProps={{ style: { fontSize: 30, padding: 10 } }}
 										label="First name"
 										variant="filled"
 										fullWidth
@@ -154,6 +155,7 @@ export const UpdatePage = () => {
 								</Grid>
 								<Grid item xs={12} sm={6}>
 									<TextField
+										InputProps={{ style: { fontSize: 30, padding: 10 } }}
 										fullWidth
 										label="Last name"
 										type="text"
@@ -171,30 +173,10 @@ export const UpdatePage = () => {
 										}
 									/>
 								</Grid>
-								{currentUser.type === UserType.Business && (
-									<Grid item xs={12}>
-										<TextField
-											fullWidth
-											label="Business name"
-											type="text"
-											variant="filled"
-											name={"businessName"}
-											onChange={handleInputChange}
-											value={inputs.businessName}
-											helperText={
-												check &&
-												!inputs.businessName && (
-													<Typography color="error" variant="caption">
-														Business name is required
-													</Typography>
-												)
-											}
-										/>
-									</Grid>
-								)}
 
 								<Grid item xs={12}>
 									<TextField
+										InputProps={{ style: { fontSize: 30, padding: 10 } }}
 										fullWidth
 										label="Email"
 										type="text"
@@ -214,6 +196,7 @@ export const UpdatePage = () => {
 								</Grid>
 								<Grid item xs={12}>
 									<TextField
+										InputProps={{ style: { fontSize: 30, padding: 10 } }}
 										fullWidth
 										select
 										label="City"

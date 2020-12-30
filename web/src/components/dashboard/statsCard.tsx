@@ -33,7 +33,7 @@ const useStyle = makeStyles((theme) => ({
 	},
 }))
 
-export const HubCard = () => {
+export const StatsCard = () => {
 	const classes = useStyle()
 	const history = useHistory()
 
@@ -53,12 +53,8 @@ export const HubCard = () => {
 			<div className={classes.top}>
 				<div>
 					<Typography variant="h1">
-						<Box fontWeight="bold">Hubs</Box>
+						<Box fontWeight="bold">Stats</Box>
 					</Typography>
-				</div>
-
-				<div>
-					<ExpButton onClick={() => history.push("/hubs/create")}>Create Hub</ExpButton>
 				</div>
 			</div>
 

@@ -53,7 +53,7 @@ export const FriendsCard = () => {
 		<ExpCard>
 			<div className={classes.top}>
 				<div>
-					<Typography variant="h2">
+					<Typography variant="h1">
 						<Box fontWeight="bold">Friends</Box>
 					</Typography>
 				</div>
@@ -85,7 +85,7 @@ export const FriendsCard = () => {
 						)
 					})
 				) : (
-					<Typography variant="h4">you have no friends lol</Typography>
+					<Typography variant="h3">you have no friends lol</Typography>
 				)}
 
 				{friends.length > 2 && (
