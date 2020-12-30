@@ -2,9 +2,12 @@ import { Box, Button, ButtonGroup, Container, Popover } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import React, { useState } from "react"
+import { useParameterizedQuery, useQuery } from "react-fetching-library"
 import { useHistory } from "react-router-dom"
 import { AuthContainer } from "../controllers/auth"
+import { fetching } from "../fetching"
 import { titleCapitalization } from "../helpers/helper"
+import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,6 +49,16 @@ export const TopBar = () => {
 	const history = useHistory()
 	const [title, setTitle] = React.useState<string>("")
 	const [showButton, setShowButton] = useState(true)
+
+	const { query: getHub } = useParameterizedQuery<Hub>(fetching.queries.getHub)
+
+	const displayHubName = async (id: string | null) => {
+		if (!id) return
+		const resp = await getHub(id)
+		if (resp.error || !resp.payload) return
+		setTitle(resp.payload.name)
+	}
+
 	React.useEffect(() => {
 		const pathName = history.location.pathname
 		const elements = pathName.substring(pathName.indexOf("/") + 1).split("/")
@@ -62,6 +75,10 @@ export const TopBar = () => {
 		switch (elements[0]) {
 			case "profile":
 				setShowButton(false)
+				break
+			case "hubs":
+				const searchArg = new URLSearchParams(history.location.search)
+				displayHubName(searchArg.get("id"))
 				break
 		}
 		setTitle(`${titleCapitalization(elements[1])} ${titleCapitalization(elements[0])}`)

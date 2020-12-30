@@ -1,4 +1,5 @@
 import { makeStyles, TextField, Typography } from "@material-ui/core"
+import * as _ from "lodash"
 import * as React from "react"
 import { ExpButton } from "../../components/common/button"
 import { AuthContainer } from "../../controllers/auth"
@@ -7,6 +8,8 @@ import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
 import { AppPalette } from "../../theme/colour"
+import { useParameterizedQuery, useQuery } from "react-fetching-library"
+import { fetching } from "../../fetching"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
@@ -47,7 +50,6 @@ const useStyle = makeStyles((theme) => ({
 }))
 
 export const ChatHub = () => {
-	const apiKey = "iKnyHPF6aER2DrPWjQGdgHS9O1oksVFv&q" // todo move this
 	const history = useHistory()
 	const searchArg = new URLSearchParams(history.location.search)
 	const { currentUser } = AuthContainer.useContainer()
@@ -55,38 +57,42 @@ export const ChatHub = () => {
 	const id = searchArg.get("id")
 
 	//Public API that will echo messages sent to it back to the client
-	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/${id}`)
-	// const [socketUrl] = React.useState(`ws://http://10.254.25.190:8080/api/hubs/${id}`)
-
+	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
 	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
-		console.log(lastMessage?.data)
 		if (!lastMessage?.data) return
 		setUpcomingMessage(JSON.parse(lastMessage.data))
 	}, [lastMessage])
 
 	const [searchResults, setSearchResults] = React.useState<GifObject[]>([])
-	const [searchQuery, setSearchQuery] = React.useState<string>("")
+	const [searchKey, setSearchKey] = React.useState<string>("")
+	const [displayKey, setDisplayKey] = React.useState<string>("")
 
-	const [messages, setMessages] = React.useState<string[]>([])
+	const { payload: gifData, error: gifError, loading: gifLoading, query: queryGif } = useParameterizedQuery<GifObject[]>(fetching.queries.gifMany)
+	React.useEffect(() => {
+		if (searchKey === "" || gifLoading) return
+		console.log(searchKey)
+		queryGif({ search: searchKey })
+	}, [searchKey])
 
-	const getSearchResults = async () => {
-		setSearchResults([])
-		return await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${apiKey}=${searchQuery}&limit=60&offset=0&rating=R&lang=en`)
-			.then((res) => {
-				return res.json()
-			})
-			.then((data) => {
-				setSearchResults(data.data)
-			})
+	React.useEffect(() => {
+		if (gifLoading || !gifData) return
+		setSearchResults(gifData)
+	}, [gifData])
+
+	const searchOnChange = (v: string) => {
+		if (gifLoading) return
+		setDisplayKey(v)
+		delayedQuery(v)
 	}
 
-	// todo change later
-	const addMessage = (msg: string) => {
-		sendMessage(msg)
-		setMessages([...messages, msg])
-	}
+	const delayedQuery = React.useCallback(
+		_.debounce((q: string) => {
+			setSearchKey(q)
+		}, 500),
+		[],
+	)
 
 	const classes = useStyle()
 
@@ -102,30 +108,33 @@ export const ChatHub = () => {
 					<TextField
 						label={<Typography variant="subtitle1">Search Gifs</Typography>}
 						variant="filled"
-						multiline
-						style={{ width: "60%" }}
-						InputProps={{ style: { fontSize: 40, padding: 30 } }}
-						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						value={displayKey}
+						style={{ width: "90%" }}
+						InputProps={{ style: { fontSize: 40, padding: 10 } }}
+						onChange={(e) => searchOnChange(e.target.value)}
 					/>
-					<ExpButton
-						onClick={(e) => {
-							e.preventDefault()
-							getSearchResults()
-						}}
-					>
-						Search
-					</ExpButton>
 				</div>
 
 				<div className={classes.gifsGrid}>
 					{searchResults.map((s, idx) => {
 						return (
-							<div key={s.images.downsized.url + idx} className={classes.gifImageContainer} onClick={() => addMessage(s.images.downsized.url)}>
+							<div key={s.images.downsized.url + idx} className={classes.gifImageContainer} onClick={() => sendMessage(s.images.downsized.url)}>
 								<img className={classes.gifImage} src={s.images.downsized.url} alt="" />
 							</div>
 						)
 					})}
+
+					{searchKey == "" && (
+						<Typography variant="h1" color={"textSecondary"}>
+							Type Something!
+						</Typography>
+					)}
+
+					{searchKey != "" && searchResults.length <= 0 && (
+						<Typography variant="h1" color={"textSecondary"}>
+							no results for "{searchKey}"
+						</Typography>
+					)}
 				</div>
 			</div>
 		</div>

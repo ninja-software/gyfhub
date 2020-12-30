@@ -1,5 +1,5 @@
 import { Action } from "react-fetching-library"
-import { Opportunity, User } from "../types/types"
+import { Hub, Opportunity, User } from "../types/types"
 
 // Authentication
 const getMe = (): Action<User> => {
@@ -45,7 +45,8 @@ const getOpportunity = (id: string): Action<Opportunity> => {
 	}
 }
 
-const allHubs = (): Action<Opportunity> => {
+// hubs
+const allHubs = (): Action<Hub[]> => {
 	return {
 		method: "POST",
 		endpoint: `/hubs/all`,
@@ -53,6 +54,24 @@ const allHubs = (): Action<Opportunity> => {
 		responseType: "json",
 	}
 }
+
+const getHub = (id: string): Action<Hub[]> => ({
+	method: "GET",
+	endpoint: `/hubs/${id}`,
+	credentials: "include",
+	responseType: "json",
+})
+
+// gyf
+const gifMany = (values: {}): Action<boolean> => ({
+	method: "POST",
+	endpoint: `/gifs/many`,
+	credentials: "include",
+	responseType: "json",
+	body: {
+		...values,
+	},
+})
 
 const userStats = (): Action<any> => {
 	return {
@@ -80,4 +99,6 @@ export const queries = {
 	allHubs,
 	userStats,
 	globalStats,
+	getHub,
+	gifMany,
 }
