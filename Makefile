@@ -95,7 +95,7 @@ gmd:
 deps: web-install gmd
 
 .PHONY: init
-init: db-drop docker-start docker-setup deps tools  db-migrate db-seed
+init:  docker-start docker-setup deps tools  db-migrate db-seed
 
 .PHONY: serve
 serve:

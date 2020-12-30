@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom"
 import { ExpButton } from "../components/common/button"
 import { UserDetailCard } from "../components/dashboard/userDetailCard"
 import { HubCard } from "../components/dashboard/hubCard"
+import { FriendsCard } from "../components/dashboard/friendsCard"
 
 import { fetching } from "../fetching"
 import { User } from "../types/types"
@@ -35,10 +36,12 @@ export const Dashboard = () => {
 
 			<Box width="100%" marginRight="40px">
 				<HubCard />
+				<Box m={10} />
 			</Box>
 
 			<Box width="100%" marginRight="40px">
-				<ExpButton onClick={() => history.push("/chat")}>Start Messaging</ExpButton>
+				<FriendsCard />
+				<Box m={10} />
 			</Box>
 		</div>
 	)

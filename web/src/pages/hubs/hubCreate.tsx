@@ -112,7 +112,12 @@ export const HubCreatePage = () => {
 							<Grid container spacing={6}>
 								<Grid item xs={12}>
 									<TextField
-										label="Hub name"
+										InputProps={{ style: { fontSize: 20, padding: 10 } }}
+										label={
+											<Typography color="textPrimary" variant="h5">
+												{"Hub name"}
+											</Typography>
+										}
 										variant="filled"
 										fullWidth
 										type="text"

@@ -19,6 +19,13 @@ export interface Hub {
 	isPrivate?: boolean
 }
 
+// todo complete this interface
+export interface Friend {
+	id: string
+	name: string
+	avatarURL?: string
+}
+
 export interface Business {
 	name: string
 }

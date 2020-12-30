@@ -31,10 +31,11 @@ export const ExpInput = (props: ExpInputProps) => {
 				<BasicTextField
 					{...rest}
 					label={
-						<Typography color="textPrimary" variant="subtitle1">
+						<Typography color="textPrimary" variant="h5">
 							{label}
 						</Typography>
 					}
+					InputProps={{ style: { fontSize: 40, padding: 10 } }}
 					name={name}
 					error={!!errors[name]}
 					variant={variant || "filled"}
