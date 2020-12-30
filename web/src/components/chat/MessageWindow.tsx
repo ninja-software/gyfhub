@@ -2,19 +2,19 @@ import * as React from "react"
 import Moment from "moment"
 import { AuthContainer } from "../../controllers/auth"
 import { Message } from "../../types/types"
-import { makeStyles } from "@material-ui/core"
+import { makeStyles, Typography } from "@material-ui/core"
 import { UserAvatar } from "../common/avatar"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
-		height: "60%",
+		height: "70%",
 		overflowY: "auto",
 		paddingTop: "20px",
 		paddingLeft: "20px",
 	},
 	selfMessage: {
 		display: "flex",
-		alignItems: "flex-start",
+		alignItems: "flex-end",
 		flexDirection: "row-reverse",
 		marginTop: "20px",
 		marginBottom: "20px",
@@ -22,13 +22,14 @@ const useStyle = makeStyles((theme) => ({
 	},
 	otherMessage: {
 		display: "flex",
-		alignItems: "flex-start",
+		alignItems: "flex-end",
 		height: "fit-content",
 		marginTop: "20px",
 		marginBottom: "20px",
 	},
 	messageImage: {
 		width: "30%",
+		cursor: "pointer",
 	},
 	avatarContainer: {
 		margin: "20px",
@@ -37,6 +38,8 @@ const useStyle = makeStyles((theme) => ({
 		display: "flex",
 		height: "100%",
 		alignItems: "flex-end",
+		marginLeft: "10px",
+		marginRight: "10px",
 	},
 }))
 
@@ -89,7 +92,9 @@ const MessageContainer = (props: MessageContainerProps) => {
 			<div className={classes.messageImage} onClick={() => console.log(message.id)}>
 				<img width="100%" src={message.content} alt="" onLoad={onLoad} />
 			</div>
-			<div className={classes.timestamp}>{Moment(message.createdAt).format("HH:mm")}</div>
+			<div className={classes.timestamp}>
+				<Typography variant="h4">{Moment(message.createdAt).format("HH:mm a")}</Typography>
+			</div>
 		</div>
 	)
 }

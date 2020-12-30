@@ -1,20 +1,21 @@
 import { makeStyles, TextField, Typography } from "@material-ui/core"
 import * as _ from "lodash"
 import * as React from "react"
-import { ExpButton } from "../../components/common/button"
 import { AuthContainer } from "../../controllers/auth"
 import { GifObject, Message } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
 import { AppPalette } from "../../theme/colour"
-import { useParameterizedQuery, useQuery } from "react-fetching-library"
+import { useParameterizedQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
 		height: "95%",
 		width: "100%",
+		display: "flex",
+		flexDirection: "column",
 	},
 	keyboardContainer: {
 		marginTop: "15px",

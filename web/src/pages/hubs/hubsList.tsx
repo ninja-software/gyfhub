@@ -1,7 +1,6 @@
 import { makeStyles } from "@material-ui/core"
 import React from "react"
 import { useQuery } from "react-fetching-library"
-import { useHistory } from "react-router-dom"
 import { fetching } from "../../fetching"
 import { Hub } from "../../types/types"
 
