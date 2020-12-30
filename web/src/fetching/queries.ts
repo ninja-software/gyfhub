@@ -62,6 +62,17 @@ const getHub = (id: string): Action<Hub[]> => ({
 	responseType: "json",
 })
 
+// gyf
+const gifMany = (values: {}): Action<boolean> => ({
+	method: "POST",
+	endpoint: `/gifs/many`,
+	credentials: "include",
+	responseType: "json",
+	body: {
+		...values,
+	},
+})
+
 export const queries = {
 	getMe,
 	opportunitiesMany,
@@ -69,4 +80,5 @@ export const queries = {
 	getOpportunity,
 	allHubs,
 	getHub,
+	gifMany,
 }
