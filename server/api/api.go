@@ -30,6 +30,7 @@ func NewAPIController(
 	mailer *mailgun.MailgunImpl,
 	mailHost *MailHost,
 	webRoot string,
+	gifAPI string,
 ) http.Handler {
 	// url for querying blob attachment
 	blobURL := "/api/files/"
@@ -49,6 +50,7 @@ func NewAPIController(
 	r.Mount("/api/files", FileRouter(conn, jwtSecret, auther))
 	r.Mount("/api/users", UserRouter(conn, jwtSecret, auther, blobURL))
 	r.Mount("/api/hubs", HubRouter(conn, jwtSecret, auther, blobURL, hubConns))
+	r.Mount("/api/gifs", GifyRouter(conn, jwtSecret, auther, gifAPI))
 
 	// FileServer(r, "/", webRoot)
 	return r

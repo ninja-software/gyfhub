@@ -23,7 +23,7 @@ import (
 
 // Version build Version
 const Version = "v0.0.1-dev"
-const envPrefix = "gyfhub"
+const envPrefix = "GYFHUB"
 
 func main() {
 	app := &cli.App{
@@ -58,6 +58,8 @@ func main() {
 					&cli.StringFlag{Name: "email_domain", Value: "njs.dev", Usage: "Mailer domain", EnvVars: []string{envPrefix + "_EMAIL_DOMAIN"}},
 					&cli.StringFlag{Name: "email_sender", Value: "Ninja Software <noreply@njs.dev>", Usage: "Default email address to send emails from", EnvVars: []string{envPrefix + "_EMAIL_SENDER"}},
 					&cli.StringFlag{Name: "email_apikey", Value: "SAMPLE KEY", Usage: "MailGun API key", EnvVars: []string{envPrefix + "_EMAIL_APIKEY"}},
+
+					&cli.StringFlag{Name: "gify_apikey", Value: "SAMPLE KEY", Usage: "Gify API key", EnvVars: []string{envPrefix + "_GIFY_APIKEY"}},
 				},
 				Action: func(c *cli.Context) error {
 					var err error
@@ -112,6 +114,7 @@ func main() {
 							mailer,
 							mailHost,
 							c.String("web_root"),
+							c.String("gify_apikey"),
 						)
 
 						server := &gyfhub.APIService{
