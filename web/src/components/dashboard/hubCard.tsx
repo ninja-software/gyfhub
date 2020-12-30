@@ -40,13 +40,10 @@ export const HubCard = () => {
 	const [hubs, setHubs] = React.useState<Hub[]>([])
 
 	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
-
 	React.useEffect(() => {
 		if (loading || error || !data) return
 		setHubs(data)
 	}, [data])
-
-	if (!loading && error) return <div>An error occurred</div>
 
 	return (
 		<ExpCard>
@@ -64,21 +61,13 @@ export const HubCard = () => {
 
 			<div className={classes.hubList}>
 				{/* // todo make this look pretty */}
-				{hubs.map((d, idx) => {
-					// render the first 3
-					if (idx >= 3) {
-						return <></>
-					}
+				<Box m={5} />
+
+				<div>list here</div>
+				{hubs.map((d) => {
 					return (
-						<div
-							className={classes.hubBtn}
-							onClick={() => {
-								// todo refactor this
-								history.push("/chat")
-							}}
-						>
-							{/* todo change to render avatar instead of initials */}
-							<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
+						<div style={{ marginTop: "10px" }} key={d.id}>
+							<ExpButton onClick={() => history.push("/hubs/chat?id=" + d.id)}>hub name: {d.name}</ExpButton>
 						</div>
 					)
 				})}

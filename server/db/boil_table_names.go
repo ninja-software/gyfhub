@@ -9,6 +9,7 @@ var TableNames = struct {
 	FollowerUsersFollowedUsers string
 	Hubs                       string
 	IssuedTokens               string
+	Messages                   string
 	SchemaMigrations           string
 	Users                      string
 }{
@@ -17,6 +18,7 @@ var TableNames = struct {
 	FollowerUsersFollowedUsers: "follower_users_followed_users",
 	Hubs:                       "hubs",
 	IssuedTokens:               "issued_tokens",
+	Messages:                   "messages",
 	SchemaMigrations:           "schema_migrations",
 	Users:                      "users",
 }

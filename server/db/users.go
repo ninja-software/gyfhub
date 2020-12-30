@@ -134,11 +134,13 @@ var UserRels = struct {
 	FollowerUserUsers string
 	FollowedUserUsers string
 	IssuedTokens      string
+	SenderMessages    string
 }{
 	Avatar:            "Avatar",
 	FollowerUserUsers: "FollowerUserUsers",
 	FollowedUserUsers: "FollowedUserUsers",
 	IssuedTokens:      "IssuedTokens",
+	SenderMessages:    "SenderMessages",
 }
 
 // userR is where relationships are stored.
@@ -147,6 +149,7 @@ type userR struct {
 	FollowerUserUsers UserSlice        `db:"FollowerUserUsers" boil:"FollowerUserUsers" json:"FollowerUserUsers" toml:"FollowerUserUsers" yaml:"FollowerUserUsers"`
 	FollowedUserUsers UserSlice        `db:"FollowedUserUsers" boil:"FollowedUserUsers" json:"FollowedUserUsers" toml:"FollowedUserUsers" yaml:"FollowedUserUsers"`
 	IssuedTokens      IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
+	SenderMessages    MessageSlice     `db:"SenderMessages" boil:"SenderMessages" json:"SenderMessages" toml:"SenderMessages" yaml:"SenderMessages"`
 }
 
 // NewStruct creates a new relationship struct
@@ -477,6 +480,27 @@ func (o *User) IssuedTokens(mods ...qm.QueryMod) issuedTokenQuery {
 
 	if len(queries.GetSelect(query.Query)) == 0 {
 		queries.SetSelect(query.Query, []string{"\"issued_tokens\".*"})
+	}
+
+	return query
+}
+
+// SenderMessages retrieves all the message's Messages with an executor via sender_id column.
+func (o *User) SenderMessages(mods ...qm.QueryMod) messageQuery {
+	var queryMods []qm.QueryMod
+	if len(mods) != 0 {
+		queryMods = append(queryMods, mods...)
+	}
+
+	queryMods = append(queryMods,
+		qm.Where("\"messages\".\"sender_id\"=?", o.ID),
+	)
+
+	query := Messages(queryMods...)
+	queries.SetFrom(query.Query, "\"messages\"")
+
+	if len(queries.GetSelect(query.Query)) == 0 {
+		queries.SetSelect(query.Query, []string{"\"messages\".*"})
 	}
 
 	return query
@@ -918,6 +942,104 @@ func (userL) LoadIssuedTokens(e boil.Executor, singular bool, maybeUser interfac
 	return nil
 }
 
+// LoadSenderMessages allows an eager lookup of values, cached into the
+// loaded structs of the objects. This is for a 1-M or N-M relationship.
+func (userL) LoadSenderMessages(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+	var slice []*User
+	var object *User
+
+	if singular {
+		object = maybeUser.(*User)
+	} else {
+		slice = *maybeUser.(*[]*User)
+	}
+
+	args := make([]interface{}, 0, 1)
+	if singular {
+		if object.R == nil {
+			object.R = &userR{}
+		}
+		args = append(args, object.ID)
+	} else {
+	Outer:
+		for _, obj := range slice {
+			if obj.R == nil {
+				obj.R = &userR{}
+			}
+
+			for _, a := range args {
+				if a == obj.ID {
+					continue Outer
+				}
+			}
+
+			args = append(args, obj.ID)
+		}
+	}
+
+	if len(args) == 0 {
+		return nil
+	}
+
+	query := NewQuery(
+		qm.From(`messages`),
+		qm.WhereIn(`messages.sender_id in ?`, args...),
+	)
+	if mods != nil {
+		mods.Apply(query)
+	}
+
+	results, err := query.Query(e)
+	if err != nil {
+		return errors.Wrap(err, "failed to eager load messages")
+	}
+
+	var resultSlice []*Message
+	if err = queries.Bind(results, &resultSlice); err != nil {
+		return errors.Wrap(err, "failed to bind eager loaded slice messages")
+	}
+
+	if err = results.Close(); err != nil {
+		return errors.Wrap(err, "failed to close results in eager load on messages")
+	}
+	if err = results.Err(); err != nil {
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for messages")
+	}
+
+	if len(messageAfterSelectHooks) != 0 {
+		for _, obj := range resultSlice {
+			if err := obj.doAfterSelectHooks(e); err != nil {
+				return err
+			}
+		}
+	}
+	if singular {
+		object.R.SenderMessages = resultSlice
+		for _, foreign := range resultSlice {
+			if foreign.R == nil {
+				foreign.R = &messageR{}
+			}
+			foreign.R.Sender = object
+		}
+		return nil
+	}
+
+	for _, foreign := range resultSlice {
+		for _, local := range slice {
+			if local.ID == foreign.SenderID {
+				local.R.SenderMessages = append(local.R.SenderMessages, foreign)
+				if foreign.R == nil {
+					foreign.R = &messageR{}
+				}
+				foreign.R.Sender = local
+				break
+			}
+		}
+	}
+
+	return nil
+}
+
 // SetAvatar of the user to the related item.
 // Sets o.R.Avatar to related.
 // Adds o to related.R.AvatarUsers.
@@ -1318,6 +1440,58 @@ func (o *User) AddIssuedTokens(exec boil.Executor, insert bool, related ...*Issu
 			}
 		} else {
 			rel.R.User = o
+		}
+	}
+	return nil
+}
+
+// AddSenderMessages adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.SenderMessages.
+// Sets related.R.Sender appropriately.
+func (o *User) AddSenderMessages(exec boil.Executor, insert bool, related ...*Message) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			rel.SenderID = o.ID
+			if err = rel.Insert(exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		} else {
+			updateQuery := fmt.Sprintf(
+				"UPDATE \"messages\" SET %s WHERE %s",
+				strmangle.SetParamNames("\"", "\"", 1, []string{"sender_id"}),
+				strmangle.WhereClause("\"", "\"", 2, messagePrimaryKeyColumns),
+			)
+			values := []interface{}{o.ID, rel.ID}
+
+			if boil.DebugMode {
+				fmt.Fprintln(boil.DebugWriter, updateQuery)
+				fmt.Fprintln(boil.DebugWriter, values)
+			}
+			if _, err = exec.Exec(updateQuery, values...); err != nil {
+				return errors.Wrap(err, "failed to update foreign table")
+			}
+
+			rel.SenderID = o.ID
+		}
+	}
+
+	if o.R == nil {
+		o.R = &userR{
+			SenderMessages: related,
+		}
+	} else {
+		o.R.SenderMessages = append(o.R.SenderMessages, related...)
+	}
+
+	for _, rel := range related {
+		if rel.R == nil {
+			rel.R = &messageR{
+				Sender: o,
+			}
+		} else {
+			rel.R.Sender = o
 		}
 	}
 	return nil
