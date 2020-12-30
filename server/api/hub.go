@@ -17,6 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/ninja-software/terror"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // HubController holds connection data for handlers
@@ -43,11 +44,12 @@ func HubRouter(
 	}
 
 	r := chi.NewRouter()
+	r.Get("/{id}", WithError(WithMember(conn, jwtSecret, c.GetHub)))
 	r.Post("/create", WithError(WithMember(conn, jwtSecret, c.CreateHub)))
 	r.Post("/all", WithError(WithMember(conn, jwtSecret, c.All)))
 
 	// websocket handler
-	r.HandleFunc("/{id}", WithError(WithMember(conn, jwtSecret, c.handleServeWs)))
+	r.HandleFunc("/ws/{id}", WithError(WithMember(conn, jwtSecret, c.handleServeWs)))
 
 	return r
 }
@@ -67,6 +69,22 @@ func NewHub(h *db.Hub, blobBaseURL string) *Hub {
 		hub.AvatarURL = blobBaseURL + h.AvatarID.String
 	}
 	return hub
+}
+
+func (c *HubController) GetHub(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	id := chi.URLParam(r, "id")
+	_, err := uuid.FromString(id)
+	if err != nil {
+		return http.StatusBadRequest, terror.New(err, "")
+	}
+	defer r.Body.Close()
+
+	h, err := db.FindHub(c.Conn, id)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	return helpers.EncodeJSON(w, NewHub(h, c.BlobURL))
 }
 
 // HubInput input
@@ -134,7 +152,11 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 		return http.StatusBadRequest, terror.New(err, "")
 	}
 
-	ms, err := h.Messages().All(c.Conn)
+	ms, err := h.Messages(
+		qm.Load(
+			db.MessageRels.Sender,
+		),
+	).All(c.Conn)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
 	}
@@ -153,7 +175,15 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	}
 
 	// set up the client
-	client := &Client{hub: c.HubConns[h.ID], ws: ws, send: make(chan []byte, 256), client: u, dbConn: c.Conn, hubID: hubID}
+	client := &Client{
+		hub:    c.HubConns[h.ID],
+		ws:     ws,
+		send:   make(chan []byte, 256),
+		client: NewUser(u, c.BlobURL),
+		dbConn: c.Conn,
+		hubID:  hubID,
+	}
+
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
@@ -161,7 +191,16 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	go client.readPump()
 	go client.writePump()
 
-	b, err := json.Marshal(ms)
+	resp := []*Message{}
+
+	for _, m := range ms {
+		resp = append(resp, &Message{
+			Message: m,
+			Sender:  NewUser(m.R.Sender, c.BlobURL),
+		})
+	}
+
+	b, err := json.Marshal(resp)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
 	}
@@ -205,7 +244,7 @@ type HubConn struct {
 type Client struct {
 	hub *HubConn
 
-	client *db.User
+	client *UserDetail
 
 	hubID string
 
@@ -233,7 +272,7 @@ var (
 
 type Message struct {
 	*db.Message
-	Sender *db.User `json:"sender"`
+	Sender *UserDetail `json:"sender"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -259,7 +298,6 @@ func (c *Client) readPump() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		spew.Dump("2222222222222222222222222222222222222222222222222222222222222222222222222222222222")
 		// store messages
 		m := &db.Message{
 			Content:  string(message),
@@ -274,7 +312,7 @@ func (c *Client) readPump() {
 		}
 
 		// build response message
-		resp := []Message{
+		resp := []*Message{
 			{
 				Message: m,
 				Sender:  c.client,
@@ -286,8 +324,6 @@ func (c *Client) readPump() {
 		if err != nil {
 			return
 		}
-
-		spew.Dump(string(b))
 
 		c.hub.broadcast <- b
 	}
