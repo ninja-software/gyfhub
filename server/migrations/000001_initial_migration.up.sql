@@ -71,7 +71,6 @@ CREATE TRIGGER updateUserKeywords
    FOR EACH ROW
    EXECUTE PROCEDURE updateUserKeywords ();
 
-
 CREATE TABLE issued_tokens (
    id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
    user_id uuid NOT NULL REFERENCES users (id),
@@ -90,3 +89,13 @@ CREATE TABLE hubs (
    updated_at timestamptz NOT NULL DEFAULT NOW(),
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE messages (
+   id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+   content text NOT NULL,
+   sender_id uuid NOT NULL REFERENCES users (id),
+   deleted_at timestamptz,
+   updated_at timestamptz NOT NULL DEFAULT NOW(),
+   created_at timestamptz NOT NULL DEFAULT NOW()
+);
+
