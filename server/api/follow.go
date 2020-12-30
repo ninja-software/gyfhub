@@ -10,28 +10,28 @@ import (
 )
 
 // UserController holds connection data for handlers
-type FriendController struct {
+type FollowController struct {
 	Conn    *sqlx.DB
 	Auther  *gyfhub.Auther
 	BlobURL string
 }
 
-func FriendRouter(
+func FollowRouter(
 	conn *sqlx.DB,
 	jwtSecret string,
 	auther *gyfhub.Auther,
 	blobURL string,
 ) chi.Router {
-	c := &FriendController{
+	c := &FollowController{
 		conn,
 		auther,
 		blobURL,
 	}
 
 	r := chi.NewRouter()
-	r.Post("/friendsList", WithError(WithMember(conn, jwtSecret, c.ListFriends)))
-	// r.Post("/sendRequest", WithError(WithMember(conn, jwtSecret, c.)))
-	// r.Post("/acceptRequest", WithError(WithMember(conn, jwtSecret, c.)))
+	r.Post("/friendsList", WithError(WithMember(conn, jwtSecret, c.GetFollowers)))
+	r.Post("/sendRequest", WithError(WithMember(conn, jwtSecret, c.SendRequest)))
+	r.Post("/acceptRequest", WithError(WithMember(conn, jwtSecret, c.UpdateRequest)))
 
 	return r
 }
@@ -43,8 +43,11 @@ type FriendsListRequest struct {
 	Filter string `json:"filter"`
 }
 
-// OpportunityMany return a list of opportunities
-func (c *FriendController) ListFriends(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+type RequestInput struct {
+}
+
+// GetFollowers returns amount of follows
+func (c *FollowController) GetFollowers(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
 	// req := &FriendsListRequest{}
 	// err := json.NewDecoder(r.Body).Decode(req)
 	// if err != nil {
@@ -65,3 +68,14 @@ func (c *FriendController) ListFriends(w http.ResponseWriter, r *http.Request, u
 }
 
 // u.Connections().All(c.Conn)
+
+// SendFriendRequest sends an invitation
+func (c *FollowController) SendRequest(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+
+	panic("")
+}
+
+// AcceptFriendRequest accepts the invitation
+func (c *FollowController) UpdateRequest(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	panic("")
+}

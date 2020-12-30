@@ -24,6 +24,7 @@ CREATE TABLE users (
    first_name text NOT NULL,
    last_name text NOT NULL,
    city text,
+   followers INT REFERENCES follow (amount)
    type text NOT NULL,
    -- reference table
    avatar_id uuid REFERENCES blobs (id),
@@ -42,20 +43,14 @@ CREATE TABLE users (
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
 
--- tracking connections for friend system
-CREATE TABLE connections(
-   id uuid  NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
-   status TEXT NOT NULL CHECK (status in ('REQUEST', 'CONNECTED', 'BLOCKED')),
-   archived BOOLEAN NOT NULL DEFAULT FALSE,
-   archived_at TIMESTAMPTZ,
+-- tracking followers for follow system
+CREATE TABLE follow(
+   user_id uuid NOT NULL REFERENCES users (id),
+   followed_id uuid NOT NULL REFERENCES users (id),
+   PRIMARY KEY (user_id, followed_id),
+   amount INT,
    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE users_connections(
-   user_id uuid NOT NULL REFERENCES users (id),
-   connection_id uuid NOT NULL REFERENCES connections (id),
-   PRIMARY KEY (user_id, connection_id)
 );
 
 -- for users text search
