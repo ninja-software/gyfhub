@@ -19,6 +19,12 @@ export interface Hub {
 	isPrivate?: boolean
 }
 
+export interface Follow {
+	id: string
+	follower: string
+	following: string
+}
+
 // todo complete this interface
 export interface Friend {
 	id: string

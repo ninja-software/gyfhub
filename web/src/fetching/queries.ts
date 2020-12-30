@@ -1,5 +1,5 @@
 import { Action } from "react-fetching-library"
-import { Hub, Opportunity, User } from "../types/types"
+import { Follow, Hub, Opportunity, User } from "../types/types"
 
 // Authentication
 const getMe = (): Action<User> => {
@@ -62,6 +62,22 @@ const getHub = (id: string): Action<Hub[]> => ({
 	responseType: "json",
 })
 
+// follow system
+
+const getFollowers = (): Action<Follow> => ({
+	method: "GET",
+	endpoint: `/followers/followers`,
+	credentials: "include",
+	responseType: "json",
+})
+
+const getFollowing = (): Action<Follow> => ({
+	method: "GET",
+	endpoint: `/followers/following`,
+	credentials: "include",
+	responseType: "json",
+})
+
 export const queries = {
 	getMe,
 	opportunitiesMany,
@@ -69,4 +85,6 @@ export const queries = {
 	getOpportunity,
 	allHubs,
 	getHub,
+	getFollowers,
+	getFollowing,
 }

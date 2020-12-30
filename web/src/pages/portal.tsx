@@ -13,6 +13,7 @@ import { HubCreatePage } from "./hubs/hubCreate"
 
 import { UserType } from "../types/enum"
 import { HubRoot } from "./hubs/root"
+import { FollowRoot } from "./friends/followRoot"
 
 const useStyle = makeStyles(() => ({
 	outer: {
@@ -41,6 +42,8 @@ const PortalInner = () => {
 					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
 
 					<PrivateRoute path="/hubs" component={HubRoot} />
+
+					<PrivateRoute path="/follow" component={FollowRoot} />
 
 					<PrivateRoute exact path="/" component={Dashboard} />
 

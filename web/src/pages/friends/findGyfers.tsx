@@ -8,7 +8,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 }))
 
-export const Friends = () => {
+export const FindGyfers = () => {
 	const classes = useStyles()
 
 	return (

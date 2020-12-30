@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom"
 import { ExpButton } from "../common/button"
 import { useQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
-import { Friend, Hub } from "../../types/types"
+import { Follow } from "../../types/types"
 
 const useStyle = makeStyles((theme) => ({
 	hubList: {
@@ -37,17 +37,13 @@ export const FriendsCard = () => {
 	const classes = useStyle()
 	const history = useHistory()
 
-	const [friends, setFriends] = React.useState<Friend[]>([])
-
 	// todo query friends
-	const { payload: data, loading, error } = useQuery<Friend[]>(fetching.queries.allHubs())
+	const { payload: followers, loading: followersLoading, error: followersError } = useQuery<Follow>(fetching.queries.getFollowers())
+	const { payload: following, loading: followingLoading, error: followingError } = useQuery<Follow>(fetching.queries.getFollowing())
 
-	React.useEffect(() => {
-		if (loading || error || !data) return
-		setFriends([]) // todo finish
-	}, [data])
+	if (!followersLoading && followingLoading) return <div>Loading</div>
 
-	if (!loading && error) return <div>An error occurred</div>
+	if (!followersError && followingError) return <div>An error occured</div>
 
 	return (
 		<ExpCard>
@@ -57,42 +53,19 @@ export const FriendsCard = () => {
 						<Box fontWeight="bold">Friends</Box>
 					</Typography>
 				</div>
-
 				<div>
-					{/* // todo implement add friend(s) */}
-					<ExpButton onClick={() => history.push("/hubs/create")}>Add Friend</ExpButton>
+					<Typography variant="h2">
+						<Box>Followers: {followers}</Box>
+					</Typography>
 				</div>
-			</div>
-
-			<div className={classes.hubList}>
-				{/* // todo make this look pretty */}
-				{friends.length > 0 ? (
-					friends.map((d, idx) => {
-						// render the first 3
-						if (idx >= 3) {
-							return <></>
-						}
-						return (
-							<div
-								className={classes.cardBtn}
-								onClick={() => {
-									// todo refactor this
-								}}
-							>
-								{/* todo change to render avatar instead of initials */}
-								<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
-							</div>
-						)
-					})
-				) : (
-					<Typography variant="h4">you have no friends lol</Typography>
-				)}
-
-				{friends.length > 2 && (
-					<div className={classes.viewAllBtn}>
-						<ExpButton styleType={"tertiary"}>View all friends</ExpButton>
-					</div>
-				)}
+				<div>
+					<Typography variant="h2">
+						<Box>Following: {following}</Box>
+					</Typography>
+				</div>
+				<div>
+					<ExpButton onClick={() => history.push("/follow/find")}>Find Gyfers</ExpButton>
+				</div>
 			</div>
 		</ExpCard>
 	)
