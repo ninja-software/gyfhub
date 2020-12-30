@@ -28,7 +28,6 @@ type User struct {
 	FirstName          string      `db:"first_name" boil:"first_name" json:"firstName" toml:"firstName" yaml:"firstName"`
 	LastName           string      `db:"last_name" boil:"last_name" json:"lastName" toml:"lastName" yaml:"lastName"`
 	City               null.String `db:"city" boil:"city" json:"city,omitempty" toml:"city" yaml:"city,omitempty"`
-	Followers          int         `db:"followers" boil:"followers" json:"followers" toml:"followers" yaml:"followers"`
 	Type               string      `db:"type" boil:"type" json:"type" toml:"type" yaml:"type"`
 	AvatarID           null.String `db:"avatar_id" boil:"avatar_id" json:"avatarID,omitempty" toml:"avatarID" yaml:"avatarID,omitempty"`
 	Verified           bool        `db:"verified" boil:"verified" json:"verified" toml:"verified" yaml:"verified"`
@@ -53,7 +52,6 @@ var UserColumns = struct {
 	FirstName          string
 	LastName           string
 	City               string
-	Followers          string
 	Type               string
 	AvatarID           string
 	Verified           string
@@ -73,7 +71,6 @@ var UserColumns = struct {
 	FirstName:          "first_name",
 	LastName:           "last_name",
 	City:               "city",
-	Followers:          "followers",
 	Type:               "type",
 	AvatarID:           "avatar_id",
 	Verified:           "verified",
@@ -97,7 +94,6 @@ var UserWhere = struct {
 	FirstName          whereHelperstring
 	LastName           whereHelperstring
 	City               whereHelpernull_String
-	Followers          whereHelperint
 	Type               whereHelperstring
 	AvatarID           whereHelpernull_String
 	Verified           whereHelperbool
@@ -117,7 +113,6 @@ var UserWhere = struct {
 	FirstName:          whereHelperstring{field: "\"users\".\"first_name\""},
 	LastName:           whereHelperstring{field: "\"users\".\"last_name\""},
 	City:               whereHelpernull_String{field: "\"users\".\"city\""},
-	Followers:          whereHelperint{field: "\"users\".\"followers\""},
 	Type:               whereHelperstring{field: "\"users\".\"type\""},
 	AvatarID:           whereHelpernull_String{field: "\"users\".\"avatar_id\""},
 	Verified:           whereHelperbool{field: "\"users\".\"verified\""},
@@ -135,23 +130,23 @@ var UserWhere = struct {
 
 // UserRels is where relationship names are stored.
 var UserRels = struct {
-	Avatar          string
-	FollowedFollows string
-	Follows         string
-	IssuedTokens    string
+	Avatar            string
+	FollowerUserUsers string
+	FollowedUserUsers string
+	IssuedTokens      string
 }{
-	Avatar:          "Avatar",
-	FollowedFollows: "FollowedFollows",
-	Follows:         "Follows",
-	IssuedTokens:    "IssuedTokens",
+	Avatar:            "Avatar",
+	FollowerUserUsers: "FollowerUserUsers",
+	FollowedUserUsers: "FollowedUserUsers",
+	IssuedTokens:      "IssuedTokens",
 }
 
 // userR is where relationships are stored.
 type userR struct {
-	Avatar          *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
-	FollowedFollows FollowSlice      `db:"FollowedFollows" boil:"FollowedFollows" json:"FollowedFollows" toml:"FollowedFollows" yaml:"FollowedFollows"`
-	Follows         FollowSlice      `db:"Follows" boil:"Follows" json:"Follows" toml:"Follows" yaml:"Follows"`
-	IssuedTokens    IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
+	Avatar            *Blob            `db:"Avatar" boil:"Avatar" json:"Avatar" toml:"Avatar" yaml:"Avatar"`
+	FollowerUserUsers UserSlice        `db:"FollowerUserUsers" boil:"FollowerUserUsers" json:"FollowerUserUsers" toml:"FollowerUserUsers" yaml:"FollowerUserUsers"`
+	FollowedUserUsers UserSlice        `db:"FollowedUserUsers" boil:"FollowedUserUsers" json:"FollowedUserUsers" toml:"FollowedUserUsers" yaml:"FollowedUserUsers"`
+	IssuedTokens      IssuedTokenSlice `db:"IssuedTokens" boil:"IssuedTokens" json:"IssuedTokens" toml:"IssuedTokens" yaml:"IssuedTokens"`
 }
 
 // NewStruct creates a new relationship struct
@@ -163,8 +158,8 @@ func (*userR) NewStruct() *userR {
 type userL struct{}
 
 var (
-	userAllColumns            = []string{"id", "email", "first_name", "last_name", "city", "followers", "type", "avatar_id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "password_hash", "keywords", "deleted_at", "updated_at", "created_at"}
-	userColumnsWithoutDefault = []string{"email", "first_name", "last_name", "city", "followers", "type", "avatar_id", "password_hash", "keywords", "deleted_at"}
+	userAllColumns            = []string{"id", "email", "first_name", "last_name", "city", "type", "avatar_id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "password_hash", "keywords", "deleted_at", "updated_at", "created_at"}
+	userColumnsWithoutDefault = []string{"email", "first_name", "last_name", "city", "type", "avatar_id", "password_hash", "keywords", "deleted_at"}
 	userColumnsWithDefault    = []string{"id", "verified", "verify_token", "verify_token_expires", "require_old_password", "reset_token", "reset_token_expires", "updated_at", "created_at"}
 	userPrimaryKeyColumns     = []string{"id"}
 )
@@ -422,43 +417,45 @@ func (o *User) Avatar(mods ...qm.QueryMod) blobQuery {
 	return query
 }
 
-// FollowedFollows retrieves all the follow's Follows with an executor via followed_id column.
-func (o *User) FollowedFollows(mods ...qm.QueryMod) followQuery {
+// FollowerUserUsers retrieves all the user's Users with an executor via id column.
+func (o *User) FollowerUserUsers(mods ...qm.QueryMod) userQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"follow\".\"followed_id\"=?", o.ID),
+		qm.InnerJoin("\"follower_users_followed_users\" on \"users\".\"id\" = \"follower_users_followed_users\".\"follower_user_id\""),
+		qm.Where("\"follower_users_followed_users\".\"followed_user_id\"=?", o.ID),
 	)
 
-	query := Follows(queryMods...)
-	queries.SetFrom(query.Query, "\"follow\"")
+	query := Users(queryMods...)
+	queries.SetFrom(query.Query, "\"users\"")
 
 	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"follow\".*"})
+		queries.SetSelect(query.Query, []string{"\"users\".*"})
 	}
 
 	return query
 }
 
-// Follows retrieves all the follow's Follows with an executor.
-func (o *User) Follows(mods ...qm.QueryMod) followQuery {
+// FollowedUserUsers retrieves all the user's Users with an executor via id column.
+func (o *User) FollowedUserUsers(mods ...qm.QueryMod) userQuery {
 	var queryMods []qm.QueryMod
 	if len(mods) != 0 {
 		queryMods = append(queryMods, mods...)
 	}
 
 	queryMods = append(queryMods,
-		qm.Where("\"follow\".\"user_id\"=?", o.ID),
+		qm.InnerJoin("\"follower_users_followed_users\" on \"users\".\"id\" = \"follower_users_followed_users\".\"followed_user_id\""),
+		qm.Where("\"follower_users_followed_users\".\"follower_user_id\"=?", o.ID),
 	)
 
-	query := Follows(queryMods...)
-	queries.SetFrom(query.Query, "\"follow\"")
+	query := Users(queryMods...)
+	queries.SetFrom(query.Query, "\"users\"")
 
 	if len(queries.GetSelect(query.Query)) == 0 {
-		queries.SetSelect(query.Query, []string{"\"follow\".*"})
+		queries.SetSelect(query.Query, []string{"\"users\".*"})
 	}
 
 	return query
@@ -593,9 +590,9 @@ func (userL) LoadAvatar(e boil.Executor, singular bool, maybeUser interface{}, m
 	return nil
 }
 
-// LoadFollowedFollows allows an eager lookup of values, cached into the
+// LoadFollowerUserUsers allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadFollowedFollows(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadFollowerUserUsers(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -633,8 +630,10 @@ func (userL) LoadFollowedFollows(e boil.Executor, singular bool, maybeUser inter
 	}
 
 	query := NewQuery(
-		qm.From(`follow`),
-		qm.WhereIn(`follow.followed_id in ?`, args...),
+		qm.Select("\"users\".id, \"users\".email, \"users\".first_name, \"users\".last_name, \"users\".city, \"users\".type, \"users\".avatar_id, \"users\".verified, \"users\".verify_token, \"users\".verify_token_expires, \"users\".require_old_password, \"users\".reset_token, \"users\".reset_token_expires, \"users\".password_hash, \"users\".keywords, \"users\".deleted_at, \"users\".updated_at, \"users\".created_at, \"a\".\"followed_user_id\""),
+		qm.From("\"users\""),
+		qm.InnerJoin("\"follower_users_followed_users\" as \"a\" on \"users\".\"id\" = \"a\".\"follower_user_id\""),
+		qm.WhereIn("\"a\".\"followed_user_id\" in ?", args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -642,22 +641,36 @@ func (userL) LoadFollowedFollows(e boil.Executor, singular bool, maybeUser inter
 
 	results, err := query.Query(e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load follow")
+		return errors.Wrap(err, "failed to eager load users")
 	}
 
-	var resultSlice []*Follow
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice follow")
+	var resultSlice []*User
+
+	var localJoinCols []string
+	for results.Next() {
+		one := new(User)
+		var localJoinCol string
+
+		err = results.Scan(&one.ID, &one.Email, &one.FirstName, &one.LastName, &one.City, &one.Type, &one.AvatarID, &one.Verified, &one.VerifyToken, &one.VerifyTokenExpires, &one.RequireOldPassword, &one.ResetToken, &one.ResetTokenExpires, &one.PasswordHash, &one.Keywords, &one.DeletedAt, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for users")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice users")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on follow")
+		return errors.Wrap(err, "failed to close results in eager load on users")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for follow")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(followAfterSelectHooks) != 0 {
+	if len(userAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(e); err != nil {
 				return err
@@ -665,24 +678,25 @@ func (userL) LoadFollowedFollows(e boil.Executor, singular bool, maybeUser inter
 		}
 	}
 	if singular {
-		object.R.FollowedFollows = resultSlice
+		object.R.FollowerUserUsers = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &followR{}
+				foreign.R = &userR{}
 			}
-			foreign.R.Followed = object
+			foreign.R.FollowedUserUsers = append(foreign.R.FollowedUserUsers, object)
 		}
 		return nil
 	}
 
-	for _, foreign := range resultSlice {
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
 		for _, local := range slice {
-			if local.ID == foreign.FollowedID {
-				local.R.FollowedFollows = append(local.R.FollowedFollows, foreign)
+			if local.ID == localJoinCol {
+				local.R.FollowerUserUsers = append(local.R.FollowerUserUsers, foreign)
 				if foreign.R == nil {
-					foreign.R = &followR{}
+					foreign.R = &userR{}
 				}
-				foreign.R.Followed = local
+				foreign.R.FollowedUserUsers = append(foreign.R.FollowedUserUsers, local)
 				break
 			}
 		}
@@ -691,9 +705,9 @@ func (userL) LoadFollowedFollows(e boil.Executor, singular bool, maybeUser inter
 	return nil
 }
 
-// LoadFollows allows an eager lookup of values, cached into the
+// LoadFollowedUserUsers allows an eager lookup of values, cached into the
 // loaded structs of the objects. This is for a 1-M or N-M relationship.
-func (userL) LoadFollows(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
+func (userL) LoadFollowedUserUsers(e boil.Executor, singular bool, maybeUser interface{}, mods queries.Applicator) error {
 	var slice []*User
 	var object *User
 
@@ -731,8 +745,10 @@ func (userL) LoadFollows(e boil.Executor, singular bool, maybeUser interface{}, 
 	}
 
 	query := NewQuery(
-		qm.From(`follow`),
-		qm.WhereIn(`follow.user_id in ?`, args...),
+		qm.Select("\"users\".id, \"users\".email, \"users\".first_name, \"users\".last_name, \"users\".city, \"users\".type, \"users\".avatar_id, \"users\".verified, \"users\".verify_token, \"users\".verify_token_expires, \"users\".require_old_password, \"users\".reset_token, \"users\".reset_token_expires, \"users\".password_hash, \"users\".keywords, \"users\".deleted_at, \"users\".updated_at, \"users\".created_at, \"a\".\"follower_user_id\""),
+		qm.From("\"users\""),
+		qm.InnerJoin("\"follower_users_followed_users\" as \"a\" on \"users\".\"id\" = \"a\".\"followed_user_id\""),
+		qm.WhereIn("\"a\".\"follower_user_id\" in ?", args...),
 	)
 	if mods != nil {
 		mods.Apply(query)
@@ -740,22 +756,36 @@ func (userL) LoadFollows(e boil.Executor, singular bool, maybeUser interface{}, 
 
 	results, err := query.Query(e)
 	if err != nil {
-		return errors.Wrap(err, "failed to eager load follow")
+		return errors.Wrap(err, "failed to eager load users")
 	}
 
-	var resultSlice []*Follow
-	if err = queries.Bind(results, &resultSlice); err != nil {
-		return errors.Wrap(err, "failed to bind eager loaded slice follow")
+	var resultSlice []*User
+
+	var localJoinCols []string
+	for results.Next() {
+		one := new(User)
+		var localJoinCol string
+
+		err = results.Scan(&one.ID, &one.Email, &one.FirstName, &one.LastName, &one.City, &one.Type, &one.AvatarID, &one.Verified, &one.VerifyToken, &one.VerifyTokenExpires, &one.RequireOldPassword, &one.ResetToken, &one.ResetTokenExpires, &one.PasswordHash, &one.Keywords, &one.DeletedAt, &one.UpdatedAt, &one.CreatedAt, &localJoinCol)
+		if err != nil {
+			return errors.Wrap(err, "failed to scan eager loaded results for users")
+		}
+		if err = results.Err(); err != nil {
+			return errors.Wrap(err, "failed to plebian-bind eager loaded slice users")
+		}
+
+		resultSlice = append(resultSlice, one)
+		localJoinCols = append(localJoinCols, localJoinCol)
 	}
 
 	if err = results.Close(); err != nil {
-		return errors.Wrap(err, "failed to close results in eager load on follow")
+		return errors.Wrap(err, "failed to close results in eager load on users")
 	}
 	if err = results.Err(); err != nil {
-		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for follow")
+		return errors.Wrap(err, "error occurred during iteration of eager loaded relations for users")
 	}
 
-	if len(followAfterSelectHooks) != 0 {
+	if len(userAfterSelectHooks) != 0 {
 		for _, obj := range resultSlice {
 			if err := obj.doAfterSelectHooks(e); err != nil {
 				return err
@@ -763,24 +793,25 @@ func (userL) LoadFollows(e boil.Executor, singular bool, maybeUser interface{}, 
 		}
 	}
 	if singular {
-		object.R.Follows = resultSlice
+		object.R.FollowedUserUsers = resultSlice
 		for _, foreign := range resultSlice {
 			if foreign.R == nil {
-				foreign.R = &followR{}
+				foreign.R = &userR{}
 			}
-			foreign.R.User = object
+			foreign.R.FollowerUserUsers = append(foreign.R.FollowerUserUsers, object)
 		}
 		return nil
 	}
 
-	for _, foreign := range resultSlice {
+	for i, foreign := range resultSlice {
+		localJoinCol := localJoinCols[i]
 		for _, local := range slice {
-			if local.ID == foreign.UserID {
-				local.R.Follows = append(local.R.Follows, foreign)
+			if local.ID == localJoinCol {
+				local.R.FollowedUserUsers = append(local.R.FollowedUserUsers, foreign)
 				if foreign.R == nil {
-					foreign.R = &followR{}
+					foreign.R = &userR{}
 				}
-				foreign.R.User = local
+				foreign.R.FollowerUserUsers = append(foreign.R.FollowerUserUsers, local)
 				break
 			}
 		}
@@ -966,108 +997,278 @@ func (o *User) RemoveAvatar(exec boil.Executor, related *Blob) error {
 	return nil
 }
 
-// AddFollowedFollows adds the given related objects to the existing relationships
+// AddFollowerUserUsers adds the given related objects to the existing relationships
 // of the user, optionally inserting them as new records.
-// Appends related to o.R.FollowedFollows.
-// Sets related.R.Followed appropriately.
-func (o *User) AddFollowedFollows(exec boil.Executor, insert bool, related ...*Follow) error {
+// Appends related to o.R.FollowerUserUsers.
+// Sets related.R.FollowedUserUsers appropriately.
+func (o *User) AddFollowerUserUsers(exec boil.Executor, insert bool, related ...*User) error {
 	var err error
 	for _, rel := range related {
 		if insert {
-			rel.FollowedID = o.ID
 			if err = rel.Insert(exec, boil.Infer()); err != nil {
 				return errors.Wrap(err, "failed to insert into foreign table")
 			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"follow\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"followed_id"}),
-				strmangle.WhereClause("\"", "\"", 2, followPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.UserID, rel.FollowedID}
-
-			if boil.DebugMode {
-				fmt.Fprintln(boil.DebugWriter, updateQuery)
-				fmt.Fprintln(boil.DebugWriter, values)
-			}
-			if _, err = exec.Exec(updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
-			}
-
-			rel.FollowedID = o.ID
 		}
 	}
 
+	for _, rel := range related {
+		query := "insert into \"follower_users_followed_users\" (\"followed_user_id\", \"follower_user_id\") values ($1, $2)"
+		values := []interface{}{o.ID, rel.ID}
+
+		if boil.DebugMode {
+			fmt.Fprintln(boil.DebugWriter, query)
+			fmt.Fprintln(boil.DebugWriter, values)
+		}
+		_, err = exec.Exec(query, values...)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert into join table")
+		}
+	}
 	if o.R == nil {
 		o.R = &userR{
-			FollowedFollows: related,
+			FollowerUserUsers: related,
 		}
 	} else {
-		o.R.FollowedFollows = append(o.R.FollowedFollows, related...)
+		o.R.FollowerUserUsers = append(o.R.FollowerUserUsers, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &followR{
-				Followed: o,
+			rel.R = &userR{
+				FollowedUserUsers: UserSlice{o},
 			}
 		} else {
-			rel.R.Followed = o
+			rel.R.FollowedUserUsers = append(rel.R.FollowedUserUsers, o)
 		}
 	}
 	return nil
 }
 
-// AddFollows adds the given related objects to the existing relationships
-// of the user, optionally inserting them as new records.
-// Appends related to o.R.Follows.
-// Sets related.R.User appropriately.
-func (o *User) AddFollows(exec boil.Executor, insert bool, related ...*Follow) error {
+// SetFollowerUserUsers removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.FollowedUserUsers's FollowerUserUsers accordingly.
+// Replaces o.R.FollowerUserUsers with related.
+// Sets related.R.FollowedUserUsers's FollowerUserUsers accordingly.
+func (o *User) SetFollowerUserUsers(exec boil.Executor, insert bool, related ...*User) error {
+	query := "delete from \"follower_users_followed_users\" where \"followed_user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err := exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeFollowerUserUsersFromFollowedUserUsersSlice(o, related)
+	if o.R != nil {
+		o.R.FollowerUserUsers = nil
+	}
+	return o.AddFollowerUserUsers(exec, insert, related...)
+}
+
+// RemoveFollowerUserUsers relationships from objects passed in.
+// Removes related items from R.FollowerUserUsers (uses pointer comparison, removal does not keep order)
+// Sets related.R.FollowedUserUsers.
+func (o *User) RemoveFollowerUserUsers(exec boil.Executor, related ...*User) error {
 	var err error
+	query := fmt.Sprintf(
+		"delete from \"follower_users_followed_users\" where \"followed_user_id\" = $1 and \"follower_user_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
+	)
+	values := []interface{}{o.ID}
 	for _, rel := range related {
-		if insert {
-			rel.UserID = o.ID
-			if err = rel.Insert(exec, boil.Infer()); err != nil {
-				return errors.Wrap(err, "failed to insert into foreign table")
-			}
-		} else {
-			updateQuery := fmt.Sprintf(
-				"UPDATE \"follow\" SET %s WHERE %s",
-				strmangle.SetParamNames("\"", "\"", 1, []string{"user_id"}),
-				strmangle.WhereClause("\"", "\"", 2, followPrimaryKeyColumns),
-			)
-			values := []interface{}{o.ID, rel.UserID, rel.FollowedID}
+		values = append(values, rel.ID)
+	}
 
-			if boil.DebugMode {
-				fmt.Fprintln(boil.DebugWriter, updateQuery)
-				fmt.Fprintln(boil.DebugWriter, values)
-			}
-			if _, err = exec.Exec(updateQuery, values...); err != nil {
-				return errors.Wrap(err, "failed to update foreign table")
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err = exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+	removeFollowerUserUsersFromFollowedUserUsersSlice(o, related)
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.FollowerUserUsers {
+			if rel != ri {
+				continue
 			}
 
-			rel.UserID = o.ID
+			ln := len(o.R.FollowerUserUsers)
+			if ln > 1 && i < ln-1 {
+				o.R.FollowerUserUsers[i] = o.R.FollowerUserUsers[ln-1]
+			}
+			o.R.FollowerUserUsers = o.R.FollowerUserUsers[:ln-1]
+			break
 		}
 	}
 
+	return nil
+}
+
+func removeFollowerUserUsersFromFollowedUserUsersSlice(o *User, related []*User) {
+	for _, rel := range related {
+		if rel.R == nil {
+			continue
+		}
+		for i, ri := range rel.R.FollowedUserUsers {
+			if o.ID != ri.ID {
+				continue
+			}
+
+			ln := len(rel.R.FollowedUserUsers)
+			if ln > 1 && i < ln-1 {
+				rel.R.FollowedUserUsers[i] = rel.R.FollowedUserUsers[ln-1]
+			}
+			rel.R.FollowedUserUsers = rel.R.FollowedUserUsers[:ln-1]
+			break
+		}
+	}
+}
+
+// AddFollowedUserUsers adds the given related objects to the existing relationships
+// of the user, optionally inserting them as new records.
+// Appends related to o.R.FollowedUserUsers.
+// Sets related.R.FollowerUserUsers appropriately.
+func (o *User) AddFollowedUserUsers(exec boil.Executor, insert bool, related ...*User) error {
+	var err error
+	for _, rel := range related {
+		if insert {
+			if err = rel.Insert(exec, boil.Infer()); err != nil {
+				return errors.Wrap(err, "failed to insert into foreign table")
+			}
+		}
+	}
+
+	for _, rel := range related {
+		query := "insert into \"follower_users_followed_users\" (\"follower_user_id\", \"followed_user_id\") values ($1, $2)"
+		values := []interface{}{o.ID, rel.ID}
+
+		if boil.DebugMode {
+			fmt.Fprintln(boil.DebugWriter, query)
+			fmt.Fprintln(boil.DebugWriter, values)
+		}
+		_, err = exec.Exec(query, values...)
+		if err != nil {
+			return errors.Wrap(err, "failed to insert into join table")
+		}
+	}
 	if o.R == nil {
 		o.R = &userR{
-			Follows: related,
+			FollowedUserUsers: related,
 		}
 	} else {
-		o.R.Follows = append(o.R.Follows, related...)
+		o.R.FollowedUserUsers = append(o.R.FollowedUserUsers, related...)
 	}
 
 	for _, rel := range related {
 		if rel.R == nil {
-			rel.R = &followR{
-				User: o,
+			rel.R = &userR{
+				FollowerUserUsers: UserSlice{o},
 			}
 		} else {
-			rel.R.User = o
+			rel.R.FollowerUserUsers = append(rel.R.FollowerUserUsers, o)
 		}
 	}
 	return nil
+}
+
+// SetFollowedUserUsers removes all previously related items of the
+// user replacing them completely with the passed
+// in related items, optionally inserting them as new records.
+// Sets o.R.FollowerUserUsers's FollowedUserUsers accordingly.
+// Replaces o.R.FollowedUserUsers with related.
+// Sets related.R.FollowerUserUsers's FollowedUserUsers accordingly.
+func (o *User) SetFollowedUserUsers(exec boil.Executor, insert bool, related ...*User) error {
+	query := "delete from \"follower_users_followed_users\" where \"follower_user_id\" = $1"
+	values := []interface{}{o.ID}
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err := exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+
+	removeFollowedUserUsersFromFollowerUserUsersSlice(o, related)
+	if o.R != nil {
+		o.R.FollowedUserUsers = nil
+	}
+	return o.AddFollowedUserUsers(exec, insert, related...)
+}
+
+// RemoveFollowedUserUsers relationships from objects passed in.
+// Removes related items from R.FollowedUserUsers (uses pointer comparison, removal does not keep order)
+// Sets related.R.FollowerUserUsers.
+func (o *User) RemoveFollowedUserUsers(exec boil.Executor, related ...*User) error {
+	var err error
+	query := fmt.Sprintf(
+		"delete from \"follower_users_followed_users\" where \"follower_user_id\" = $1 and \"followed_user_id\" in (%s)",
+		strmangle.Placeholders(dialect.UseIndexPlaceholders, len(related), 2, 1),
+	)
+	values := []interface{}{o.ID}
+	for _, rel := range related {
+		values = append(values, rel.ID)
+	}
+
+	if boil.DebugMode {
+		fmt.Fprintln(boil.DebugWriter, query)
+		fmt.Fprintln(boil.DebugWriter, values)
+	}
+	_, err = exec.Exec(query, values...)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove relationships before set")
+	}
+	removeFollowedUserUsersFromFollowerUserUsersSlice(o, related)
+	if o.R == nil {
+		return nil
+	}
+
+	for _, rel := range related {
+		for i, ri := range o.R.FollowedUserUsers {
+			if rel != ri {
+				continue
+			}
+
+			ln := len(o.R.FollowedUserUsers)
+			if ln > 1 && i < ln-1 {
+				o.R.FollowedUserUsers[i] = o.R.FollowedUserUsers[ln-1]
+			}
+			o.R.FollowedUserUsers = o.R.FollowedUserUsers[:ln-1]
+			break
+		}
+	}
+
+	return nil
+}
+
+func removeFollowedUserUsersFromFollowerUserUsersSlice(o *User, related []*User) {
+	for _, rel := range related {
+		if rel.R == nil {
+			continue
+		}
+		for i, ri := range rel.R.FollowerUserUsers {
+			if o.ID != ri.ID {
+				continue
+			}
+
+			ln := len(rel.R.FollowerUserUsers)
+			if ln > 1 && i < ln-1 {
+				rel.R.FollowerUserUsers[i] = rel.R.FollowerUserUsers[ln-1]
+			}
+			rel.R.FollowerUserUsers = rel.R.FollowerUserUsers[:ln-1]
+			break
+		}
+	}
 }
 
 // AddIssuedTokens adds the given related objects to the existing relationships

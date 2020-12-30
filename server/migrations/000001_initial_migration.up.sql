@@ -24,7 +24,6 @@ CREATE TABLE users (
    first_name text NOT NULL,
    last_name text NOT NULL,
    city text,
-   followers INT NOT NULL,
    type text NOT NULL,
    -- reference table
    avatar_id uuid REFERENCES blobs (id),
@@ -45,13 +44,10 @@ CREATE TABLE users (
 
 
 -- tracking followers for follow system
-CREATE TABLE follow(
-   user_id uuid NOT NULL REFERENCES users (id),
-   followed_id uuid NOT NULL REFERENCES users (id),
-   PRIMARY KEY (user_id, followed_id),
-   amount INT NOT NULL,
-   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE follower_users_followed_users(
+   follower_user_id uuid NOT NULL REFERENCES users (id), -- users who follow other users
+   followed_user_id uuid NOT NULL REFERENCES users (id), -- users who are followed by other users
+   PRIMARY KEY (follower_user_id, followed_user_id)
 );
 
 
