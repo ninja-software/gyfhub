@@ -7,6 +7,7 @@ import { GifObject, Message } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
+import { AppPalette } from "../../theme/colour"
 import { useParameterizedQuery, useQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
 
@@ -18,8 +19,13 @@ const useStyle = makeStyles((theme) => ({
 	keyboardContainer: {
 		marginTop: "15px",
 		height: "40%",
-		borderTop: "3px solid grey",
+		borderTop: "6px solid " + AppPalette.SecondaryPurple,
 		width: "100%",
+		border: "1px solid #000",
+		position: "absolute",
+		left: 0,
+		bottom: 0,
+		background: AppPalette.LightGray,
 	},
 	gifsGrid: {
 		display: "flex",
@@ -33,7 +39,7 @@ const useStyle = makeStyles((theme) => ({
 		margin: "10px 20px",
 	},
 	gifImage: {
-		width: "170px",
+		width: "250px",
 	},
 	searchBar: {
 		display: "flex",
@@ -103,7 +109,8 @@ export const ChatHub = () => {
 						label={<Typography variant="subtitle1">Search Gifs</Typography>}
 						variant="filled"
 						value={displayKey}
-						fullWidth
+						style={{ width: "90%" }}
+						InputProps={{ style: { fontSize: 40, padding: 10 } }}
 						onChange={(e) => searchOnChange(e.target.value)}
 					/>
 				</div>
@@ -116,6 +123,18 @@ export const ChatHub = () => {
 							</div>
 						)
 					})}
+
+					{searchKey == "" && (
+						<Typography variant="h1" color={"textSecondary"}>
+							Type Something!
+						</Typography>
+					)}
+
+					{searchKey != "" && searchResults.length <= 0 && (
+						<Typography variant="h1" color={"textSecondary"}>
+							no results for "{searchKey}"
+						</Typography>
+					)}
 				</div>
 			</div>
 		</div>
