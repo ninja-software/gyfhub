@@ -49,11 +49,10 @@ export const ChatHub = () => {
 	const id = searchArg.get("id")
 
 	//Public API that will echo messages sent to it back to the client
-	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/${id}`)
+	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
 	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
-		console.log(lastMessage?.data)
 		if (!lastMessage?.data) return
 		setUpcomingMessage(JSON.parse(lastMessage.data))
 	}, [lastMessage])
