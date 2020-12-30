@@ -54,10 +54,30 @@ const allHubs = (): Action<Opportunity> => {
 	}
 }
 
+const userStats = (): Action<any> => {
+	return {
+		method: "GET",
+		endpoint: `/stats/userStats`,
+		credentials: "include",
+		responseType: "json",
+	}
+}
+
+const globalStats = (): Action<any> => {
+	return {
+		method: "GET",
+		endpoint: `/stats/globalStats`,
+		credentials: "include",
+		responseType: "json",
+	}
+}
+
 export const queries = {
 	getMe,
 	opportunitiesMany,
 	opportunitiesSelf,
 	getOpportunity,
 	allHubs,
+	userStats,
+	globalStats,
 }

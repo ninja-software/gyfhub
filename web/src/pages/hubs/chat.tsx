@@ -6,6 +6,7 @@ import { GifObject, Message } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
+import { AppPalette } from "../../theme/colour"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
@@ -15,8 +16,13 @@ const useStyle = makeStyles((theme) => ({
 	keyboardContainer: {
 		marginTop: "15px",
 		height: "40%",
-		borderTop: "3px solid grey",
+		borderTop: "6px solid " + AppPalette.SecondaryPurple,
 		width: "100%",
+		border: "1px solid #000",
+		position: "absolute",
+		left: 0,
+		bottom: 0,
+		background: AppPalette.LightGray,
 	},
 	gifsGrid: {
 		display: "flex",
@@ -30,7 +36,7 @@ const useStyle = makeStyles((theme) => ({
 		margin: "10px 20px",
 	},
 	gifImage: {
-		width: "170px",
+		width: "250px",
 	},
 	searchBar: {
 		display: "flex",
@@ -50,6 +56,8 @@ export const ChatHub = () => {
 
 	//Public API that will echo messages sent to it back to the client
 	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/${id}`)
+	// const [socketUrl] = React.useState(`ws://http://10.254.25.190:8080/api/hubs/${id}`)
+
 	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
