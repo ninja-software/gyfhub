@@ -115,16 +115,6 @@ export const ChatHub = () => {
 	return (
 		<div className={classes.container}>
 			<div className={classes.messagesContainer}>
-				{/* {messages.map((m, idx) => {
-					return (
-						<div key={m + idx} className={classes.messageContainer}>
-							<div className={classes.avatarContainer}>
-								<UserAvatar size={70} {...currentUser} />
-							</div>
-							<img className={classes.messageImage} src={m} alt="" />
-						</div>
-					)
-				})} */}
 				{messageList.map((m, i) => (
 					<div key={i} className={classes.messageContainer}>
 						<div className={classes.avatarContainer}>
