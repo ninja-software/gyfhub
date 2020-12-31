@@ -2,23 +2,21 @@ import { Box, Button, ButtonGroup, Container, Popover } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import React, { useState } from "react"
-import { useParameterizedQuery } from "react-fetching-library"
+import { useParameterizedQuery, useQuery } from "react-fetching-library"
 import { useHistory } from "react-router-dom"
 import { AuthContainer } from "../controllers/auth"
 import { fetching } from "../fetching"
 import { titleCapitalization } from "../helpers/helper"
-import { AppPalette } from "../theme/colour"
+import { trunc } from "../pages/hubs/hubsList"
 import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
-import { trunc } from "../pages/hubs/hubsList"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
+			marginTop: "5px",
 			display: "flex",
-			height: "140px",
-			background: AppPalette.SecondaryPurple,
-			marginBottom: "10px",
+			height: "120px",
 		},
 		pageTitle: {
 			color: "white",
@@ -65,7 +63,7 @@ export const TopBar = () => {
 
 		// if only contain one element
 		if (elements.length === 1) {
-			if (elements[0] === "") setTitle("Dashboard")
+			if (elements[0] === "") setTitle("My Dashboard")
 			return
 		}
 

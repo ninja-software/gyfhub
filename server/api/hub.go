@@ -22,10 +22,11 @@ import (
 
 // HubController holds connection data for handlers
 type HubController struct {
-	Conn     *sqlx.DB
-	Auther   *gyfhub.Auther
-	BlobURL  string
-	HubConns map[string]*HubConn
+	Conn         *sqlx.DB
+	Auther       *gyfhub.Auther
+	BlobURL      string
+	HubConns     map[string]*HubConn
+	HubReactConn map[string]*HubReactionConn
 }
 
 // HubRouter router
@@ -35,21 +36,25 @@ func HubRouter(
 	auther *gyfhub.Auther,
 	blobURL string,
 	hubConns map[string]*HubConn,
+	hubReactConn map[string]*HubReactionConn,
 ) chi.Router {
 	c := &HubController{
 		conn,
 		auther,
 		blobURL,
 		hubConns,
+		hubReactConn,
 	}
 
 	r := chi.NewRouter()
 	r.Get("/{id}", WithError(WithMember(conn, jwtSecret, c.GetHub)))
 	r.Post("/create", WithError(WithMember(conn, jwtSecret, c.CreateHub)))
 	r.Post("/all", WithError(WithMember(conn, jwtSecret, c.All)))
+	r.Post("/reaction", WithError(WithMember(conn, jwtSecret, c.SendReaction)))
 
 	// websocket handler
 	r.HandleFunc("/ws/{id}", WithError(WithMember(conn, jwtSecret, c.handleServeWs)))
+	r.HandleFunc("/ws/{id}/reaction", WithError(WithMember(conn, jwtSecret, c.handleReactionWS)))
 
 	return r
 }
@@ -85,6 +90,70 @@ func (c *HubController) GetHub(w http.ResponseWriter, r *http.Request, u *db.Use
 	}
 
 	return helpers.EncodeJSON(w, NewHub(h, c.BlobURL))
+}
+
+type ReactionType string
+
+const (
+	Like ReactionType = "Like"
+	Hate ReactionType = "Hate"
+)
+
+func (e ReactionType) IsValid() bool {
+	switch e {
+	case Like, Hate:
+		return true
+	}
+	return false
+}
+
+type ReactionInput struct {
+	MessageID uuid.UUID    `json:"messageID"`
+	HubID     uuid.UUID    `json:"hubID"`
+	Reaction  ReactionType `json:"reaction"`
+}
+
+func (c *HubController) SendReaction(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	req := &ReactionInput{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		return http.StatusBadRequest, terror.New(err, "")
+	}
+	defer r.Body.Close()
+
+	if !req.Reaction.IsValid() {
+		return http.StatusBadRequest, terror.New(err, "")
+	}
+
+	react := &db.MessageReaction{
+		MessageID: req.MessageID.String(),
+		PosterID:  u.ID,
+		Reaction:  string(req.Reaction),
+	}
+
+	err = react.Insert(c.Conn, boil.Infer())
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	resp := &Reaction{
+		MessageReaction: react,
+		Poster:          NewUser(u, c.BlobURL),
+	}
+
+	d, err := json.Marshal(resp)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	spew.Dump(c.HubReactConn[req.HubID.String()].clients)
+	if _, ok := c.HubReactConn[req.HubID.String()]; ok {
+		for _, client := range c.HubReactConn[req.HubID.String()].clients {
+			client.send <- d
+		}
+	}
+
+	return helpers.EncodeJSON(w, true)
 }
 
 // HubInput input
@@ -156,6 +225,12 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 		qm.Load(
 			db.MessageRels.Sender,
 		),
+		qm.Load(
+			qm.Rels(
+				db.MessageRels.MessageReactions,
+				db.MessageReactionRels.Poster,
+			),
+		),
 	).All(c.Conn)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
@@ -194,10 +269,20 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	resp := []*Message{}
 
 	for _, m := range ms {
-		resp = append(resp, &Message{
-			Message: m,
-			Sender:  NewUser(m.R.Sender, c.BlobURL),
-		})
+		respMsg := &Message{
+			Message:   m,
+			Sender:    NewUser(m.R.Sender, c.BlobURL),
+			Reactions: []*Reaction{},
+		}
+
+		for _, react := range m.R.MessageReactions {
+			respMsg.Reactions = append(respMsg.Reactions, &Reaction{
+				MessageReaction: react,
+				Poster:          NewUser(react.R.Poster, c.BlobURL),
+			})
+		}
+
+		resp = append(resp, respMsg)
 	}
 
 	b, err := json.Marshal(resp)
@@ -270,9 +355,15 @@ var (
 	space   = []byte{' '}
 )
 
+type Reaction struct {
+	*db.MessageReaction
+	Poster *UserDetail `json:"poster"`
+}
+
 type Message struct {
 	*db.Message
-	Sender *UserDetail `json:"sender"`
+	Sender    *UserDetail `json:"sender"`
+	Reactions []*Reaction `json:"reactions"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -314,8 +405,9 @@ func (c *Client) readPump() {
 		// build response message
 		resp := []*Message{
 			{
-				Message: m,
-				Sender:  c.client,
+				Message:   m,
+				Sender:    c.client,
+				Reactions: []*Reaction{},
 			},
 		}
 
@@ -409,3 +501,94 @@ func (h *HubConn) run() {
 }
 
 // websocket code end message sending
+
+// HubConn store the hub channels
+type HubReactionConn struct {
+	// Registered clients.
+	clients map[string]*Client
+}
+
+// websocket code for reaction START
+func (c *HubController) handleReactionWS(w http.ResponseWriter, r *http.Request, u *db.User) (int, error) {
+	hubID := chi.URLParam(r, "id")
+
+	// find hub
+	h, err := db.FindHub(c.Conn, hubID)
+	if err != nil {
+		return http.StatusBadRequest, terror.New(err, "")
+	}
+
+	// check the hub is in the active hub list
+	if _, ok := c.HubReactConn[h.ID]; !ok {
+		// create new hub connection
+		c.HubReactConn[h.ID] = &HubReactionConn{
+			clients: make(map[string]*Client),
+		}
+	}
+
+	// create websocket connection
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	// set up the client
+	client := &Client{
+		ws:     ws,
+		send:   make(chan []byte, 256),
+		client: NewUser(u, c.BlobURL),
+		dbConn: c.Conn,
+		hubID:  hubID,
+	}
+
+	// add client to the hub
+	c.HubReactConn[h.ID].clients[u.ID] = client
+
+	go func() {
+		ticker := time.NewTicker(pingPeriod)
+		defer func() {
+			ticker.Stop()
+			delete(c.HubReactConn[h.ID].clients, u.ID)
+			client.ws.Close()
+		}()
+		for {
+			select {
+			case message, ok := <-client.send:
+				// spew.Dump(client.clientID)
+				client.ws.SetWriteDeadline(time.Now().Add(writeWait))
+				if !ok {
+					// The hub closed the channel.
+					client.ws.WriteMessage(websocket.CloseMessage, []byte{})
+					return
+				}
+
+				w, err := client.ws.NextWriter(websocket.TextMessage)
+				if err != nil {
+					return
+				}
+				w.Write(message)
+
+				// Add queued chat messages to the current websocket message.
+				n := len(client.send)
+				for i := 0; i < n; i++ {
+					w.Write(newline)
+					w.Write(<-client.send)
+				}
+
+				if err := w.Close(); err != nil {
+					return
+				}
+			case <-ticker.C:
+				client.ws.SetWriteDeadline(time.Now().Add(writeWait))
+				if err := client.ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
+			}
+		}
+	}()
+
+	// successfully connected
+	return http.StatusOK, nil
+}
+
+// websocket code for reaction END

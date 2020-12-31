@@ -10,7 +10,7 @@ ReactDOM.render(
 	<React.StrictMode>
 		<ClientContextProvider client={Client}>
 			<AuthContainer.Provider>
-				<Themes.Provider initialState={1}>
+				<Themes.Provider initialState={0}>
 					<App />
 				</Themes.Provider>
 			</AuthContainer.Provider>

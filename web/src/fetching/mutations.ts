@@ -115,6 +115,18 @@ const unfollow = (followedID: string): Action<boolean> => {
 	}
 }
 
+const sendReaction = (values: {}): Action<boolean> => {
+	return {
+		method: "POST",
+		endpoint: `/hubs/reaction`,
+		credentials: "include",
+		responseType: "json",
+		body: {
+			...values,
+		},
+	}
+}
+
 export const mutations = {
 	forgetPassword,
 	uploadFile,
@@ -125,4 +137,5 @@ export const mutations = {
 	createHub,
 	follow,
 	unfollow,
+	sendReaction,
 }
