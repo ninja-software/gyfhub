@@ -54,13 +54,11 @@ const useStyle = makeStyles((theme) => ({
 }))
 
 export const HubsList = () => {
-	const classes = useStyle()
-	const history = useHistory()
-
 	const [hubs, setHubs] = React.useState<Hub[]>([])
+	const history = useHistory()
 	const [searchKey, setSearchKey] = React.useState<string>("")
 	const { payload: data, loading, error } = useQuery<Hub[]>(fetching.queries.allHubs())
-
+	const classes = useStyle()
 	React.useEffect(() => {
 		if (loading || error || !data) return
 		setHubs(data)

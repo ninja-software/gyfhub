@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const Dashboard = () => {
-	const history = useHistory()
 	const { payload: currentUser, loading, error } = useQuery<User>(fetching.queries.getMe())
 	const classes = useStyles()
 	if (loading) return <CircularProgress />

@@ -62,7 +62,7 @@ export const HubCard = () => {
 			<div className={classes.hubList}>
 				{hubs.map((d, idx) => {
 					if (idx >= 3) {
-						return <div key={idx}></div>
+						return null
 					}
 					return (
 						<div onClick={() => history.push("/hubs/chat?id=" + d.id)} key={idx} className={classes.hubBtn}>

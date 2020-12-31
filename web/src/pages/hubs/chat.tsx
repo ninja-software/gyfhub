@@ -1,20 +1,21 @@
 import { makeStyles, TextField, Typography } from "@material-ui/core"
 import * as _ from "lodash"
 import * as React from "react"
-import { ExpButton } from "../../components/common/button"
 import { AuthContainer } from "../../controllers/auth"
-import { GifObject, Message } from "../../types/types"
+import { GifObject, Message, MessageReaction } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
 import { AppPalette } from "../../theme/colour"
-import { useParameterizedQuery, useQuery } from "react-fetching-library"
+import { useParameterizedQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
 		height: "95%",
 		width: "100%",
+		display: "flex",
+		flexDirection: "column",
 	},
 	keyboardContainer: {
 		marginTop: "15px",
@@ -57,11 +58,18 @@ export const ChatHub = () => {
 	const id = searchArg.get("id")
 
 	//Public API that will echo messages sent to it back to the client
-	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
+	const [chatSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
+	const [reactionSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}/reaction`)
 
-	// http://10.254.25.190:3000/
+	const [newReaction, setNewReaction] = React.useState<MessageReaction | null>(null)
+	const { lastMessage: lastReaction } = useWebSocket(reactionSocketURl)
 
-	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
+	React.useEffect(() => {
+		if (!lastReaction?.data) return
+		setNewReaction(JSON.parse(lastReaction.data))
+	}, [lastReaction])
+
+	const { sendMessage, lastMessage } = useWebSocket(chatSocketURl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
 		if (!lastMessage?.data) return
@@ -75,7 +83,6 @@ export const ChatHub = () => {
 	const { payload: gifData, error: gifError, loading: gifLoading, query: queryGif } = useParameterizedQuery<GifObject[]>(fetching.queries.gifMany)
 	React.useEffect(() => {
 		if (searchKey === "" || gifLoading) return
-		console.log(searchKey)
 		queryGif({ search: searchKey })
 	}, [searchKey])
 
@@ -99,17 +106,16 @@ export const ChatHub = () => {
 
 	const classes = useStyle()
 
-	if (!currentUser) {
+	if (!currentUser || id === null) {
 		return <div>an error occurred</div>
 	}
 	return (
 		<div className={classes.container}>
-			<MessageWindow newMessages={upcomingMessage} />
+			<MessageWindow newMessages={upcomingMessage} hubID={id} newReaction={newReaction} />
 
 			<div className={classes.keyboardContainer}>
 				<div className={classes.searchBar}>
 					<TextField
-						label={<Typography variant="subtitle1">Search Gifs</Typography>}
 						variant="filled"
 						value={displayKey}
 						style={{ width: "90%" }}
