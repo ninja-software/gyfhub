@@ -15,6 +15,7 @@ const useStyle = makeStyles((theme) => ({
 	top: {
 		display: "flex",
 		justifyContent: "space-between",
+		alignItems: "center",
 	},
 	cardBtn: {
 		height: "100px",
@@ -31,6 +32,11 @@ const useStyle = makeStyles((theme) => ({
 		justifyContent: "center",
 		alignItems: "center",
 	},
+	container: {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+	},
 }))
 
 export const FriendsCard = () => {
@@ -42,10 +48,10 @@ export const FriendsCard = () => {
 
 	if (!followersLoading && followingLoading) return <div>Loading</div>
 
-	if (!followersError && followingError) return <div>An error occured</div>
+	if (!followersError && followingError) return <div>An error occurred</div>
 
 	return (
-		<ExpCard>
+		<ExpCard className={classes.container}>
 			<div className={classes.top}>
 				<div>
 					<Typography variant="h3">
