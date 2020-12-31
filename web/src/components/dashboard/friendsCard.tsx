@@ -37,7 +37,6 @@ export const FriendsCard = () => {
 	const classes = useStyle()
 	const history = useHistory()
 
-	// todo query friends
 	const { payload: followers, loading: followersLoading, error: followersError } = useQuery<Follow[]>(fetching.queries.getFollowers())
 	const { payload: following, loading: followingLoading, error: followingError } = useQuery<Follow[]>(fetching.queries.getFollowing())
 
@@ -49,17 +48,12 @@ export const FriendsCard = () => {
 		<ExpCard>
 			<div className={classes.top}>
 				<div>
-					<Typography variant="h1">
-						<Box fontWeight="bold">Friends</Box>
+					<Typography variant="h3">
+						<Box>Followers: {followers && followers.length !== 0 ? <>{followers?.length}</> : 0} </Box>
 					</Typography>
 				</div>
 				<div>
-					<Typography variant="h2">
-						<Box>Followers: {followers?.length}</Box>
-					</Typography>
-				</div>
-				<div>
-					<Typography variant="h2">
+					<Typography variant="h3">
 						<Box>Following: {following?.length}</Box>
 					</Typography>
 				</div>
