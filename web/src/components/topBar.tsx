@@ -10,6 +10,7 @@ import { titleCapitalization } from "../helpers/helper"
 import { AppPalette } from "../theme/colour"
 import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
+import { trunc } from "../pages/hubs/hubsList"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -97,7 +98,7 @@ export const TopBar = () => {
 				</Button>
 			</Box>
 			<Typography className={classes.pageTitle} variant="h1" align="center">
-				{title}
+				{trunc(title, 12)}
 			</Typography>
 			<Account showButton={showButton} />
 		</Container>

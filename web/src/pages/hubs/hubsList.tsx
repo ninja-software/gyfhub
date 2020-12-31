@@ -42,6 +42,7 @@ const useStyle = makeStyles((theme) => ({
 	cardList: {
 		display: "flex",
 		flexWrap: "wrap",
+		marginTop: "25px",
 		justifyContent: "center",
 	},
 	searchBar: {
@@ -91,13 +92,21 @@ export const HubsList = () => {
 			<div className={classes.cardList}>
 				{hubs.map((h) => {
 					return (
-						<div className={classes.card}>
-							<div>{<Typography variant="h2">{h.name[0].toUpperCase()}</Typography>}</div>
-							<div>{<Typography variant="h4">{h.name}</Typography>}</div>
+						<div className={classes.card} onClick={() => history.push("/hubs/chat?id=" + h.id)}>
+							<div>{<Typography variant="h1">{h.name[0].toUpperCase()}</Typography>}</div>
+							<div>{<Typography variant="h3">{trunc(h.name)}</Typography>}</div>
 						</div>
 					)
 				})}
 			</div>
 		</div>
 	)
+}
+
+export const trunc = (str: string, num: number = 6) => {
+	if (str.length > num) {
+		return str.slice(0, num) + "..."
+	} else {
+		return str
+	}
 }

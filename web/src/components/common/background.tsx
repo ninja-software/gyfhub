@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
 	},
 	heading: {
 		paddingBottom: "20px",
-		fontSize: "120px",
+		fontSize: "150px !important",
 	},
 	containerStyles: {
 		display: "flex",

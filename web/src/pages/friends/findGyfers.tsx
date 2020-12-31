@@ -44,6 +44,7 @@ export const FindGyfers = () => {
 	const { payload: following, loading: followingLoading, error: followingError, query: refetch } = useQuery<Follow[]>(fetching.queries.getFollowing())
 
 	const [followingIDs, setFollowingIDs] = React.useState<string[]>([])
+
 	React.useEffect(() => {
 		if (followingLoading || !following) return
 		setFollowingIDs(following.map((f) => f.id))
