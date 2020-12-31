@@ -6,6 +6,7 @@ import { fetching } from "../../fetching"
 import { Follow, User } from "../../types/types"
 import { ExpCard } from "../../components/common/card"
 import { UserAvatar } from "../../components/common/avatar"
+import { trunc } from "../hubs/hubsList"
 
 const useStyles = makeStyles((theme) => ({
 	container: {
@@ -62,7 +63,7 @@ export const FindGyfers = () => {
 							<div className={classes.userDetail}>
 								<Typography variant="h3">
 									<Box className={classes.infoBox}>{`${g.firstName} ${g.lastName}`}</Box>
-									<Box className={classes.infoBox}>{g.email}</Box>
+									<Box className={classes.infoBox}>{trunc(g.email, 22)}</Box>
 									<Box className={classes.infoBox}>{g.city}</Box>
 								</Typography>
 							</div>

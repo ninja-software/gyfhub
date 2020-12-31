@@ -21,12 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			marginBottom: "10px",
 		},
 		pageTitle: {
-			width: "100%",
-			fontWeight: "bold",
-			fontSize: "40px",
-			paddingTop: "45px",
-			paddingBottom: "30px",
 			color: "white",
+			fontSize: "45px !important",
 		},
 		accountContainer: {
 			width: "100%",
@@ -37,9 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		logoButton: {
 			color: "white",
-			"&:hover": {
-				background: "transparent",
-			},
+			fontSize: "50px !important",
 		},
 		menuButton: {
 			marginTop: "20px",
@@ -91,15 +85,18 @@ export const TopBar = () => {
 	return (
 		<Container maxWidth={false} className={classes.root}>
 			<Box width="100%" alignItems="center" display="flex" justifyContent="center">
-				<Button className={classes.logoButton} onClick={() => history.push("/")}>
-					<Typography variant="h1" align="center">
-						GYFHUB
+				<Button onClick={() => history.push("/")}>
+					<Typography className={classes.logoButton} variant="h1" align="center">
+						GyfHub
 					</Typography>
 				</Button>
 			</Box>
-			<Typography className={classes.pageTitle} variant="h1" align="center">
-				{trunc(title, 12)}
-			</Typography>
+			<Box width="100%" alignItems="center" display="flex" justifyContent="center">
+				<Typography className={classes.pageTitle} variant="h1" align="center">
+					{trunc(title, 12)}
+				</Typography>
+			</Box>
+
 			<Account showButton={showButton} />
 		</Container>
 	)
