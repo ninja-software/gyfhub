@@ -18,6 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mailgun/mailgun-go/v3"
 	"github.com/ninja-software/terror"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/boil"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -200,6 +201,7 @@ func (c *AuthController) register(w http.ResponseWriter, r *http.Request) (int, 
 		FirstName:    req.Firstname,
 		PasswordHash: hashedB64,
 		Type:         string(Creative),
+		City:         null.StringFrom("Perth"),
 	}
 
 	err = user.Insert(tx, boil.Infer())

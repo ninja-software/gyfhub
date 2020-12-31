@@ -95,8 +95,8 @@ export const FindGyfers = () => {
 
 			<div>
 				{users.map((g, i) => (
-					<PageAnimations variant={"slideUp"} transition={"easeOut"} duration={0.4}>
-						<ExpCard key={i}>
+					<PageAnimations key={i} variant={"slideUp"} transition={"easeOut"} duration={0.4}>
+						<ExpCard>
 							<div className={classes.briefProfile}>
 								<UserAvatar {...g} size={105} />
 								<div className={classes.userDetail}>

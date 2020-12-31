@@ -10,13 +10,15 @@ import { titleCapitalization } from "../helpers/helper"
 import { trunc } from "../pages/hubs/hubsList"
 import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
+import { AppPalette } from "../theme/colour"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
-			marginTop: "5px",
 			display: "flex",
-			height: "120px",
+			height: "140px",
+			background: AppPalette.SecondaryPurple,
+			marginBottom: "10px",
 		},
 		pageTitle: {
 			color: "black",

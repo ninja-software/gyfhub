@@ -37,6 +37,7 @@ export const LoginPage = () => {
 	if (currentUser) {
 		return <Redirect to="/" />
 	}
+
 	return (
 		<AuthBackground label="Sign In">
 			{loginErrors && <Alert severity="error">Failed to login, please check your email and password</Alert>}
@@ -53,21 +54,15 @@ export const LoginPage = () => {
 						type="password"
 						margin="normal"
 					/>
-					<Grid container>
-						<Grid item xs>
-							<Link href="/forget_password" variant="h4">
-								Forgot password?
-							</Link>
-						</Grid>
-					</Grid>
+
 					<div className={classes.button}>
 						<ExpButton type="submit" fullWidth variant="contained" color="primary">
 							Sign In
 						</ExpButton>
 					</div>
 					<Grid container>
-						<Grid item>
-							<Link href="/sign_up" variant="h4">
+						<Grid item style={{ marginTop: "10px" }}>
+							<Link href="/sign_up" variant="h3">
 								{"Don't have an account? Sign Up"}
 							</Link>
 						</Grid>
