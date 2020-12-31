@@ -39,7 +39,7 @@ const PortalInner = () => {
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
 					<PrivateRoute path="/hubs" component={HubRoot} />
 
-					<PrivateRoute path="/follow" component={FollowRoot} />
+					<PrivateRoute path="/gyfers" component={FollowRoot} />
 
 					<PrivateRoute exact path="/" component={Dashboard} />
 					<PublicRoute path={"/"} component={FourZeroFour} />
