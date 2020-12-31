@@ -62,12 +62,12 @@ func (c *FollowController) ListFollowers(w http.ResponseWriter, r *http.Request,
 			db.UserRels.FollowerUserUsers,
 		),
 	}
-	count, err := u.FollowerUserUsers(queries...).Count(c.Conn)
+	followers, err := u.FollowerUserUsers(queries...).All(c.Conn)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "followed query")
 	}
 
-	return helpers.EncodeJSON(w, count)
+	return helpers.EncodeJSON(w, followers)
 
 }
 
@@ -78,12 +78,12 @@ func (c *FollowController) ListFollowing(w http.ResponseWriter, r *http.Request,
 			db.UserRels.FollowedUserUsers,
 		),
 	}
-	count, err := u.FollowedUserUsers(queries...).Count(c.Conn)
+	following, err := u.FollowedUserUsers(queries...).All(c.Conn)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "followed query")
 	}
 
-	return helpers.EncodeJSON(w, count)
+	return helpers.EncodeJSON(w, following)
 
 }
 

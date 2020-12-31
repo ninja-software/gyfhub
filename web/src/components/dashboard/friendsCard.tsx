@@ -38,8 +38,8 @@ export const FriendsCard = () => {
 	const history = useHistory()
 
 	// todo query friends
-	const { payload: followers, loading: followersLoading, error: followersError } = useQuery<Follow>(fetching.queries.getFollowers())
-	const { payload: following, loading: followingLoading, error: followingError } = useQuery<Follow>(fetching.queries.getFollowing())
+	const { payload: followers, loading: followersLoading, error: followersError } = useQuery<Follow[]>(fetching.queries.getFollowers())
+	const { payload: following, loading: followingLoading, error: followingError } = useQuery<Follow[]>(fetching.queries.getFollowing())
 
 	if (!followersLoading && followingLoading) return <div>Loading</div>
 
@@ -55,12 +55,12 @@ export const FriendsCard = () => {
 				</div>
 				<div>
 					<Typography variant="h2">
-						<Box>Followers: {followers}</Box>
+						<Box>Followers: {followers?.length}</Box>
 					</Typography>
 				</div>
 				<div>
 					<Typography variant="h2">
-						<Box>Following: {following}</Box>
+						<Box>Following: {following?.length}</Box>
 					</Typography>
 				</div>
 				<div>

@@ -210,7 +210,7 @@ func (c *UserController) UserMany(w http.ResponseWriter, r *http.Request, u *db.
 		}
 
 	}
-	users, err := db.Users(queries...).All(c.Conn)
+	users, err := db.Users().All(c.Conn)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return http.StatusInternalServerError, terror.New(err, "search filter users")
 	}
