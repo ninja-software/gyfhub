@@ -176,6 +176,34 @@ func Users(conn *sqlx.DB) error {
 		return terror.New(err, "failed to insert avatar")
 	}
 
+	// insert member user
+	u3 := UserFactory()
+	u3.Email = "darren@example.com"
+	u3.FirstName = "Darren"
+	u3.LastName = "Hung"
+	err = u3.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "failed to insert member user")
+	}
+
+	u4 := UserFactory()
+	u4.Email = "owen@example.com"
+	u4.FirstName = "Owen"
+	u4.LastName = "Giri"
+	err = u4.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "failed to insert member user")
+	}
+
+	u5 := UserFactory()
+	u5.Email = "aj@example.com"
+	u4.FirstName = "A"
+	u4.LastName = "J"
+	err = u5.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "failed to insert member user")
+	}
+
 	// insert random users
 	for i := 0; i < 15; i++ {
 		u := UserFactory()

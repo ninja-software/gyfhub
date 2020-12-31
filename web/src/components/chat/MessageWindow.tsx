@@ -179,7 +179,7 @@ const MessageContainer = (props: MessageContainerProps) => {
 				<div className={classes.reactionContainer}>
 					<div style={{ display: "flex", flexDirection: "column" }}>
 						<Button onClick={handleClick} aria-describedby={`gif-popover-${message.id}`}>
-							<img width="100%" src={message.content} alt="" onLoad={onLoad} />
+							<img width="100%" style={{ borderRadius: "15px" }} src={message.content} alt="" onLoad={onLoad} />
 						</Button>
 						<Box display="flex" marginTop="10px">
 							{message.reactions.filter((r) => r.reaction === "Like").length > 0 && (
@@ -267,7 +267,7 @@ const MessageContainer = (props: MessageContainerProps) => {
 													{l}
 												</Typography>
 											))}
-											<Typography variant="h2"> hate your post</Typography>
+											<Typography variant="h2"> dislike your post</Typography>
 										</Box>
 									</Popover>
 								</>
