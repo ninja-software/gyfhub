@@ -58,6 +58,9 @@ export const ChatHub = () => {
 
 	//Public API that will echo messages sent to it back to the client
 	const [socketUrl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
+
+	// http://10.254.25.190:3000/
+
 	const { sendMessage, lastMessage } = useWebSocket(socketUrl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
