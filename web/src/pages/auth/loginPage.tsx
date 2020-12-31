@@ -37,6 +37,7 @@ export const LoginPage = () => {
 	if (currentUser) {
 		return <Redirect to="/" />
 	}
+
 	return (
 		<AuthBackground label="Sign In">
 			{loginErrors && <Alert severity="error">Failed to login, please check your email and password</Alert>}

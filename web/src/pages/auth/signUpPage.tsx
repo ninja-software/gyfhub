@@ -43,8 +43,8 @@ const useStyles = makeStyles((theme) => ({
 		height: "350px",
 	},
 	inputStyle: {
-		paddingBottom: "10px",
-		paddingTop: "10px",
+		marginBottom: "10px",
+		marginTop: "10px",
 	},
 }))
 
@@ -114,16 +114,10 @@ export const SignUpForm = () => {
 					<ExpButton type="submit" fullWidth variant="contained" color="primary">
 						Sign Up
 					</ExpButton>
-					<Grid container justify="flex-end">
+					<Grid container justify="flex-end" style={{ marginTop: "15px" }}>
 						<Grid item>
-							<Link
-								style={{ paddingTop: "10px" }}
-								variant="body2"
-								onClick={() => {
-									history.push("/")
-								}}
-							>
-								Already have an account? Sign in
+							<Link href="/" variant="h4">
+								{"Already have an account? Sign in"}
 							</Link>
 						</Grid>
 					</Grid>
