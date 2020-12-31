@@ -94,7 +94,7 @@ export const UpdatePage = () => {
 		setCheck(true)
 
 		// general validation
-		if (!inputs.firstName || !inputs.lastName || !inputs.email || !inputs.city) return
+		if (!inputs.firstName || !inputs.email || !inputs.city) return
 
 		let avatarID: string | undefined = undefined
 		// upload avatar if provided
@@ -163,14 +163,6 @@ export const UpdatePage = () => {
 											name={"lastName"}
 											onChange={handleInputChange}
 											value={inputs.lastName}
-											helperText={
-												check &&
-												!inputs.lastName && (
-													<Typography color="error" variant="caption">
-														Last name is required
-													</Typography>
-												)
-											}
 										/>
 									</Grid>
 

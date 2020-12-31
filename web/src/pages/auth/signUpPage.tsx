@@ -114,11 +114,11 @@ export const SignUpForm = () => {
 					<ExpButton type="submit" fullWidth variant="contained" color="primary">
 						Sign Up
 					</ExpButton>
-					<Grid container justify="flex-end">
+					<Grid container justify="flex-end" style={{ marginTop: "30px" }}>
 						<Grid item>
 							<Link
-								style={{ paddingTop: "10px" }}
-								variant="body2"
+								style={{ paddingTop: "20px" }}
+								variant="h3"
 								onClick={() => {
 									history.push("/")
 								}}

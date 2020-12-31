@@ -66,8 +66,8 @@ export const LoginPage = () => {
 						</ExpButton>
 					</div>
 					<Grid container>
-						<Grid item>
-							<Link href="/sign_up" variant="h4">
+						<Grid item style={{ marginTop: "10px" }}>
+							<Link href="/sign_up" variant="h3">
 								{"Don't have an account? Sign Up"}
 							</Link>
 						</Grid>
