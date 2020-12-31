@@ -54,13 +54,7 @@ export const LoginPage = () => {
 						type="password"
 						margin="normal"
 					/>
-					<Grid container>
-						<Grid item xs>
-							<Link href="/forget_password" variant="h4">
-								Forgot password?
-							</Link>
-						</Grid>
-					</Grid>
+
 					<div className={classes.button}>
 						<ExpButton type="submit" fullWidth variant="contained" color="primary">
 							Sign In
