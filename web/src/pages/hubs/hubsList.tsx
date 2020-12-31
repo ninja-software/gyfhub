@@ -2,6 +2,7 @@ import { makeStyles, TextField, Typography } from "@material-ui/core"
 import React from "react"
 import { useQuery } from "react-fetching-library"
 import { useHistory } from "react-router-dom"
+import { PageAnimations } from "../../components/common/pageAnimations"
 import { fetching } from "../../fetching"
 import { Hub } from "../../types/types"
 
@@ -87,16 +88,18 @@ export const HubsList = () => {
 					onChange={(e) => setSearchKey(e.target.value)}
 				/>
 			</div>
-			<div className={classes.cardList}>
-				{hubs.map((h, i) => {
-					return (
-						<div className={classes.card} key={i} onClick={() => history.push("/hubs/chat?id=" + h.id)}>
-							<div>{<Typography variant="h1">{h.name[0].toUpperCase()}</Typography>}</div>
-							<div>{<Typography variant="h3">{trunc(h.name)}</Typography>}</div>
-						</div>
-					)
-				})}
-			</div>
+			<PageAnimations variant={"slideUp"} transition={"easeOut"} duration={0.5}>
+				<div className={classes.cardList}>
+					{hubs.map((h, i) => {
+						return (
+							<div className={classes.card} key={i} onClick={() => history.push("/hubs/chat?id=" + h.id)}>
+								<div>{<Typography variant="h1">{h.name[0].toUpperCase()}</Typography>}</div>
+								<div>{<Typography variant="h3">{trunc(h.name)}</Typography>}</div>
+							</div>
+						)
+					})}
+				</div>
+			</PageAnimations>
 		</div>
 	)
 }
