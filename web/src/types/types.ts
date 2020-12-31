@@ -123,5 +123,5 @@ export interface UserSearchFilterInput {
 export interface MessageReaction {
 	messageID: string
 	reaction: string
-	Poster: User
+	poster: User
 }
