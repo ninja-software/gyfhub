@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import { ExpInput } from "../../components/common/input"
 import { ExpButton } from "../../components/common/button"
 import { AuthBackground } from "../../components/common/background"
-import { Redirect, useHistory } from "react-router-dom"
+import { Redirect } from "react-router-dom"
 import { AuthContainer } from "../../controllers/auth"
 import { Alert } from "@material-ui/lab"
 import { Loading } from "../../components/common/loading"
@@ -59,7 +59,6 @@ export const SignUpPage = () => {
 export const SignUpForm = () => {
 	const classes = useStyles()
 	const { control, handleSubmit, errors } = useForm()
-	const history = useHistory()
 	const { currentUser, useRegister } = AuthContainer.useContainer()
 	const { register, loading, errors: registerErrors } = useRegister()
 

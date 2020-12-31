@@ -146,7 +146,6 @@ func (c *HubController) SendReaction(w http.ResponseWriter, r *http.Request, u *
 		return http.StatusInternalServerError, terror.New(err, "")
 	}
 
-	spew.Dump(c.HubReactConn[req.HubID.String()].clients)
 	if _, ok := c.HubReactConn[req.HubID.String()]; ok {
 		for _, client := range c.HubReactConn[req.HubID.String()].clients {
 			client.send <- d

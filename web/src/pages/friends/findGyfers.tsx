@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Avatar, Box, makeStyles, Typography, TextField } from "@material-ui/core"
+import { Box, makeStyles, Typography, TextField } from "@material-ui/core"
 import { ExpButton } from "../../components/common/button"
 import { useMutation, useQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
@@ -41,7 +41,7 @@ export const FindGyfers = () => {
 	const [search, setSearch] = React.useState<string>("")
 	const limit: number = 5
 
-	const { error, payload, loading, query } = useQuery<User[]>(
+	const { error, payload, loading } = useQuery<User[]>(
 		fetching.queries.getManyUsers({
 			search: search || "",
 			limit,
@@ -75,7 +75,7 @@ export const FindGyfers = () => {
 			setUsers(payload)
 			return
 		}
-		setUsers(payload.filter((d) => (d.firstName + d.lastName).includes(searchKey)))
+		setUsers(payload.filter((d) => (d.firstName + d.lastName).toLowerCase().includes(searchKey.toLowerCase())))
 	}, [searchKey])
 
 	if (followLoading && unfollowLoading) return null
