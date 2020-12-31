@@ -2,28 +2,30 @@ import { Box, Button, ButtonGroup, Container, Popover } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import Typography from "@material-ui/core/Typography"
 import React, { useState } from "react"
-import { useParameterizedQuery, useQuery } from "react-fetching-library"
+import { useParameterizedQuery } from "react-fetching-library"
 import { useHistory } from "react-router-dom"
 import { AuthContainer } from "../controllers/auth"
 import { fetching } from "../fetching"
 import { titleCapitalization } from "../helpers/helper"
+import { AppPalette } from "../theme/colour"
 import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
-			marginTop: "5px",
 			display: "flex",
-			height: "120px",
+			height: "140px",
+			background: AppPalette.SecondaryPurple,
+			marginBottom: "10px",
 		},
 		pageTitle: {
 			width: "100%",
-			color: "black",
 			fontWeight: "bold",
 			fontSize: "40px",
-			paddingTop: "30px",
+			paddingTop: "45px",
 			paddingBottom: "30px",
+			color: "white",
 		},
 		accountContainer: {
 			width: "100%",
@@ -33,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			justifyContent: "center",
 		},
 		logoButton: {
+			color: "white",
 			"&:hover": {
 				background: "transparent",
 			},
@@ -67,7 +70,7 @@ export const TopBar = () => {
 
 		// if only contain one element
 		if (elements.length === 1) {
-			if (elements[0] === "") setTitle("My Dashboard")
+			if (elements[0] === "") setTitle("Dashboard")
 			return
 		}
 
@@ -88,12 +91,12 @@ export const TopBar = () => {
 		<Container maxWidth={false} className={classes.root}>
 			<Box width="100%" alignItems="center" display="flex" justifyContent="center">
 				<Button className={classes.logoButton} onClick={() => history.push("/")}>
-					<Typography variant="h2" align="center">
+					<Typography variant="h1" align="center">
 						GYFHUB
 					</Typography>
 				</Button>
 			</Box>
-			<Typography className={classes.pageTitle} variant="h4" align="center">
+			<Typography className={classes.pageTitle} variant="h1" align="center">
 				{title}
 			</Typography>
 			<Account showButton={showButton} />
