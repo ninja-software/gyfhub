@@ -125,15 +125,20 @@ func (c *HubController) SendReaction(w http.ResponseWriter, r *http.Request, u *
 		return http.StatusBadRequest, terror.New(err, "")
 	}
 
-	resp := &db.MessageReaction{
+	react := &db.MessageReaction{
 		MessageID: req.MessageID.String(),
 		PosterID:  u.ID,
 		Reaction:  string(req.Reaction),
 	}
 
-	err = resp.Insert(c.Conn, boil.Infer())
+	err = react.Insert(c.Conn, boil.Infer())
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	resp := &Reaction{
+		MessageReaction: react,
+		Poster:          NewUser(u, c.BlobURL),
 	}
 
 	d, err := json.Marshal(resp)
@@ -220,6 +225,12 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 		qm.Load(
 			db.MessageRels.Sender,
 		),
+		qm.Load(
+			qm.Rels(
+				db.MessageRels.MessageReactions,
+				db.MessageReactionRels.Poster,
+			),
+		),
 	).All(c.Conn)
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
@@ -258,10 +269,20 @@ func (c *HubController) handleServeWs(w http.ResponseWriter, r *http.Request, u 
 	resp := []*Message{}
 
 	for _, m := range ms {
-		resp = append(resp, &Message{
-			Message: m,
-			Sender:  NewUser(m.R.Sender, c.BlobURL),
-		})
+		respMsg := &Message{
+			Message:   m,
+			Sender:    NewUser(m.R.Sender, c.BlobURL),
+			Reactions: []*Reaction{},
+		}
+
+		for _, react := range m.R.MessageReactions {
+			respMsg.Reactions = append(respMsg.Reactions, &Reaction{
+				MessageReaction: react,
+				Poster:          NewUser(react.R.Poster, c.BlobURL),
+			})
+		}
+
+		resp = append(resp, respMsg)
 	}
 
 	b, err := json.Marshal(resp)
@@ -334,9 +355,15 @@ var (
 	space   = []byte{' '}
 )
 
+type Reaction struct {
+	*db.MessageReaction
+	Poster *UserDetail `json:"poster"`
+}
+
 type Message struct {
 	*db.Message
-	Sender *UserDetail `json:"sender"`
+	Sender    *UserDetail `json:"sender"`
+	Reactions []*Reaction `json:"reactions"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -378,8 +405,9 @@ func (c *Client) readPump() {
 		// build response message
 		resp := []*Message{
 			{
-				Message: m,
-				Sender:  c.client,
+				Message:   m,
+				Sender:    c.client,
+				Reactions: []*Reaction{},
 			},
 		}
 

@@ -2,7 +2,7 @@ import { makeStyles, TextField, Typography } from "@material-ui/core"
 import * as _ from "lodash"
 import * as React from "react"
 import { AuthContainer } from "../../controllers/auth"
-import { GifObject, Message } from "../../types/types"
+import { GifObject, Message, MessageReaction } from "../../types/types"
 import { useHistory } from "react-router-dom"
 import useWebSocket from "react-use-websocket"
 import { MessageWindow } from "../../components/chat/MessageWindow"
@@ -60,10 +60,13 @@ export const ChatHub = () => {
 	//Public API that will echo messages sent to it back to the client
 	const [chatSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
 	const [reactionSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}/reaction`)
+
+	const [newReaction, setNewReaction] = React.useState<MessageReaction | null>(null)
 	const { lastMessage: lastReaction } = useWebSocket(reactionSocketURl)
 
 	React.useEffect(() => {
-		console.log(lastReaction)
+		if (!lastReaction?.data) return
+		setNewReaction(JSON.parse(lastReaction.data))
 	}, [lastReaction])
 
 	const { sendMessage, lastMessage } = useWebSocket(chatSocketURl)
@@ -108,7 +111,7 @@ export const ChatHub = () => {
 	}
 	return (
 		<div className={classes.container}>
-			<MessageWindow newMessages={upcomingMessage} hubID={id} />
+			<MessageWindow newMessages={upcomingMessage} hubID={id} newReaction={newReaction} />
 
 			<div className={classes.keyboardContainer}>
 				<div className={classes.searchBar}>

@@ -109,6 +109,7 @@ export interface Message {
 	content: string
 	sender: User
 	createdAt: string
+	reactions: MessageReaction[]
 }
 
 // Users/Clients search filter input
@@ -117,4 +118,10 @@ export interface UserSearchFilterInput {
 	limit?: number
 	offset?: number
 	excludedID?: string[]
+}
+
+export interface MessageReaction {
+	messageID: string
+	reaction: string
+	Poster: User
 }
