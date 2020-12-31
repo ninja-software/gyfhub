@@ -62,14 +62,18 @@ export const ChatHub = () => {
 	const [reactionSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}/reaction`)
 
 	const [newReaction, setNewReaction] = React.useState<MessageReaction | null>(null)
-	const { lastMessage: lastReaction } = useWebSocket(reactionSocketURl)
+	const { lastMessage: lastReaction } = useWebSocket(reactionSocketURl, {
+		shouldReconnect: () => false,
+	})
 
 	React.useEffect(() => {
 		if (!lastReaction?.data) return
 		setNewReaction(JSON.parse(lastReaction.data))
 	}, [lastReaction])
 
-	const { sendMessage, lastMessage } = useWebSocket(chatSocketURl)
+	const { sendMessage, lastMessage } = useWebSocket(chatSocketURl, {
+		shouldReconnect: () => false,
+	})
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
 		if (!lastMessage?.data) return
