@@ -100,3 +100,13 @@ CREATE TABLE messages (
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE message_reactions (
+   id uuid NOT NULL PRIMARY KEY DEFAULT gen_random_uuid (),
+   message_id uuid NOT NULL REFERENCES messages (id),
+   poster_id uuid NOT NULL REFERENCES users (id),
+   reaction text NOT NULL,
+   deleted_at timestamptz,
+   updated_at timestamptz NOT NULL DEFAULT NOW(),
+   created_at timestamptz NOT NULL DEFAULT NOW()
+);
+

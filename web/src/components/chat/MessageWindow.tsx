@@ -2,7 +2,7 @@ import * as React from "react"
 import Moment from "moment"
 import { AuthContainer } from "../../controllers/auth"
 import { Message } from "../../types/types"
-import { makeStyles, Typography } from "@material-ui/core"
+import { Button, makeStyles, Popover, Typography } from "@material-ui/core"
 import { UserAvatar } from "../common/avatar"
 
 const useStyle = makeStyles((theme) => ({
@@ -82,6 +82,19 @@ interface MessageContainerProps {
 const MessageContainer = (props: MessageContainerProps) => {
 	const { message, isSelf, onLoad } = props
 	const classes = useStyle()
+	const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>()
+	const [open, setOpen] = React.useState<boolean>(false)
+
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (isSelf) return
+		setAnchorEl(event.currentTarget)
+		setOpen(true)
+	}
+	const handleClose = () => {
+		if (isSelf) return
+		setAnchorEl(null)
+		setOpen(false)
+	}
 	return (
 		<div className={isSelf ? classes.selfMessage : classes.otherMessage}>
 			{!isSelf && (
@@ -89,8 +102,28 @@ const MessageContainer = (props: MessageContainerProps) => {
 					<UserAvatar size={70} {...message.sender} />
 				</div>
 			)}
-			<div className={classes.messageImage} onClick={() => console.log(message.id)}>
-				<img width="100%" src={message.content} alt="" onLoad={onLoad} />
+			<div className={classes.messageImage}>
+				<Button onClick={handleClick} aria-describedby={`gif-popover-${message.id}`}>
+					<img width="100%" src={message.content} alt="" onLoad={onLoad} />
+				</Button>
+				{!isSelf && (
+					<Popover
+						id={`gif-popover-${message.id}`}
+						open={open}
+						anchorEl={anchorEl}
+						onClose={handleClose}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "right",
+						}}
+						transformOrigin={{
+							vertical: "top",
+							horizontal: "left",
+						}}
+					>
+						Pop over testing
+					</Popover>
+				)}
 			</div>
 			<div className={classes.timestamp}>
 				<Typography variant="h4">{Moment(message.createdAt).format("HH:mm a")}</Typography>
