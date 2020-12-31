@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Avatar, Box, makeStyles, Typography } from "@material-ui/core"
+import { Avatar, Box, makeStyles, Typography, TextField } from "@material-ui/core"
 import { ExpButton } from "../../components/common/button"
 import { useMutation, useQuery } from "react-fetching-library"
 import { fetching } from "../../fetching"
@@ -25,6 +25,14 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: "10px",
 		fontWeight: "bolder",
 	},
+
+	searchBar: {
+		display: "flex",
+		flexWrap: "wrap",
+		justifyContent: "center",
+		marginTop: "20px",
+		marginBottom: "40px",
+	},
 }))
 
 export const FindGyfers = () => {
@@ -45,18 +53,47 @@ export const FindGyfers = () => {
 	const { payload: following, loading: followingLoading, error: followingError, query: refetch } = useQuery<Follow[]>(fetching.queries.getFollowing())
 
 	const [followingIDs, setFollowingIDs] = React.useState<string[]>([])
+	const [searchKey, setSearchKey] = React.useState<string>("")
+
+	const [users, setUsers] = React.useState<User[]>([])
 
 	React.useEffect(() => {
 		if (followingLoading || !following) return
 		setFollowingIDs(following.map((f) => f.id))
 	}, [following])
 
+	React.useEffect(() => {
+		if (!payload || error || loading) return
+		setUsers(payload)
+	}, [payload])
+
+	React.useEffect(() => {
+		if (!payload) return
+
+		if (searchKey == "" && payload) {
+			setUsers(payload)
+			return
+		}
+		setUsers(payload.filter((d) => (d.firstName + d.lastName).includes(searchKey)))
+	}, [searchKey])
+
 	if (followLoading && unfollowLoading) return null
 
 	return (
 		<div className={classes.container}>
+			<div className={classes.searchBar}>
+				<TextField
+					label={<Typography variant="h3">Search</Typography>}
+					variant="filled"
+					value={searchKey}
+					style={{ width: "100%" }}
+					InputProps={{ style: { fontSize: 40, padding: 10 } }}
+					onChange={(e) => setSearchKey(e.target.value)}
+				/>
+			</div>
+
 			<div>
-				{payload?.map((g, i) => (
+				{users.map((g, i) => (
 					<ExpCard key={i}>
 						<div className={classes.briefProfile}>
 							<UserAvatar {...g} size={105} />

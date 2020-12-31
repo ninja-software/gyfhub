@@ -99,14 +99,6 @@ export const HubCreatePage = () => {
 					Create Hub
 				</Typography>
 				<Container className={classes.containerStyle} maxWidth={false}>
-					<div className={classes.avatarDiv}>
-						<Typography variant="subtitle2">
-							<div>hub avatar goes here </div>
-							<Box marginTop="15px" color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>
-								Upload avatar
-							</Box>
-						</Typography>
-					</div>
 					<div>
 						<div className={classes.form}>
 							<Grid container spacing={6}>
