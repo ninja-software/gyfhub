@@ -56,8 +56,6 @@ const useStyles = makeStyles((theme) => ({
 
 export const CityOptions = ["Perth", "Sydney", "Melbourne", "Darwin", "Brisbane", "Adelaide", "Canberra", "Hobart"]
 
-const ValidateABN = new RegExp("^[0-9]{11}$")
-
 export const UpdatePage = () => {
 	const classes = useStyles()
 	const [avatar, setAvatar] = React.useState<File>()
