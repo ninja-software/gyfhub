@@ -82,6 +82,7 @@ export const MessageWindow = (props: MessageWindowProps) => {
 				return newM
 			})
 		})
+		handleOnloadComplete()
 	}, [newReaction])
 
 	// scroll to the bottom if the last gif is completed
@@ -109,17 +110,46 @@ interface MessageContainerProps {
 const MessageContainer = (props: MessageContainerProps) => {
 	const { message, isSelf, onLoad, hubID } = props
 	const classes = useStyle()
+	const { currentUser } = AuthContainer.useContainer()
 	const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>()
 	const [open, setOpen] = React.useState<boolean>(false)
 	const { mutate } = useMutation(fetching.mutations.sendReaction)
+	const [canReact, setCanReact] = React.useState<boolean>(!isSelf)
+
+	const [likerEl, setLikerEl] = React.useState<HTMLButtonElement | null>()
+	const [openLiker, setOpenLiker] = React.useState<boolean>(false)
+	const [likers, setLikers] = React.useState<string[]>([])
+
+	const [haterEl, setHaterEl] = React.useState<HTMLButtonElement | null>()
+	const [openHater, setOpenHater] = React.useState<boolean>(false)
+	const [haters, setHaters] = React.useState<string[]>([])
+
+	React.useEffect(() => {
+		let likes: string[] = []
+		let hates: string[] = []
+		// set Liker and Haters
+		message.reactions.forEach((r) => {
+			if (r.reaction === "Like") {
+				likes.push(`${r.poster.firstName} ${r.poster.lastName}`)
+				return
+			}
+			hates.push(`${r.poster.firstName} ${r.poster.lastName}`)
+		})
+		setLikers(likes)
+		setHaters(hates)
+
+		// check message can react function
+		if (isSelf || !currentUser) return
+		setCanReact(!message.reactions.some((r) => r.poster.id === currentUser.id))
+	}, [message])
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-		if (isSelf) return
+		if (!canReact) return
 		setAnchorEl(event.currentTarget)
 		setOpen(true)
 	}
 	const handleClose = () => {
-		if (isSelf) return
+		if (!canReact) return
 		setAnchorEl(null)
 		setOpen(false)
 	}
@@ -130,12 +160,14 @@ const MessageContainer = (props: MessageContainerProps) => {
 		setAnchorEl(null)
 		setOpen(false)
 	}
+
 	const onDislike = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
 		event.preventDefault()
 		mutate({ messageID: message.id, hubID, reaction: "Hate" })
 		setAnchorEl(null)
 		setOpen(false)
 	}
+
 	return (
 		<div className={isSelf ? classes.selfMessage : classes.otherMessage}>
 			{!isSelf && (
@@ -144,30 +176,106 @@ const MessageContainer = (props: MessageContainerProps) => {
 				</div>
 			)}
 			<div className={classes.messageImage}>
-				<Button onClick={handleClick} aria-describedby={`gif-popover-${message.id}`}>
-					<div className={classes.reactionContainer}>
-						<img width="100%" src={message.content} alt="" onLoad={onLoad} />
-						<Box display="flex">
+				<div className={classes.reactionContainer}>
+					<div style={{ display: "flex", flexDirection: "column" }}>
+						<Button onClick={handleClick} aria-describedby={`gif-popover-${message.id}`}>
+							<img width="100%" src={message.content} alt="" onLoad={onLoad} />
+						</Button>
+						<Box display="flex" marginTop="10px">
 							{message.reactions.filter((r) => r.reaction === "Like").length > 0 && (
 								<>
-									<Box marginRight="3px" marginLeft="8px">
-										<ThumbUp fontSize="large" />
-									</Box>
-									<Typography variant="h2">{`${message.reactions.filter((r) => r.reaction === "Like").length}`}</Typography>
+									<Button
+										aria-describedby={`liker-popover-${message.id}`}
+										onClick={(e) => {
+											e.preventDefault()
+											setLikerEl(e.currentTarget)
+											setOpenLiker(true)
+										}}
+									>
+										<Box display="flex">
+											<Box marginRight="3px" marginLeft="8px">
+												<ThumbUp fontSize="large" />
+											</Box>
+											<Typography variant="h2">{`${message.reactions.filter((r) => r.reaction === "Like").length}`}</Typography>
+										</Box>
+									</Button>
+									<Popover
+										id={`liker-popover-${message.id}`}
+										open={openLiker}
+										anchorEl={likerEl}
+										onClose={() => {
+											setLikerEl(null)
+											setOpenLiker(false)
+										}}
+										anchorOrigin={{
+											vertical: "bottom",
+											horizontal: "right",
+										}}
+										transformOrigin={{
+											vertical: "top",
+											horizontal: "left",
+										}}
+									>
+										<Box width="220px" height="fit-content" padding="3px">
+											{likers.map((l, i) => (
+												<Typography variant="h2" key={i}>
+													{l}
+												</Typography>
+											))}
+											<Typography variant="h2"> like your post</Typography>
+										</Box>
+									</Popover>
 								</>
 							)}
 							{message.reactions.filter((r) => r.reaction === "Hate").length > 0 && (
 								<>
-									<Box marginRight="3px" marginLeft="8px">
-										<ThumbDown fontSize="large" />
-									</Box>
-									<Typography variant="h2">{`${message.reactions.filter((r) => r.reaction === "Hate").length}`}</Typography>
+									<Button
+										aria-describedby={`hater-popover-${message.id}`}
+										onClick={(e) => {
+											e.preventDefault()
+											setHaterEl(e.currentTarget)
+											setOpenHater(true)
+										}}
+									>
+										<Box display="flex">
+											<Box marginRight="3px" marginLeft="8px">
+												<ThumbDown fontSize="large" />
+											</Box>
+											<Typography variant="h2">{`${message.reactions.filter((r) => r.reaction === "Hate").length}`}</Typography>
+										</Box>
+									</Button>
+									<Popover
+										id={`hater-popover-${message.id}`}
+										open={openHater}
+										anchorEl={haterEl}
+										onClose={() => {
+											setHaterEl(null)
+											setOpenHater(false)
+										}}
+										anchorOrigin={{
+											vertical: "bottom",
+											horizontal: "right",
+										}}
+										transformOrigin={{
+											vertical: "top",
+											horizontal: "left",
+										}}
+									>
+										<Box width="220px" height="fit-content" padding="3px">
+											{haters.map((l, i) => (
+												<Typography variant="h2" key={i}>
+													{l}
+												</Typography>
+											))}
+											<Typography variant="h2"> hate your post</Typography>
+										</Box>
+									</Popover>
 								</>
 							)}
 						</Box>
 					</div>
-				</Button>
-				{!isSelf && (
+				</div>
+				{canReact && (
 					<Popover
 						id={`gif-popover-${message.id}`}
 						open={open}

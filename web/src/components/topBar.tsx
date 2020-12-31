@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "120px",
 		},
 		pageTitle: {
-			color: "white",
+			color: "black",
 			fontSize: "45px !important",
 		},
 		accountContainer: {
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			justifyContent: "center",
 		},
 		logoButton: {
-			color: "white",
+			color: "black",
 			fontSize: "50px !important",
 		},
 		menuButton: {
