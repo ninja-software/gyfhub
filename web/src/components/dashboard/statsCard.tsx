@@ -162,10 +162,6 @@ export const StatsCard = () => {
 						<img className={classes.gifImage} src={globalStats.mostUsed || "https://media3.giphy.com/media/OSuaE6AknuRc7syZXp/giphy.gif"} alt="" />
 					</div>
 				</div>
-
-				<div className={classes.viewAllBtn}>
-					<ExpButton styleType={"tertiary"}>View all</ExpButton>
-				</div>
 			</div>
 		</ExpCard>
 	)
