@@ -113,7 +113,7 @@ export const UpdatePage = () => {
 	if (!currentUser) return null
 	return (
 		<div className={classes.container}>
-			<PageAnimations variant={"slideUp"} transition={"easeIn"} duration={0.5}>
+			<PageAnimations variant={"slideUp"} transition={"easeOut"} duration={0.4}>
 				<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
 					<Typography variant="h1" color="textPrimary" gutterBottom>
 						My Details
