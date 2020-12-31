@@ -9,7 +9,7 @@ import { UserType } from "../types/enum"
 import FourZeroFour from "./404"
 import { Dashboard } from "./dashboard"
 import { HubRoot } from "./hubs/root"
-import { OpportunitiesRoot } from "./opportunities/root"
+import { FollowRoot } from "./friends/followRoot"
 import { UpdatePage } from "./updatePage"
 
 const useStyle = makeStyles(() => ({
@@ -37,8 +37,10 @@ const PortalInner = () => {
 			<div className={classes.inner}>
 				<Switch>
 					<PrivateRoute path="/profile/update" component={UpdatePage} />
-					<PrivateRoute path="/opportunity" component={OpportunitiesRoot} />
 					<PrivateRoute path="/hubs" component={HubRoot} />
+
+					<PrivateRoute path="/follow" component={FollowRoot} />
+
 					<PrivateRoute exact path="/" component={Dashboard} />
 					<PublicRoute path={"/"} component={FourZeroFour} />
 				</Switch>

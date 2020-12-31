@@ -19,6 +19,12 @@ export interface Hub {
 	isPrivate?: boolean
 }
 
+export interface Follow {
+	id: string
+	follower: string
+	following: string
+}
+
 // todo complete this interface
 export interface Friend {
 	id: string
@@ -103,4 +109,12 @@ export interface Message {
 	content: string
 	sender: User
 	createdAt: string
+}
+
+// Users/Clients search filter input
+export interface UserSearchFilterInput {
+	search?: string
+	limit?: number
+	offset?: number
+	excludedID?: string[]
 }
