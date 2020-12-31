@@ -49,12 +49,12 @@ export const FriendsCard = () => {
 			<div className={classes.top}>
 				<div>
 					<Typography variant="h3">
-						<Box>Followers: {followers && followers.length !== 0 ? <>{followers?.length}</> : 0} </Box>
+						<Box>Followers: {followers?.length || 0} </Box>
 					</Typography>
 				</div>
 				<div>
 					<Typography variant="h3">
-						<Box>Following: {following?.length}</Box>
+						<Box>Following: {following?.length || 0}</Box>
 					</Typography>
 				</div>
 				<div>

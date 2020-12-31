@@ -10,6 +10,7 @@ import { Redirect, useHistory } from "react-router-dom"
 import { AuthContainer } from "../../controllers/auth"
 import { Alert } from "@material-ui/lab"
 import { Loading } from "../../components/common/loading"
+import { PageAnimations } from "../../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	form: {
@@ -72,60 +73,62 @@ export const SignUpForm = () => {
 	return (
 		<div>
 			{registerErrors && <Alert severity="error">Failed to register, please check your email and password</Alert>}
-			<form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
-				<Grid container spacing={2}>
-					<Grid item xs={12}>
-						<ExpInput
-							className={classes.inputStyle}
-							label="First Name"
-							name="firstName"
-							control={control}
-							errors={errors}
-							rules={{ required: "First Name is required" }}
-							variant="outlined"
-						/>
+			<PageAnimations variant={"slideFromLeft"} transition={"easeIn"} duration={0.8}>
+				<form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
+					<Grid container spacing={2}>
+						<Grid item xs={12}>
+							<ExpInput
+								className={classes.inputStyle}
+								label="First Name"
+								name="firstName"
+								control={control}
+								errors={errors}
+								rules={{ required: "First Name is required" }}
+								variant="outlined"
+							/>
+						</Grid>
+						<Grid item xs={12}>
+							<ExpInput
+								className={classes.inputStyle}
+								label="Email"
+								name="email"
+								control={control}
+								errors={errors}
+								rules={{ required: "Email is required" }}
+								variant="outlined"
+							/>
+						</Grid>
+						<Grid item xs={12}>
+							<ExpInput
+								label="Password"
+								name="password"
+								control={control}
+								errors={errors}
+								rules={{ required: "Password name is required" }}
+								variant="outlined"
+								type="password"
+								className={classes.inputStyle}
+							/>
+						</Grid>
 					</Grid>
-					<Grid item xs={12}>
-						<ExpInput
-							className={classes.inputStyle}
-							label="Email"
-							name="email"
-							control={control}
-							errors={errors}
-							rules={{ required: "Email is required" }}
-							variant="outlined"
-						/>
+					<ExpButton type="submit" fullWidth variant="contained" color="primary">
+						Sign Up
+					</ExpButton>
+					<Grid container justify="flex-end">
+						<Grid item>
+							<Link
+								style={{ paddingTop: "10px" }}
+								variant="body2"
+								onClick={() => {
+									history.push("/")
+								}}
+							>
+								Already have an account? Sign in
+							</Link>
+						</Grid>
 					</Grid>
-					<Grid item xs={12}>
-						<ExpInput
-							label="Password"
-							name="password"
-							control={control}
-							errors={errors}
-							rules={{ required: "Password name is required" }}
-							variant="outlined"
-							type="password"
-							className={classes.inputStyle}
-						/>
-					</Grid>
-				</Grid>
-				<ExpButton type="submit" fullWidth variant="contained" color="primary">
-					Sign Up
-				</ExpButton>
-				<Grid container justify="flex-end">
-					<Grid item>
-						<Link
-							style={{ paddingTop: "10px" }}
-							variant="body2"
-							onClick={() => {
-								history.push("/")
-							}}
-						>
-							Already have an account? Sign in
-						</Link>
-					</Grid>
-				</Grid>
-			</form>
+				</form>
+			</PageAnimations>
 			{loading && <Loading />}
 		</div>
 	)

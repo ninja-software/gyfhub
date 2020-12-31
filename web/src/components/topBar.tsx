@@ -7,6 +7,7 @@ import { useHistory } from "react-router-dom"
 import { AuthContainer } from "../controllers/auth"
 import { fetching } from "../fetching"
 import { titleCapitalization } from "../helpers/helper"
+import { trunc } from "../pages/hubs/hubsList"
 import { Hub } from "../types/types"
 import { UserAvatar } from "./common/avatar"
 
@@ -18,12 +19,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: "120px",
 		},
 		pageTitle: {
-			width: "100%",
-			color: "black",
-			fontWeight: "bold",
-			fontSize: "40px",
-			paddingTop: "30px",
-			paddingBottom: "30px",
+			color: "white",
+			fontSize: "45px !important",
 		},
 		accountContainer: {
 			width: "100%",
@@ -33,9 +30,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			justifyContent: "center",
 		},
 		logoButton: {
-			"&:hover": {
-				background: "transparent",
-			},
+			color: "white",
+			fontSize: "50px !important",
 		},
 		menuButton: {
 			marginTop: "20px",
@@ -87,15 +83,18 @@ export const TopBar = () => {
 	return (
 		<Container maxWidth={false} className={classes.root}>
 			<Box width="100%" alignItems="center" display="flex" justifyContent="center">
-				<Button className={classes.logoButton} onClick={() => history.push("/")}>
-					<Typography variant="h2" align="center">
-						GYFHUB
+				<Button onClick={() => history.push("/")}>
+					<Typography className={classes.logoButton} variant="h1" align="center">
+						GyfHub
 					</Typography>
 				</Button>
 			</Box>
-			<Typography className={classes.pageTitle} variant="h4" align="center">
-				{title}
-			</Typography>
+			<Box width="100%" alignItems="center" display="flex" justifyContent="center">
+				<Typography className={classes.pageTitle} variant="h1" align="center">
+					{trunc(title, 12)}
+				</Typography>
+			</Box>
+
 			<Account showButton={showButton} />
 		</Container>
 	)

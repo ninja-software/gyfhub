@@ -11,6 +11,7 @@ import { StatsCard } from "../components/dashboard/statsCard"
 
 import { fetching } from "../fetching"
 import { User } from "../types/types"
+import { PageAnimations } from "../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	container: {
@@ -30,22 +31,30 @@ export const Dashboard = () => {
 	return (
 		<div className={classes.container}>
 			<Box width="100%" marginRight="40px">
-				<UserDetailCard />
+				<PageAnimations variant={"slideFromRight"} transition={"easeOut"} duration={0.6}>
+					<UserDetailCard />
+				</PageAnimations>
 				<Box m={10} />
 			</Box>
 
 			<Box width="100%" marginRight="40px">
-				<HubCard />
+				<PageAnimations variant={"slideFromLeft"} transition={"easeOut"} duration={0.6}>
+					<HubCard />
+				</PageAnimations>
 				<Box m={10} />
 			</Box>
 
 			<Box width="100%" marginRight="40px">
-				<FriendsCard />
+				<PageAnimations variant={"slideFromRight"} transition={"easeOut"} duration={0.6}>
+					<FriendsCard />
+				</PageAnimations>
 				<Box m={10} />
 			</Box>
 
 			<Box width="100%" marginRight="40px">
-				<StatsCard />
+				<PageAnimations variant={"slideFromLeft"} transition={"easeOut"} duration={0.6}>
+					<StatsCard />
+				</PageAnimations>
 				<Box m={10} />
 			</Box>
 		</div>

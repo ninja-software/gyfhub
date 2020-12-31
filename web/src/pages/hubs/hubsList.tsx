@@ -88,9 +88,9 @@ export const HubsList = () => {
 				/>
 			</div>
 			<div className={classes.cardList}>
-				{hubs.map((h) => {
+				{hubs.map((h, i) => {
 					return (
-						<div className={classes.card} onClick={() => history.push("/hubs/chat?id=" + h.id)}>
+						<div className={classes.card} key={i} onClick={() => history.push("/hubs/chat?id=" + h.id)}>
 							<div>{<Typography variant="h1">{h.name[0].toUpperCase()}</Typography>}</div>
 							<div>{<Typography variant="h3">{trunc(h.name)}</Typography>}</div>
 						</div>
