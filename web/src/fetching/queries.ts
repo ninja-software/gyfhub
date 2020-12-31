@@ -1,5 +1,5 @@
 import { Action } from "react-fetching-library"
-import { Hub, Opportunity, User } from "../types/types"
+import { Follow, Hub, Opportunity, User, UserSearchFilterInput } from "../types/types"
 
 // Authentication
 const getMe = (): Action<User> => {
@@ -7,6 +7,18 @@ const getMe = (): Action<User> => {
 		method: "GET",
 		endpoint: `/users/me`,
 		credentials: "include",
+		responseType: "json",
+	}
+}
+
+const getManyUsers = (values: UserSearchFilterInput): Action<{ total: number }> => {
+	return {
+		method: "POST",
+		endpoint: `/users/many`,
+		credentials: "include",
+		body: {
+			...values,
+		},
 		responseType: "json",
 	}
 }
@@ -62,6 +74,21 @@ const getHub = (id: string): Action<Hub[]> => ({
 	responseType: "json",
 })
 
+// follow system
+
+const getFollowers = (): Action<Follow> => ({
+	method: "GET",
+	endpoint: `/followers/followers`,
+	credentials: "include",
+	responseType: "json",
+})
+
+const getFollowing = (): Action<Follow> => ({
+	method: "GET",
+	endpoint: `/followers/following`,
+	credentials: "include",
+	responseType: "json",
+})
 // gyf
 const gifMany = (values: {}): Action<boolean> => ({
 	method: "POST",
@@ -100,5 +127,8 @@ export const queries = {
 	userStats,
 	globalStats,
 	getHub,
+	getFollowers,
+	getFollowing,
 	gifMany,
+	getManyUsers,
 }
