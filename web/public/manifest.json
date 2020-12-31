@@ -5,10 +5,10 @@
 	"lang": "en-US",
 	"orientation": "portrait",
 	"start_url": "/",
-	"background_color": "#D229AE",
-	"theme_color": "#D229AE",
+	"background_color": "#9349E3",
+	"theme_color": "#9349E3",
 	"display": "fullscreen",
-	"description": "Get Instant Adult Entertainers for your venue.",
+	"description": "GyfHub.",
 	"icons": [
 		{
 			"src": "/android-chrome-192x192.png",
