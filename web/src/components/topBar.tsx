@@ -98,7 +98,7 @@ export const TopBar = () => {
 				</Button>
 			</Box>
 			<Typography className={classes.pageTitle} variant="h1" align="center">
-				{trunc(title, 10)}
+				{trunc(title, 12)}
 			</Typography>
 			<Account showButton={showButton} />
 		</Container>
