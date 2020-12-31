@@ -16,6 +16,7 @@ import { ExpButton } from "../components/common/button"
 import { AddBox, AddCircle } from "@material-ui/icons"
 import { UserAvatar } from "../components/common/avatar"
 import { AuthContainer } from "../controllers/auth"
+import { PageAnimations } from "../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	container: {
@@ -54,8 +55,6 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export const CityOptions = ["Perth", "Sydney", "Melbourne", "Darwin", "Brisbane", "Adelaide", "Canberra", "Hobart"]
-
-const ValidateABN = new RegExp("^[0-9]{11}$")
 
 export const UpdatePage = () => {
 	const classes = useStyles()
@@ -114,129 +113,131 @@ export const UpdatePage = () => {
 	if (!currentUser) return null
 	return (
 		<div className={classes.container}>
-			<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
-				<Typography variant="h1" color="textPrimary" gutterBottom>
-					My Details
-				</Typography>
-				<Typography variant="h4">
-					<Box color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>To continue, please update the rest of your profile.</Box>
-				</Typography>
-				<Container className={classes.containerStyle} maxWidth={false}>
-					<div className={classes.avatarDiv}>
-						<AvatarUploader avatar={avatar} setAvatar={setAvatar} {...currentUser} />
-						<Typography variant="subtitle2">
-							<Box marginTop="15px" color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>
-								Upload a profile photo
-							</Box>
-						</Typography>
-					</div>
-					<div>
-						<div className={classes.form}>
-							<Grid container spacing={6}>
-								<Grid item xs={12} sm={6}>
-									<TextField
-										InputProps={{ style: { fontSize: 30, padding: 10 } }}
-										label="First name"
-										variant="filled"
-										fullWidth
-										type="text"
-										name={"firstName"}
-										onChange={handleInputChange}
-										value={inputs.firstName}
-										helperText={
-											check &&
-											!inputs.firstName && (
-												<Typography color="error" variant="caption">
-													First name is required
-												</Typography>
-											)
-										}
-									/>
-								</Grid>
-								<Grid item xs={12} sm={6}>
-									<TextField
-										InputProps={{ style: { fontSize: 30, padding: 10 } }}
-										fullWidth
-										label="Last name"
-										type="text"
-										variant="filled"
-										name={"lastName"}
-										onChange={handleInputChange}
-										value={inputs.lastName}
-										helperText={
-											check &&
-											!inputs.lastName && (
-												<Typography color="error" variant="caption">
-													Last name is required
-												</Typography>
-											)
-										}
-									/>
-								</Grid>
-
-								<Grid item xs={12}>
-									<TextField
-										InputProps={{ style: { fontSize: 30, padding: 10 } }}
-										fullWidth
-										label="Email"
-										type="text"
-										variant="filled"
-										name={"email"}
-										onChange={handleInputChange}
-										value={inputs.email}
-										helperText={
-											check &&
-											!inputs.email && (
-												<Typography color="error" variant="caption">
-													Email is required
-												</Typography>
-											)
-										}
-									/>
-								</Grid>
-								<Grid item xs={12}>
-									<TextField
-										InputProps={{ style: { fontSize: 30, padding: 10 } }}
-										fullWidth
-										select
-										label="City"
-										name="city"
-										variant="filled"
-										value={inputs.city}
-										onChange={handleInputChange}
-										helperText={
-											check &&
-											!inputs.city && (
-												<Typography color="error" variant="caption">
-													City is required
-												</Typography>
-											)
-										}
-									>
-										{CityOptions.map((c, i) => (
-											<MenuItem value={c} key={i}>
-												{c}
-											</MenuItem>
-										))}
-									</TextField>
-								</Grid>
-								<Grid item xs={12}>
-									<ExpButton
-										type="submit"
-										fullWidth
-										variant="contained"
-										color="primary"
-										onClick={onSubmit}
-										disabled={uploadLoading || updateLoading || loading}
-									>
-										Update Profile
-									</ExpButton>
-								</Grid>
-							</Grid>
+			<PageAnimations variant={"slideUp"} transition={"easeOut"} duration={0.4}>
+				<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
+					<Typography variant="h1" color="textPrimary" gutterBottom>
+						My Details
+					</Typography>
+					<Typography variant="h4">
+						<Box color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>To continue, please update the rest of your profile.</Box>
+					</Typography>
+					<Container className={classes.containerStyle} maxWidth={false}>
+						<div className={classes.avatarDiv}>
+							<AvatarUploader avatar={avatar} setAvatar={setAvatar} {...currentUser} />
+							<Typography variant="subtitle2">
+								<Box marginTop="15px" color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>
+									Upload a profile photo
+								</Box>
+							</Typography>
 						</div>
-					</div>
-				</Container>
-			</ExpCard>
+						<div>
+							<div className={classes.form}>
+								<Grid container spacing={6}>
+									<Grid item xs={12} sm={6}>
+										<TextField
+											InputProps={{ style: { fontSize: 30, padding: 10 } }}
+											label="First name"
+											variant="filled"
+											fullWidth
+											type="text"
+											name={"firstName"}
+											onChange={handleInputChange}
+											value={inputs.firstName}
+											helperText={
+												check &&
+												!inputs.firstName && (
+													<Typography color="error" variant="caption">
+														First name is required
+													</Typography>
+												)
+											}
+										/>
+									</Grid>
+									<Grid item xs={12} sm={6}>
+										<TextField
+											InputProps={{ style: { fontSize: 30, padding: 10 } }}
+											fullWidth
+											label="Last name"
+											type="text"
+											variant="filled"
+											name={"lastName"}
+											onChange={handleInputChange}
+											value={inputs.lastName}
+											helperText={
+												check &&
+												!inputs.lastName && (
+													<Typography color="error" variant="caption">
+														Last name is required
+													</Typography>
+												)
+											}
+										/>
+									</Grid>
+
+									<Grid item xs={12}>
+										<TextField
+											InputProps={{ style: { fontSize: 30, padding: 10 } }}
+											fullWidth
+											label="Email"
+											type="text"
+											variant="filled"
+											name={"email"}
+											onChange={handleInputChange}
+											value={inputs.email}
+											helperText={
+												check &&
+												!inputs.email && (
+													<Typography color="error" variant="caption">
+														Email is required
+													</Typography>
+												)
+											}
+										/>
+									</Grid>
+									<Grid item xs={12}>
+										<TextField
+											InputProps={{ style: { fontSize: 30, padding: 10 } }}
+											fullWidth
+											select
+											label="City"
+											name="city"
+											variant="filled"
+											value={inputs.city}
+											onChange={handleInputChange}
+											helperText={
+												check &&
+												!inputs.city && (
+													<Typography color="error" variant="caption">
+														City is required
+													</Typography>
+												)
+											}
+										>
+											{CityOptions.map((c, i) => (
+												<MenuItem value={c} key={i}>
+													{c}
+												</MenuItem>
+											))}
+										</TextField>
+									</Grid>
+									<Grid item xs={12}>
+										<ExpButton
+											type="submit"
+											fullWidth
+											variant="contained"
+											color="primary"
+											onClick={onSubmit}
+											disabled={uploadLoading || updateLoading || loading}
+										>
+											Update Profile
+										</ExpButton>
+									</Grid>
+								</Grid>
+							</div>
+						</div>
+					</Container>
+				</ExpCard>
+			</PageAnimations>
 		</div>
 	)
 }

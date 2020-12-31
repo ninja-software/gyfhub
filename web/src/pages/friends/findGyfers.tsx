@@ -7,6 +7,7 @@ import { Follow, User } from "../../types/types"
 import { ExpCard } from "../../components/common/card"
 import { UserAvatar } from "../../components/common/avatar"
 import { trunc } from "../hubs/hubsList"
+import { PageAnimations } from "../../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	container: {
@@ -94,44 +95,46 @@ export const FindGyfers = () => {
 
 			<div>
 				{users.map((g, i) => (
-					<ExpCard key={i}>
-						<div className={classes.briefProfile}>
-							<UserAvatar {...g} size={105} />
-							<div className={classes.userDetail}>
-								<Typography variant="h3">
-									<Box className={classes.infoBox}>{`${g.firstName} ${g.lastName}`}</Box>
-									<Box className={classes.infoBox}>{trunc(g.email, 22)}</Box>
-									<Box className={classes.infoBox}>{g.city}</Box>
-								</Typography>
+					<PageAnimations variant={"slideUp"} transition={"easeOut"} duration={0.4}>
+						<ExpCard key={i}>
+							<div className={classes.briefProfile}>
+								<UserAvatar {...g} size={105} />
+								<div className={classes.userDetail}>
+									<Typography variant="h3">
+										<Box className={classes.infoBox}>{`${g.firstName} ${g.lastName}`}</Box>
+										<Box className={classes.infoBox}>{trunc(g.email, 22)}</Box>
+										<Box className={classes.infoBox}>{g.city}</Box>
+									</Typography>
+								</div>
 							</div>
-						</div>
 
-						{!followingIDs.includes(g.id) ? (
-							<ExpButton
-								onClick={async (e) => {
-									e.preventDefault()
-									const resp = await follow(g.id)
-									if (resp.payload) {
-										refetch()
-									}
-								}}
-							>
-								Follow
-							</ExpButton>
-						) : (
-							<ExpButton
-								onClick={async (e) => {
-									e.preventDefault()
-									const resp = await unfollow(g.id)
-									if (resp.payload) {
-										refetch()
-									}
-								}}
-							>
-								Unfollow
-							</ExpButton>
-						)}
-					</ExpCard>
+							{!followingIDs.includes(g.id) ? (
+								<ExpButton
+									onClick={async (e) => {
+										e.preventDefault()
+										const resp = await follow(g.id)
+										if (resp.payload) {
+											refetch()
+										}
+									}}
+								>
+									Follow
+								</ExpButton>
+							) : (
+								<ExpButton
+									onClick={async (e) => {
+										e.preventDefault()
+										const resp = await unfollow(g.id)
+										if (resp.payload) {
+											refetch()
+										}
+									}}
+								>
+									Unfollow
+								</ExpButton>
+							)}
+						</ExpCard>
+					</PageAnimations>
 				))}
 			</div>
 		</div>
