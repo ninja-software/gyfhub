@@ -62,7 +62,7 @@ export const HubCard = () => {
 			<div className={classes.hubList}>
 				{hubs.map((d, idx) => {
 					if (idx >= 3) {
-						return <></>
+						return null
 					}
 					return (
 						<div key={idx} onClick={() => history.push("/hubs/chat?id=" + d.id)} className={classes.hubBtn}>
@@ -73,7 +73,9 @@ export const HubCard = () => {
 				})}
 
 				<div className={classes.viewAllBtn}>
-					<ExpButton styleType={"tertiary"}>View all hubs</ExpButton>
+					<ExpButton onClick={() => history.push("/hubs")} styleType={"tertiary"}>
+						View all hubs
+					</ExpButton>
 				</div>
 			</div>
 		</ExpCard>

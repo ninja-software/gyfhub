@@ -54,7 +54,7 @@ func HubRouter(
 
 	// websocket handler
 	r.HandleFunc("/ws/{id}", WithError(WithMember(conn, jwtSecret, c.handleServeWs)))
-	r.HandleFunc("/ws/{id}/reaction", WithError(WithMember(conn, jwtSecret, c.handleServeWs)))
+	r.HandleFunc("/ws/{id}/reaction", WithError(WithMember(conn, jwtSecret, c.handleReactionWS)))
 
 	return r
 }
@@ -134,6 +134,18 @@ func (c *HubController) SendReaction(w http.ResponseWriter, r *http.Request, u *
 	err = resp.Insert(c.Conn, boil.Infer())
 	if err != nil {
 		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	d, err := json.Marshal(resp)
+	if err != nil {
+		return http.StatusInternalServerError, terror.New(err, "")
+	}
+
+	spew.Dump(c.HubReactConn[req.HubID.String()].clients)
+	if _, ok := c.HubReactConn[req.HubID.String()]; ok {
+		for _, client := range c.HubReactConn[req.HubID.String()].clients {
+			client.send <- d
+		}
 	}
 
 	return helpers.EncodeJSON(w, true)
@@ -506,45 +518,46 @@ func (c *HubController) handleReactionWS(w http.ResponseWriter, r *http.Request,
 
 	go func() {
 		ticker := time.NewTicker(pingPeriod)
-		select {
-		case message, ok := <-client.send:
-			// spew.Dump(client.clientID)
-			client.ws.SetWriteDeadline(time.Now().Add(writeWait))
-			if !ok {
-				// The hub closed the channel.
-				client.ws.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			w, err := client.ws.NextWriter(websocket.TextMessage)
-			if err != nil {
-				return
-			}
-			w.Write(message)
-
-			// Add queued chat messages to the current websocket message.
-			n := len(client.send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-client.send)
-			}
-
-			if err := w.Close(); err != nil {
-				return
-			}
-		case <-ticker.C:
-			client.ws.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := client.ws.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
-		case <-r.Context().Done():
+		defer func() {
 			ticker.Stop()
 			delete(c.HubReactConn[h.ID].clients, u.ID)
 			client.ws.Close()
+		}()
+		for {
+			select {
+			case message, ok := <-client.send:
+				// spew.Dump(client.clientID)
+				client.ws.SetWriteDeadline(time.Now().Add(writeWait))
+				if !ok {
+					// The hub closed the channel.
+					client.ws.WriteMessage(websocket.CloseMessage, []byte{})
+					return
+				}
+
+				w, err := client.ws.NextWriter(websocket.TextMessage)
+				if err != nil {
+					return
+				}
+				w.Write(message)
+
+				// Add queued chat messages to the current websocket message.
+				n := len(client.send)
+				for i := 0; i < n; i++ {
+					w.Write(newline)
+					w.Write(<-client.send)
+				}
+
+				if err := w.Close(); err != nil {
+					return
+				}
+			case <-ticker.C:
+				client.ws.SetWriteDeadline(time.Now().Add(writeWait))
+				if err := client.ws.WriteMessage(websocket.PingMessage, nil); err != nil {
+					return
+				}
+			}
 		}
 	}()
-
-	// go write()
 
 	// successfully connected
 	return http.StatusOK, nil

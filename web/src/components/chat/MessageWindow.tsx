@@ -4,6 +4,8 @@ import { AuthContainer } from "../../controllers/auth"
 import { Message } from "../../types/types"
 import { Button, makeStyles, Popover, Typography } from "@material-ui/core"
 import { UserAvatar } from "../common/avatar"
+import { useMutation } from "react-fetching-library"
+import { fetching } from "../../fetching"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
@@ -45,10 +47,11 @@ const useStyle = makeStyles((theme) => ({
 
 interface MessageWindowProps {
 	newMessages: Message[] | null
+	hubID: string
 }
 
 export const MessageWindow = (props: MessageWindowProps) => {
-	const { newMessages } = props
+	const { newMessages, hubID } = props
 	const { currentUser } = AuthContainer.useContainer()
 	const [messageList, setMessageList] = React.useState<Message[]>([])
 	const scrollDiv = React.useRef(document.createElement("div"))
@@ -68,7 +71,7 @@ export const MessageWindow = (props: MessageWindowProps) => {
 	return (
 		<div className={classes.container} ref={scrollDiv}>
 			{messageList.map((m, i) => (
-				<MessageContainer message={m} key={i} isSelf={currentUser.id === m.sender.id} onLoad={handleOnloadComplete} />
+				<MessageContainer hubID={hubID} message={m} key={i} isSelf={currentUser.id === m.sender.id} onLoad={handleOnloadComplete} />
 			))}
 		</div>
 	)
@@ -78,17 +81,20 @@ interface MessageContainerProps {
 	message: Message
 	isSelf: boolean
 	onLoad: () => void
+	hubID: string
 }
 const MessageContainer = (props: MessageContainerProps) => {
-	const { message, isSelf, onLoad } = props
+	const { message, isSelf, onLoad, hubID } = props
 	const classes = useStyle()
 	const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>()
 	const [open, setOpen] = React.useState<boolean>(false)
+	const { mutate } = useMutation(fetching.mutations.sendReaction)
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		if (isSelf) return
 		setAnchorEl(event.currentTarget)
 		setOpen(true)
+		mutate({ messageID: message.id, hubID, reaction: "Like" })
 	}
 	const handleClose = () => {
 		if (isSelf) return

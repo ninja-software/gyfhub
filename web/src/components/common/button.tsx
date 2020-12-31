@@ -5,15 +5,16 @@ import { PrimaryBlack, SecondaryPurple } from "../../theme/colour"
 
 const useStyles = makeStyles((theme) => ({
 	default: {
-		// background: "transparent linear-gradient(101deg, " + PrimaryBlack + " 0%, " + SecondaryPurple + " 100%) 0% 0%",
-		background: SecondaryPurple,
+		background: SecondaryPurple + " !important",
 		borderRadius: 3,
 		border: 0,
 		boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
-		textTransform: "none",
 		fontWeight: "bolder",
 		fontSize: "16px",
 		color: "white",
+		"&:focus": {
+			background: "SecondaryPurple",
+		},
 	},
 	bordered: {
 		border: "2px solid " + PrimaryBlack,
@@ -24,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
 		background: "#A8A8A8",
 		color: "white",
 		borderRadius: "5px",
-		"&:focus": {
-			background: "#A8A8A8",
-		},
 	},
 	pinkBackground: {
 		background: PrimaryBlack,

@@ -90,6 +90,43 @@ const createHub = (values: {}): Action<Hub> => {
 	}
 }
 
+// follow system
+const follow = (followedID: string): Action<boolean> => {
+	return {
+		method: "POST",
+		endpoint: `/followers/follow`,
+		credentials: "include",
+		responseType: "json",
+		body: {
+			followedID,
+		},
+	}
+}
+
+const unfollow = (followedID: string): Action<boolean> => {
+	return {
+		method: "POST",
+		endpoint: `/followers/unfollow`,
+		credentials: "include",
+		responseType: "json",
+		body: {
+			followedID,
+		},
+	}
+}
+
+const sendReaction = (values: {}): Action<boolean> => {
+	return {
+		method: "POST",
+		endpoint: `/hubs/reaction`,
+		credentials: "include",
+		responseType: "json",
+		body: {
+			...values,
+		},
+	}
+}
+
 export const mutations = {
 	forgetPassword,
 	uploadFile,
@@ -98,4 +135,7 @@ export const mutations = {
 	favouriteOpportunities,
 	unfavouriteOpportunities,
 	createHub,
+	follow,
+	unfollow,
+	sendReaction,
 }

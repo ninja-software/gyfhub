@@ -103,7 +103,7 @@ export const StatsCard = () => {
 					</div>
 
 					<div className={classes.hubBtn}>
-						<img className={classes.gifImage} src={myStats.mostUsed} alt="" />
+						<img className={classes.gifImage} src={myStats.mostUsed || "https://media3.giphy.com/media/OSuaE6AknuRc7syZXp/giphy.gif"} alt="" />
 					</div>
 				</div>
 
@@ -159,7 +159,7 @@ export const StatsCard = () => {
 					</div>
 
 					<div className={classes.hubBtn}>
-						<img className={classes.gifImage} src={globalStats.mostUsed} alt="" />
+						<img className={classes.gifImage} src={globalStats.mostUsed || "https://media3.giphy.com/media/OSuaE6AknuRc7syZXp/giphy.gif"} alt="" />
 					</div>
 				</div>
 

@@ -61,6 +61,11 @@ export const ChatHub = () => {
 	const [chatSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}`)
 	const [reactionSocketURl] = React.useState(`ws://localhost:8080/api/hubs/ws/${id}/reaction`)
 	const { lastMessage: lastReaction } = useWebSocket(reactionSocketURl)
+
+	React.useEffect(() => {
+		console.log(lastReaction)
+	}, [lastReaction])
+
 	const { sendMessage, lastMessage } = useWebSocket(chatSocketURl)
 	const [upcomingMessage, setUpcomingMessage] = React.useState<Message[] | null>([])
 	React.useEffect(() => {
@@ -98,12 +103,12 @@ export const ChatHub = () => {
 
 	const classes = useStyle()
 
-	if (!currentUser) {
+	if (!currentUser || id === null) {
 		return <div>an error occurred</div>
 	}
 	return (
 		<div className={classes.container}>
-			<MessageWindow newMessages={upcomingMessage} />
+			<MessageWindow newMessages={upcomingMessage} hubID={id} />
 
 			<div className={classes.keyboardContainer}>
 				<div className={classes.searchBar}>

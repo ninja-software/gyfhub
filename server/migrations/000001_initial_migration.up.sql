@@ -42,6 +42,15 @@ CREATE TABLE users (
    created_at timestamptz NOT NULL DEFAULT NOW()
 );
 
+
+-- tracking followers for follow system
+CREATE TABLE follower_users_followed_users(
+   follower_user_id uuid NOT NULL REFERENCES users (id), -- users who follow other users
+   followed_user_id uuid NOT NULL REFERENCES users (id), -- users who are followed by other users
+   PRIMARY KEY (follower_user_id, followed_user_id)
+);
+
+
 -- for users text search
 CREATE INDEX idx_fts_user_vec ON users USING gin (keywords);
 

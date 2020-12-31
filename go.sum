@@ -452,6 +452,7 @@ github.com/volatiletech/sqlboiler v3.7.1+incompatible h1:dm9/NjDskQVwAarmpeZ2UqL
 github.com/volatiletech/sqlboiler v3.7.1+incompatible/go.mod h1:jLfDkkHWPbS2cWRLkyC20vQWaIQsASEY7gM7zSo11Yw=
 github.com/volatiletech/sqlboiler/v4 v4.3.1 h1:qJzqvI9Imzyn7iJyE3ulCw8kL92ibqcZ6+m/1a+AwCk=
 github.com/volatiletech/sqlboiler/v4 v4.3.1/go.mod h1:h4RBAO6QbwMP3ezGmtfGljRms7S27cFIgF3rKgPKstE=
+github.com/volatiletech/sqlboiler/v4 v4.4.0 h1:aSlvHidRBuxHHQZNX3ZLGgzNVPVPzWqsC3lhcLbV/b0=
 github.com/volatiletech/strmangle v0.0.1 h1:UKQoHmY6be/R3tSvD2nQYrH41k43OJkidwEiC74KIzk=
 github.com/volatiletech/strmangle v0.0.1/go.mod h1:F6RA6IkB5vq0yTG4GQ0UsbbRcl3ni9P76i+JrTBKFFg=
 github.com/vultr/govultr v0.1.4/go.mod h1:9H008Uxr/C4vFNGLqKx232C206GL0PBHzOP0809bGNA=
