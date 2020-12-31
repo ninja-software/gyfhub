@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/ninja-software/terror"
 	"github.com/volatiletech/sqlboiler/v4/boil"
+	"syreclabs.com/go/faker"
 )
 
 func Run(conn *sqlx.DB) error {
@@ -25,6 +26,13 @@ func Run(conn *sqlx.DB) error {
 	if err != nil {
 		return terror.New(err, "seeding users failed")
 	}
+
+	fmt.Println("Seeding hubs")
+	err = Hubs(conn)
+	if err != nil {
+		return terror.New(err, "seeding hubs failed")
+	}
+
 	fmt.Println("Seed complete")
 	return nil
 }
@@ -262,4 +270,32 @@ func RandomAvatarBlob() (*db.Blob, error) {
 	}
 
 	return blob, nil
+}
+
+func Hubs(conn *sqlx.DB) error {
+	h := db.Hub{
+		Name:      "Ninja",
+		IsPrivate: false,
+	}
+	err := h.Insert(conn, boil.Infer())
+	if err != nil {
+		return terror.New(err, "hubs")
+	}
+
+	// insert random hubs
+	for i := 0; i < 5; i++ {
+		h := db.Hub{
+			Name:      faker.Company().Name(),
+			IsPrivate: false,
+		}
+		err := h.Insert(conn, boil.Infer())
+		if err != nil {
+			return terror.New(err, "hubs")
+		}
+		if err != nil {
+			return terror.New(err, "hubs")
+		}
+	}
+
+	return nil
 }
