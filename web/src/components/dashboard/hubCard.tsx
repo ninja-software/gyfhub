@@ -62,10 +62,10 @@ export const HubCard = () => {
 			<div className={classes.hubList}>
 				{hubs.map((d, idx) => {
 					if (idx >= 3) {
-						return <></>
+						return <div key={idx}></div>
 					}
 					return (
-						<div onClick={() => history.push("/hubs/chat?id=" + d.id)} className={classes.hubBtn}>
+						<div onClick={() => history.push("/hubs/chat?id=" + d.id)} key={idx} className={classes.hubBtn}>
 							{/* todo change to render avatar instead of initials */}
 							<Typography variant="h2">{d.name[0].toUpperCase()}</Typography>
 						</div>
