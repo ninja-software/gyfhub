@@ -15,6 +15,7 @@ import { PrimaryBlue, PrimaryPink } from "../../theme/colour"
 import { UserType } from "../../types/enum"
 import { User } from "../../types/types"
 import { useHistory } from "react-router-dom"
+import { PageAnimations } from "../../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	container: {
@@ -94,77 +95,79 @@ export const HubCreatePage = () => {
 	if (!currentUser) return null
 	return (
 		<div className={classes.container}>
-			<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
-				<Typography variant="h1" color="textPrimary" gutterBottom>
-					Create Hub
-				</Typography>
-				<Container className={classes.containerStyle} maxWidth={false}>
-					<div className={classes.avatarDiv}>
-						<Typography variant="subtitle2">
-							<div>hub avatar goes here </div>
-							<Box marginTop="15px" color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>
-								Upload avatar
-							</Box>
-						</Typography>
-					</div>
-					<div>
-						<div className={classes.form}>
-							<Grid container spacing={6}>
-								<Grid item xs={12}>
-									<TextField
-										InputProps={{ style: { fontSize: 20, padding: 10 } }}
-										label={
-											<Typography color="textPrimary" variant="h5">
-												{"Hub name"}
-											</Typography>
-										}
-										variant="filled"
-										fullWidth
-										type="text"
-										name={"hubName"}
-										onChange={(e) => setInputs({ ...inputs, hubName: e.target.value })}
-										value={inputs.hubName}
-										helperText={
-											check &&
-											!inputs.hubName && (
-												<Typography color="error" variant="caption">
-													Hub name is required
-												</Typography>
-											)
-										}
-									/>
-								</Grid>
-
-								<Typography variant="h6">
-									<FormControlLabel
-										control={
-											<CustomizedCheckbox checked={inputs.isPrivate} onChange={() => setInputs({ ...inputs, isPrivate: inputs.isPrivate ? false : true })} />
-										}
-										label={
-											<Typography variant="inherit">
-												<Box fontWeight="bold">Private</Box>
-											</Typography>
-										}
-									/>
-								</Typography>
-
-								<Grid item xs={12}>
-									<ExpButton
-										type="submit"
-										fullWidth
-										variant="contained"
-										color="primary"
-										onClick={onSubmit}
-										disabled={uploadLoading || updateLoading || loading}
-									>
-										Create
-									</ExpButton>
-								</Grid>
-							</Grid>
+			<PageAnimations variant={"slideUp"} transition={"easeIn"} duration={0.5}>
+				<ExpCard width="100%" maxWidth="800px" loading={uploadLoading || updateLoading || loading}>
+					<Typography variant="h1" color="textPrimary" gutterBottom>
+						Create Hub
+					</Typography>
+					<Container className={classes.containerStyle} maxWidth={false}>
+						<div className={classes.avatarDiv}>
+							<Typography variant="subtitle2">
+								<div>hub avatar goes here </div>
+								<Box marginTop="15px" color={currentUser.type === UserType.Business ? PrimaryBlue : PrimaryPink}>
+									Upload avatar
+								</Box>
+							</Typography>
 						</div>
-					</div>
-				</Container>
-			</ExpCard>
+						<div>
+							<div className={classes.form}>
+								<Grid container spacing={6}>
+									<Grid item xs={12}>
+										<TextField
+											InputProps={{ style: { fontSize: 20, padding: 10 } }}
+											label={
+												<Typography color="textPrimary" variant="h5">
+													{"Hub name"}
+												</Typography>
+											}
+											variant="filled"
+											fullWidth
+											type="text"
+											name={"hubName"}
+											onChange={(e) => setInputs({ ...inputs, hubName: e.target.value })}
+											value={inputs.hubName}
+											helperText={
+												check &&
+												!inputs.hubName && (
+													<Typography color="error" variant="caption">
+														Hub name is required
+													</Typography>
+												)
+											}
+										/>
+									</Grid>
+
+									<Typography variant="h6">
+										<FormControlLabel
+											control={
+												<CustomizedCheckbox checked={inputs.isPrivate} onChange={() => setInputs({ ...inputs, isPrivate: inputs.isPrivate ? false : true })} />
+											}
+											label={
+												<Typography variant="inherit">
+													<Box fontWeight="bold">Private</Box>
+												</Typography>
+											}
+										/>
+									</Typography>
+
+									<Grid item xs={12}>
+										<ExpButton
+											type="submit"
+											fullWidth
+											variant="contained"
+											color="primary"
+											onClick={onSubmit}
+											disabled={uploadLoading || updateLoading || loading}
+										>
+											Create
+										</ExpButton>
+									</Grid>
+								</Grid>
+							</div>
+						</div>
+					</Container>
+				</ExpCard>
+			</PageAnimations>
 		</div>
 	)
 }
