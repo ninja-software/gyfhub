@@ -6,7 +6,7 @@ import { Box, Button, makeStyles, Popover, Typography } from "@material-ui/core"
 import { UserAvatar } from "../common/avatar"
 import { useMutation } from "react-fetching-library"
 import { fetching } from "../../fetching"
-import { ThumbUp, ThumbDown } from "@material-ui/icons"
+import { ThumbUp, ThumbDown, Favorite } from "@material-ui/icons"
 
 const useStyle = makeStyles((theme) => ({
 	container: {
@@ -117,10 +117,22 @@ const MessageContainer = (props: MessageContainerProps) => {
 		if (isSelf) return
 		setAnchorEl(event.currentTarget)
 		setOpen(true)
-		mutate({ messageID: message.id, hubID, reaction: "Like" })
 	}
 	const handleClose = () => {
 		if (isSelf) return
+		setAnchorEl(null)
+		setOpen(false)
+	}
+
+	const onLike = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		event.preventDefault()
+		mutate({ messageID: message.id, hubID, reaction: "Like" })
+		setAnchorEl(null)
+		setOpen(false)
+	}
+	const onDislike = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+		event.preventDefault()
+		mutate({ messageID: message.id, hubID, reaction: "Hate" })
 		setAnchorEl(null)
 		setOpen(false)
 	}
@@ -170,7 +182,18 @@ const MessageContainer = (props: MessageContainerProps) => {
 							horizontal: "left",
 						}}
 					>
-						<Box className={classes.reactionButtonBar}>this is buttons</Box>
+						<Box className={classes.reactionButtonBar}>
+							<Box width="100%" display="flex" justifyContent="center" alignItems="center">
+								<Button onClick={onLike}>
+									<ThumbUp fontSize="large" />
+								</Button>
+							</Box>
+							<Box width="100%" display="flex" justifyContent="center" alignItems="center">
+								<Button onClick={onDislike}>
+									<ThumbDown fontSize="large" />
+								</Button>
+							</Box>
+						</Box>
 					</Popover>
 				)}
 			</div>
