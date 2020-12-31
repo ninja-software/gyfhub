@@ -10,6 +10,7 @@ import { Loading } from "../../components/common/loading"
 import { ExpButton } from "../../components/common/button"
 import { AuthBackground } from "../../components/common/background"
 import { Alert } from "@material-ui/lab"
+import { PageAnimations } from "../../components/common/pageAnimations"
 
 const useStyles = makeStyles((theme) => ({
 	form: {
@@ -39,38 +40,40 @@ export const LoginPage = () => {
 	return (
 		<AuthBackground label="Sign In">
 			{loginErrors && <Alert severity="error">Failed to login, please check your email and password</Alert>}
-			<form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
-				<ExpInput label="Email" name="email" control={control} errors={errors} rules={{ required: "Email is required" }} variant="outlined" margin="normal" />
-				<ExpInput
-					label="Password"
-					name="password"
-					control={control}
-					errors={errors}
-					rules={{ required: "Password is required" }}
-					variant="outlined"
-					type="password"
-					margin="normal"
-				/>
-				<Grid container>
-					<Grid item xs>
-						<Link href="/forget_password" variant="h4">
-							Forgot password?
-						</Link>
+			<PageAnimations variant={"slideFromRight"} transition={"easeIn"} duration={0.8}>
+				<form className={classes.form} noValidate onSubmit={handleSubmit(onSubmit)}>
+					<ExpInput label="Email" name="email" control={control} errors={errors} rules={{ required: "Email is required" }} variant="outlined" margin="normal" />
+					<ExpInput
+						label="Password"
+						name="password"
+						control={control}
+						errors={errors}
+						rules={{ required: "Password is required" }}
+						variant="outlined"
+						type="password"
+						margin="normal"
+					/>
+					<Grid container>
+						<Grid item xs>
+							<Link href="/forget_password" variant="h4">
+								Forgot password?
+							</Link>
+						</Grid>
 					</Grid>
-				</Grid>
-				<div className={classes.button}>
-					<ExpButton type="submit" fullWidth variant="contained" color="primary">
-						Sign In
-					</ExpButton>
-				</div>
-				<Grid container>
-					<Grid item>
-						<Link href="/sign_up" variant="h4">
-							{"Don't have an account? Sign Up"}
-						</Link>
+					<div className={classes.button}>
+						<ExpButton type="submit" fullWidth variant="contained" color="primary">
+							Sign In
+						</ExpButton>
+					</div>
+					<Grid container>
+						<Grid item>
+							<Link href="/sign_up" variant="h4">
+								{"Don't have an account? Sign Up"}
+							</Link>
+						</Grid>
 					</Grid>
-				</Grid>
-			</form>
+				</form>
+			</PageAnimations>
 			{loading && <Loading />}
 		</AuthBackground>
 	)
