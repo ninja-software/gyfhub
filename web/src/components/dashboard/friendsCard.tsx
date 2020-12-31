@@ -64,7 +64,7 @@ export const FriendsCard = () => {
 					</Typography>
 				</div>
 				<div>
-					<ExpButton onClick={() => history.push("/follow/find")}>Find Gyfers</ExpButton>
+					<ExpButton onClick={() => history.push("/gyfers/find")}>Find Gyfers</ExpButton>
 				</div>
 			</div>
 		</ExpCard>

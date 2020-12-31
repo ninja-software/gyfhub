@@ -7,8 +7,7 @@ import { FindGyfers } from "./findGyfers"
 export const FollowRoot = () => {
 	return (
 		<Switch>
-			<PrivateRoute exact path="/follow/find" component={FindGyfers} />
-			{/* <PrivateRoute exact path="/hubs/chat" component={ChatHub} /> */}
+			<PrivateRoute exact path="/gyfers/find" component={FindGyfers} />
 		</Switch>
 	)
 }
