@@ -114,23 +114,10 @@ export const SignUpForm = () => {
 					<ExpButton type="submit" fullWidth variant="contained" color="primary">
 						Sign Up
 					</ExpButton>
-<<<<<<< HEAD
 					<Grid container justify="flex-end" style={{ marginTop: "15px" }}>
 						<Grid item>
 							<Link href="/" variant="h4">
 								{"Already have an account? Sign in"}
-=======
-					<Grid container justify="flex-end" style={{ marginTop: "30px" }}>
-						<Grid item>
-							<Link
-								style={{ paddingTop: "20px" }}
-								variant="h3"
-								onClick={() => {
-									history.push("/")
-								}}
-							>
-								Already have an account? Sign in
->>>>>>> 810ae5c67da1b85060f2f0a9740e22f915a95f35
 							</Link>
 						</Grid>
 					</Grid>
